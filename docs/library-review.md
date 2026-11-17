@@ -4,7 +4,7 @@
 |---|---|
 | **Date** | 2026-11-17 |
 | **Phase** | F1, parts library (see [work-plan.md](work-plan.md)) |
-| **Status** | Ready for review |
+| **Status** | Approved 2026-11-17. Decisions §4: LDO ME6211 kept, PESD5V0S1BA, green 0805 rails / red 0603 channels. |
 
 Stock, prices and Basic/Extended status come from the JLCPCB parts library on 2026-11-17 (`scripts/jlc_parts.py`). All parts are in [`bom-master.csv`](bom-master.csv).
 

@@ -7,14 +7,14 @@ Close an item with date and result. If the result changes a design document, upd
 | # | Item | Source | Status |
 |---|---|---|---|
 | 1 | Refresh stock and Basic/Extended status of every line in `bom-master.csv` | CLAUDE.md §4 | ✅ 2026-11-17: done, see [library-review.md](library-review.md) §3 |
-| 2 | Check Basic status: ME6211, USBLC6-2SC6, crystal C115962, SS36, SMBJ30CA, BAT54S, SMF30CA, electrolytic caps, USB-C 16-pin, buttons | part 1/2/3 | ✅ 2026-11-17: only crystal and button are Basic; SMBJ30CA and SMF30CA Preferred; rest Extended. LDO: decision pending (review §4.1) |
+| 2 | Check Basic status: ME6211, USBLC6-2SC6, crystal C115962, SS36, SMBJ30CA, BAT54S, SMF30CA, electrolytic caps, USB-C 16-pin, buttons | part 1/2/3 | ✅ 2026-11-17: only crystal and button are Basic; SMBJ30CA and SMF30CA Preferred; rest Extended. LDO: ME6211 kept (2026-11-17) |
 | 3 | 4.12 kΩ 0.1 % 0603: concrete LCSC number | part 1 §7 | ✅ 2026-11-17: C2984354 (Viking AR03BTCX4121, 25 ppm) |
 | 4 | Channel fuse 5 A 1206: alternative with more stock than 85 pcs (C311004) | part 1 §7 | ✅ 2026-11-17: C311004 down to 39; replaced by Littelfuse 0466005.NRHF C57525 |
 | 5 | PESD2CAN: variant with the largest stock | part 2 | ✅ 2026-11-17: C907830 (89,116 pcs) |
 | 6 | PPTC JK-NSMD075 (C692900): check stock, otherwise a 0.75 A alternative in 1206 | part 3 §6 | ✅ 2026-11-17: out of stock; replaced by JK-nSMD075-16 C409806 |
 | 7 | 2-pole screw terminal 5.08 mm and JST-XH 2/3/4-pin: concrete parts (straight or right-angle follows from F2) | part 1/3 | 🟡 JST-XH chosen (vertical + right-angle alternatives in the BOM); screw terminal C8465 chosen, footprint in F2 |
 | 8 | Inductor 10 µH ≥ 4.5 A saturation, shared by all bucks | dock §4 | 🟡 C132141 chosen and footprint verified; value to be confirmed in F2 (WEBENCH) |
-| 8a | ESD diode for filament and LED lines (working voltage ≥ 5.5 V, Basic variant) | part 3, AD-14 | 🟡 No Basic part exists. Proposal PESD5V0S1BA (Vrwm 5 V): decision pending (review §4.2) |
+| 8a | ESD diode for filament and LED lines (working voltage ≥ 5.5 V, Basic variant) | part 3, AD-14 | ✅ 2026-11-17: PESD5V0S1BA C2827694; requirement relaxed to Vrwm ≥ 5 V, Vbr ≥ 6 V (part 3 updated) |
 | 8b | Heater rail bleeder resistor (4.7 kΩ, ≥ 0.25 W): recalculate discharge time with the real rail capacitance | part 1 §5.1 | ⏳ Part chosen (C17936); calculation after the schematic |
 | 8c | Bulk electrolytic 100 µF 50 V: no Basic part; choose with the ripple-current calculation | F1 | ⏳ F2 |
 | 8d | Main fuse: Littelfuse asks ≥ 100 µm copper and ≥ 10 mm trace at 20–30 A; include in the trunk calculation | F1, datasheet 0456 | ⏳ F2, with item 16 |

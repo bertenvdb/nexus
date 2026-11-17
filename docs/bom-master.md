@@ -20,7 +20,7 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | Cutoff/RPP FET | N-MOSFET 60V 1.6mOhm SuperSO8 | BSC016N06NS | C454269 | 2 | 1 | JLC | Extended | 6258 | 0.94 | 2026-11-17 | Easyeda footprint rejected (stray pad). KiCad footprint checked vs PG-TDSON-8 FL outline. Symbol = copy of Q_NMOS_SSSGD_AvalancheRated |
 | Buck | Buck 4.5-60V 3.5A SO8-PowerPAD | TPS54360BDDAR | C524806 | 1 | 2 | JLC | Extended | 39035 | 0.63 | stdlib | Tool: 5V. Dock: 5V + fan rail 12/5V |
 | Buck inductor | 10uH 4.5A sat 7x6.6mm shielded | MWSA0603S-100MT | C132141 | 1 | 2 | JLC | Extended | 21595 | 0.09 | 2026-11-17 | Pads corrected to datasheet land pattern (2.35x3.5 gap 3.7). Value to be confirmed with WEBENCH (F2). Alt: C436568 |
-| LDO | LDO 3.3V 500mA SOT-23-5 | ME6211C33M5G-N | C82942 | 2 | 1 | JLC | Extended | 274773 | 0.06 | stdlib | DECISION: Extended (not Basic as assumed). Basic alternative XC6206P332MR-G C5446 (200mA SOT-23-3) |
+| LDO | LDO 3.3V 500mA SOT-23-5 | ME6211C33M5G-N | C82942 | 2 | 1 | JLC | Extended | 274773 | 0.06 | stdlib | Extended (not Basic as assumed). Kept over Basic XC6206 for ADC reference noise (decided 2026-11-17) |
 | CAN transceiver | CAN transceiver 5V with VIO | TJA1051T/3/1J | C38695 | 1 | 1 | JLC | Extended | 141248 | 0.46 | stdlib | AD-12 populated |
 | CAN ESD | CAN bus ESD SOT-23 24V | PESD2CAN | C907830 | 1 | 1 | JLC | Extended | 89116 | 0.05 | 2026-11-17 | Pinout 1/2 = lines 3 = GND (datasheet p1). Symbol = copy of NUP2105L |
 | Crystal | 8MHz 20pF 5032 | X50328MSB2GI | C115962 | 1 | 1 | JLC | Basic | 507464 | 0.25 | stdlib | Load caps per AN2867 |
@@ -31,7 +31,7 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | Fan flyback | Schottky 40V 1A SOD-123 | B5819W SL | C8598 | 0 | 9 | JLC | Basic | 720194 | 0.03 | stdlib | Dock only. 40V > 24V fan rail |
 | Analog clamp | Dual Schottky SOT-23 | BAT54S | C408389 | 9 | 0 | JLC | Extended | 641231 | 0.02 | stdlib | No Basic found. 8 thermistor + 1 RAIL_SENSE |
 | Thermistor ESD | TVS 30V bidirectional SOD-123FL | SMF30CA | C19077519 | 8 | 0 | JLC | Preferred | 575614 | 0.03 | stdlib | Preferred Extended. Must not conduct at 24V |
-| Signal ESD | ESD diode 5V bidirectional SOD-323 | PESD5V0S1BA | C2827694 | 19 | 2 | JLC | Extended | 316355 | 0.04 | stdlib | DECISION: Vrwm 5V (design asked >=5.5V); Vbr 7V so no conduction at 5.25V. Alt SMF6.0A C19077499 Preferred but leakage up to 400uA. AD-14 |
+| Signal ESD | ESD diode 5V bidirectional SOD-323 | PESD5V0S1BA | C2827694 | 19 | 2 | JLC | Extended | 316355 | 0.04 | stdlib | Vrwm 5V / Vbr 7V: requirement relaxed to Vrwm >= 5V and Vbr >= 6V (decided 2026-11-17). AD-14 |
 | Pull-up NTC | 4.7k 0.1% 25ppm 0603 | TD03G4701BT | C666997 | 8 | 0 | JLC | Extended | 5489 | 0.02 | stdlib | Stock down from 12610 |
 | Pull-up PT1000 parallel | 4.12k 0.1% 25ppm 0603 | AR03BTCX4121 | C2984354 | 8 | 0 | JLC | Extended | 5214 | 0.03 | stdlib | Bridge closed = 2195 ohm |
 | Rail sense | Divider 100k + 10k 1% 0603, 1k series, 100nF | generic | C25803, C25804, C21190, C14663 | 1 set | 0 | JLC | Basic |  | 0.01 | stdlib | AD-13 |
@@ -52,8 +52,8 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | CAN termination | 2-pin header + jumper cap + 120R | PZ254V-11-02P, jumper cap | C492401 | 1 | 1 | SELF | Extended | 743995 | 0.02 | stdlib | Jumper cap C100114. 120R C22787 Basic (JLC) |
 | SWD header | 1x4 2.54mm | HX PZ2.54-1x4P ZZ | C32713270 | 1 | 1 | SELF | Extended | 113702 | 0.03 | stdlib | Optional populate |
 | Buttons | Tactile switch SMD 5.1x5.1 (BOOT + RESET) | TS-1187A-B-A-B | C318884 | 2 | 2 | JLC | Basic | 785115 | 0.02 | stdlib |  |
-| LED red | 0603 LED red (diagnostics, AD-17) | KT-0603R | C2286 | 9 | 1 | JLC | Basic | 5511325 | 0.01 | stdlib | DECISION colours. Tool: 8 heater-drain + MCU. Dock: MCU |
-| LED green | 0805 LED green (diagnostics, AD-17) | KT-0805G | C2297 | 5 | 5 | JLC | Basic | 3158185 | 0.02 | stdlib | DECISION colours. No Basic green 0603 in stock (C72043 = 0). Rails: 24V IN / HEATER RAIL or FAN RAIL / 5V / 3V3 / VBUS |
+| LED red | 0603 LED red (diagnostics, AD-17) | KT-0603R | C2286 | 9 | 1 | JLC | Basic | 5511325 | 0.01 | stdlib | Red for heater channels and MCU (decided 2026-11-17). Tool: 8 heater-drain + MCU. Dock: MCU |
+| LED green | 0805 LED green (diagnostics, AD-17) | KT-0805G | C2297 | 5 | 5 | JLC | Basic | 3158185 | 0.02 | stdlib | Green for rails (decided 2026-11-17). No Basic green 0603 in stock. Rails: 24V IN / HEATER RAIL or FAN RAIL / 5V / 3V3 / VBUS |
 | Passives | 0603 R/C generic | various | Basic | ~160 | ~85 | JLC | Basic |  | 0.005 | stdlib | Basic: 10k C25804, 100k C25803, 1k C21190, 5.1k C23186, 22R C23345, 330R C23138, 120R C22787, 1M C22935, 100nF C14663, 4.7nF C53987 |
 
 **Unique Extended parts placed by JLC: 20** (≈ $61 fee per order): AR03BTCX4121, BAT54S, BSC016N06NS, CD74HCT541M96, JK-nSMD075-16, LM74502DDFR, ME6211C33M5G-N, MWSA0603S-100MT, PESD2CAN, PESD5V0S1BA, SN74AHCT1G125DBVR, SS36, STM32G0B1RBT6, TBD, TD03G4701BT, TJA1051T/3/1J, TPS54360BDDAR, TYPE-C-31-M-12, USBLC6-2SC6, WSD4070DN33.

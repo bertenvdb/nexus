@@ -5,8 +5,8 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | Phase | Content | Status |
 |---|---|---|
 | F0 | Repo and tooling | ✅ Approved 2026-11-17 |
-| F1 | Parts library | 🔍 Ready for review ([library-review.md](library-review.md)) |
-| F2 | Pinout and mechanical constraints | ⏳ |
+| F1 | Parts library | ✅ Approved 2026-11-17 ([library-review.md](library-review.md)) |
+| F2 | Pinout and mechanical constraints | 🔄 In progress |
 | F3 | Schematic Nexus Tools Board | ⏳ |
 | F4 | Schematic Nexus Docks Board | ⏳ |
 | F5 | Layout Nexus Tools Board | ⏳ |

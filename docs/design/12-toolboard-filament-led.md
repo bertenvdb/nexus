@@ -18,7 +18,7 @@
 | LED level shifter | **SN74AHCT1G125DBVR** | C7484 | 4,815 | $0.05 | 1 | Extended |
 | Polyfuse (sensors and LED) | **JK-NSMD075**, 1206, 0.75 A hold / 1.5 A trip, 6 V | C692900 | *check at schematic stage* | ~$0.05 | 2 | Extended |
 | Pull-ups, series resistors, capacitors | 0603 | Basic | — | — | ≈ 50 (16 inputs × 3 + LED port) | Basic |
-| Signal ESD diodes | ≥ 5.5 V working voltage (16 inputs + VCC_FIL + LED DIN + LED 5V) | *Basic variant in F1* | — | ~$0.02 | 19 | Basic/Ext. |
+| Signal ESD diodes | **PESD5V0S1BA** (Vrwm 5 V, Vbr ≈ 7 V, SOD-323; 16 inputs + VCC_FIL + LED DIN + LED 5V) | C2827694 | 316,355 | $0.04 | 19 | Extended |
 | VCC selection solder jumper | 3 pads, on the PCB | — | — | free | 1 | — |
 
 This part adds **2 unique Extended parts**. They were already in the cost estimate as "LED shifter + PPTC".
@@ -62,7 +62,7 @@ A D2F uses only pins 1 and 2 (adjacent). Check the pinout of common sensors (e.g
 | **10 kΩ pull-up to 3.3 V** (MCU rail, not VCC_FIL) | A passive switch pulls to GND. Open-collector sensor outputs also work. The logic stays at 3.3 V, whatever the VCC choice. An unconnected input stays high, so no floating pin. |
 | **1 kΩ + 100 nF (τ ≈ 0.1 ms)** | Filters bounce and interference. Motion sensors give a few to a few dozen pulses per second, well below the limit of this filter. |
 | **FT pins only (5V tolerant, without analog function)** | Active 5V sensors may connect directly to the input. ST: FT pins are 5V tolerant as digital input, not in analog mode. |
-| **ESD diode per signal line** (AD-14) | Working voltage ≥ 5.5 V. Also on VCC_FIL. |
+| **ESD diode per signal line** (AD-14) | Vrwm ≥ 5 V and Vbr ≥ 6 V, so it never conducts at 5 V + 5 %. Also on VCC_FIL. *(Changed 2026-11-17: was "working voltage ≥ 5.5 V"; no Basic or low-leakage part met that, see library-review §4.2.)* |
 | **VCC_FIL default 5 V** *(changed: was 3.3 V)* | 8 active motion sensors (≈ 20–25 mA each) draw ≈ 0.2 A. From 3V3_AUX the ME6211 (SOT-23-5) would have to dissipate ≈ 0.3 W, which is too hot. From the 5V buck it is no problem. A D2F works on both. 3.3 V remains possible via the solder jumper, but max. 100 mA in total (silkscreen). |
 | **Shared 0.75 A polyfuse on VCC_FIL** | A short in a sensor cable does not pull down the MCU supply. |
 
