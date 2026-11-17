@@ -126,3 +126,15 @@ Connector widths (incl. 1 mm gap): screw terminal 5.08 mm 2-pole 10.2 mm, JST-XH
 | Copper | **1 oz** outer, power trunk 12 mm on L1 + L3 + L4 ([calculations.md](calculations.md) §2.1) |
 | JST-XH | **Straight (vertical)** |
 | Screw terminal | WJ500V-5.08-2P (C8465) on KiCad `TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal`: checked against the Kangnex drawing (pitch 5.08, recommended hole 1.2 mm vs 1.3 mm drill, pin row 4.5 vs 4.65 mm from the back, width 10.16 vs 10.26 mm) |
+
+## 8. Board size after placement (F5 step 1, 2026-11-17)
+
+The tool board is **140 × 90 mm**, not the ≈ 130 × 85 mm estimated in §4. With concept A the rows did not fit:
+
+| Constraint | Need |
+|---|---|
+| 8 filament JST-XH 4 at a pitch ≥ 13.6 mm (courtyard 13.5 mm) between the top corner keep-outs | ≥ 109 mm + 2 × ~10 mm corners |
+| 8 thermistor JST-XH 2 at 6.9 mm pitch + LED port on the right edge, clear of the corner holes | ≥ 72 mm between the keep-outs |
+| Filament input networks under the top row, thermistor networks along the right edge, without overlap | ≈ 10 mm extra width |
+
+Area +14 % (12,600 vs 11,050 mm²). Cost effect: to be checked with the JLC quote in F7; expected a few dollars on 5 boards.
