@@ -4,7 +4,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 
 | Phase | Content | Status |
 |---|---|---|
-| F0 | Repo and tooling | ⏳ |
+| F0 | Repo and tooling | 🔍 Ready for review |
 | F1 | Parts library | ⏳ |
 | F2 | Pinout and mechanical constraints | ⏳ |
 | F3 | Schematic Nexus Tools Board | ⏳ |
