@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Initial placement of the Nexus Docks Board (F6 step 1, brought forward).
 
-Board 100 x 70 mm, 2 layers (docs/mechanical.md §6): USB-C, CAN IN and XT30
-on the left edge (1.0 mm overhang), 9 fan ports along the top with their
-channel parts below, LED port / buttons / SWD on the right, the three power
-blocks in the bottom row and the diagnostic LEDs along the bottom edge.
+As small as possible, parts on the top side only, 4 layers (Berten,
+2026-11-17): USB-C, CAN IN and XT30 on the left edge (1.0 mm overhang); the
+vertical fan and LED connectors may sit anywhere, so the 9 fan ports form a
+3 x 3 block top-right with their channel parts below; logic in the middle,
+the three power blocks at the bottom.
 """
 import pathlib
 import sys
@@ -17,10 +18,11 @@ sys.path.insert(0, str(ROOT / "scripts" / "pcbgen"))
 import dockboard as sch  # noqa: E402
 from pcbgen import Pcb  # noqa: E402
 
-W, H = 100.0, 70.0
+import os
+W = float(os.environ.get("DOCK_W", "88"))
+H = float(os.environ.get("DOCK_H", "62"))
 HOLE = 6.1
 OVERHANG = 1.0
-FAN_X0, FAN_PITCH = 16.0, 7.2
 
 NETCLASSES = {
     "Default": dict(track=0.2),
@@ -49,7 +51,7 @@ def refs_by_key():
 def main():
     K = refs_by_key()
     r = lambda *keys: [K[k] for k in keys]
-    pcb = Pcb("dockboard", ROOT / "scripts" / "pcbgen" / "template_4layer.kicad_pcb", layers=2)
+    pcb = Pcb("dockboard", ROOT / "scripts" / "pcbgen" / "template_4layer.kicad_pcb", layers=4)
     tb = pcb.board.GetTitleBlock()
     tb.SetTitle("Nexus Docks Board")
     pcb.outline(W, H)
@@ -57,51 +59,62 @@ def main():
         pcb.hole(f"H{i + 1}", x, y)
 
     # ---- left edge: USB-C, CAN IN, XT30 (1.0 mm overhang, as the tool board)
-    pcb.edge(K["J_USB"], "left", 16.0, OVERHANG, rot=270)
-    pcb.edge(K["J_CAN_IN"], "left", 31.0, OVERHANG, rot=90)
-    pcb.edge(K["J_XT30"], "left", 50.0, OVERHANG, rot=90)
+    # stacked between the corner-hole keep-outs (hole courtyard + 0.3 mm),
+    # remaining space shared equally
+    stack = [("J_USB", 270), ("J_CAN_IN", 90), ("J_XT30", 90)]
+    spans = []
+    for key, rot in stack:
+        fp = pcb.edge(K[key], "left", 0.0, OVERHANG, rot=rot)
+        b0 = pcb.crt_box(fp)
+        spans.append((b0[1], b0[3]))              # y extent relative to `along` = 0
+    top, bottom = HOLE + 4.0, H - HOLE - 4.0
+    total = sum(s1 - s0 for s0, s1 in spans)
+    g = (bottom - top - total) / (len(stack) + 1)
+    if g < 0.3:
+        raise RuntimeError(f"left edge too short: need {total + 1.2 + 2 * (HOLE + 4.0):.1f} mm")
+    y = top + g
+    for (key, rot), (s0, s1) in zip(stack, spans):
+        pcb.edge(K[key], "left", y - s0, OVERHANG, rot=rot)
+        y += (s1 - s0) + g
+    obstacles = [pcb.crt_box(pcb.fps[K[k]]) for k in ("J_USB", "J_CAN_IN", "J_XT30")]
+    obstacles += [(x - 4.0, y - 4.0, x + 4.0, y + 4.0) for x, y in
+                  [(HOLE, HOLE), (W - HOLE, HOLE), (HOLE, H - HOLE), (W - HOLE, H - HOLE)]]
 
-    # ---- top edge: 9 fan ports, channel parts in a column below each
-    for i in range(9):
-        x = FAN_X0 + i * FAN_PITCH
-        pcb.edge(K[f"J_FAN{i}"], "top", x, -1.0, rot=90)
-        pcb.pack(r(f"Q_F{i}", f"D_FFB{i}", f"R_FG{i}", f"R_FGPD{i}"),
-                 (x - 3.5, 9.3, x + 3.5, 21.6), gap=0.3)
+    # ---- functional blocks, each packed compactly, then packed on the board
+    B = pcb.block
 
-    # ---- middle row: USB/CAN support, gate buffers, MCU, buttons/SWD
-    pcb.pack(r("U_USBESD", "R_CC1", "R_CC2", "R_SHIELD", "C_SHIELD"),
-             (13.0, 22.0, 26.0, 26.6), gap=0.3, rot=90)
-    pcb.pack(r("U_CAN", "D_CANESD", "C_CANVCC", "C_CANVIO", "R_TERM", "J_TERM"),
-             (13.0, 27.0, 24.0, 41.6), gap=0.4)
-    pcb.pack(r("U_GATEBUF", "U_GATE8", "C_GATEBUF", "C_GATE8") + [K[f"R_FIN{i}"] for i in range(9)],
-             (24.5, 22.0, 46.5, 41.6), rot=270, gap=0.4)
-    pcb.place(K["U_MCU"], 54.5, 31.5, rot=0)
-    pcb.pack(r("Y_MCU", "C_X1", "C_X2", "C_VDD1", "C_VDD2", "C_VBAT", "C_VREF1", "C_VREF3",
-               "R_VREF", "C_NRST", "R_BOOT"), (61.8, 22.0, 70.5, 41.6), gap=0.3)
-    pcb.pack(r("SW_RESET", "SW_BOOT", "J_SWD", "TP_3V3", "TP_5V", "TP_VBUS",
-               "TP_CANH", "TP_CANL"), (71.0, 22.0, 98.5, 41.6), gap=0.5)
-
-    # ---- right edge: LED port
-    pcb.edge(K["J_LED"], "right", 52.0, -1.0, rot=90)
-    pcb.pack(r("U_LEDBUF", "C_LEDBUF", "R_LEDPD", "R_LEDSER", "F_LED", "C_LED",
-               "D_LED5V", "D_LEDDIN"), (82.5, 42.0, 91.6, 60.0), gap=0.3)
-
-    # ---- bottom row: power input + reverse polarity, 5 V buck, fan buck
-    pcb.pack(r("F_IN", "D_TVS", "U_RPP", "Q_RPP", "C_BULK", "C_VCAP", "C_VS", "C_INT1",
-               "C_INT2", "TP_24VINT", "TP_GND"), (17.0, 42.0, 40.0, 65.8), gap=0.4)
-    pcb.pack(r("U_BUCK", "L_BUCK", "D_CATCH", "C_BIN1", "C_BIN2", "C_BIN3", "C_BOUT1",
-               "C_BOUT2", "C_BOUT3", "R_UV1", "R_UV2", "R_RT", "R_COMP", "C_COMP", "C_COMP2",
-               "C_BOOT", "R_FB1", "R_FB2", "D_OR_5V", "D_OR_VBUS", "C_L1IN", "U_LDO",
-               "C_L1OUT", "C_L1OUT2"), (40.4, 41.8, 61.4, 66.0), gap=0.35)
-    pcb.pack(r("U_FBUCK", "L_FBUCK", "D_FCATCH", "C_FIN1", "C_FIN2", "C_FIN3", "C_FOUT1",
-               "C_FOUT2", "C_FOUT3", "C_FOUT4", "R_FUV1", "R_FUV2", "R_FRT", "R_FCOMP",
-               "C_FCOMP", "C_FCOMP2", "C_FBOOT", "R_FFB_A", "R_FFB_B", "R_FFB_C",
-               "JP_FVSEL", "JP_FRAIL", "C_FRAIL", "TP_FRAIL"), (61.8, 41.8, 82.3, 66.0), gap=0.35)
-
-    # ---- diagnostic LEDs along the bottom edge
-    pcb.pack(r("R_L24VIN", "D_L24VIN", "R_LFRAIL", "D_LFRAIL", "R_L5V", "D_L5V",
-               "R_L3V3", "D_L3V3", "R_LVBUS", "D_LVBUS", "R_LMCU", "D_LMCU"),
-             (10.5, 66.2, 89.5, 69.6), gap=0.6, sort=False)
+    def near(blk, x, y):
+        blk["near"] = (x, y)
+        return blk
+    # targets: next to their connector / their neighbours (routing)
+    blocks = [near(B(r(f"J_FAN{i}", f"Q_F{i}", f"D_FFB{i}", f"R_FG{i}", f"R_FGPD{i}"),
+                     widths=(9, 10, 11, 12)), W - 8 - 11 * (i % 3), 10 + 12 * (i // 3))
+              for i in range(9)]
+    blocks += [
+        near(B(r("U_MCU", "Y_MCU", "C_X1", "C_X2", "C_VDD1", "C_VDD2", "C_VBAT", "C_VREF1",
+                 "C_VREF3", "R_VREF", "C_NRST", "R_BOOT", "SW_RESET", "SW_BOOT", "J_SWD",
+                 "TP_3V3", "TP_5V"), first=K["U_MCU"], widths=(18, 20, 22, 24, 26)), 30, 30),
+        near(B(r("U_GATEBUF", "U_GATE8", "C_GATEBUF", "C_GATE8") + [K[f"R_FIN{i}"] for i in range(9)]),
+             46, 30),
+        near(B(r("U_USBESD", "R_CC1", "R_CC2", "R_SHIELD", "C_SHIELD", "TP_VBUS")), 15, 13),
+        near(B(r("U_CAN", "D_CANESD", "C_CANVCC", "C_CANVIO", "R_TERM", "J_TERM", "TP_CANH",
+                 "TP_CANL")), 18, 26),
+        near(B(r("F_IN", "D_TVS", "U_RPP", "Q_RPP", "C_BULK", "C_VCAP", "C_VS", "C_INT1",
+                 "C_INT2", "TP_24VINT", "TP_GND")), 20, 46),
+        near(B(r("U_BUCK", "L_BUCK", "D_CATCH", "C_BIN1", "C_BIN2", "C_BIN3", "C_BOUT1",
+                 "C_BOUT2", "C_BOUT3", "R_UV1", "R_UV2", "R_RT", "R_COMP", "C_COMP", "C_COMP2",
+                 "C_BOOT", "R_FB1", "R_FB2", "D_OR_5V", "D_OR_VBUS", "C_L1IN", "U_LDO",
+                 "C_L1OUT", "C_L1OUT2")), 32, 50),
+        near(B(r("U_FBUCK", "L_FBUCK", "D_FCATCH", "C_FIN1", "C_FIN2", "C_FIN3", "C_FOUT1",
+                 "C_FOUT2", "C_FOUT3", "C_FOUT4", "R_FUV1", "R_FUV2", "R_FRT", "R_FCOMP",
+                 "C_FCOMP", "C_FCOMP2", "C_FBOOT", "R_FFB_A", "R_FFB_B", "R_FFB_C",
+                 "JP_FVSEL", "JP_FRAIL", "C_FRAIL", "TP_FRAIL")), 50, 50),
+        near(B(r("J_LED", "U_LEDBUF", "C_LEDBUF", "R_LEDPD", "R_LEDSER", "F_LED", "C_LED",
+                 "D_LED5V", "D_LEDDIN")), W - 14, H - 10),
+        B(r("R_L24VIN", "D_L24VIN", "R_LFRAIL", "D_LFRAIL", "R_L5V", "D_L5V",
+            "R_L3V3", "D_L3V3", "R_LVBUS", "D_LVBUS", "R_LMCU", "D_LMCU")),
+    ]
+    pcb.place_blocks(blocks, (0.6, 0.6, W - 0.6, H - 0.6), obstacles, gap=0.6)
 
     left = pcb.unplaced()
     if left:

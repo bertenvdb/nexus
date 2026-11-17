@@ -153,7 +153,8 @@ MCU_PINS = {
 }
 
 
-def mcu(b, pins=None, v33="+3V3_MCU", star=True, spare=13, pinout_doc="pinout-toolboard.md"):
+def mcu(b, pins=None, v33="+3V3_MCU", star=True, spare=13, pinout_doc="pinout-toolboard.md",
+        button="BTN"):
     """MCU sheet, shared by both boards (dock: v33 "+3V3", star=False)."""
     title = ("STM32G0B1RBT6, crystal, reset/boot, SWD, AGND star point" if star
              else "STM32G0B1RBT6, crystal, reset/boot, SWD, VREF+ filter")
@@ -179,8 +180,8 @@ def mcu(b, pins=None, v33="+3V3_MCU", star=True, spare=13, pinout_doc="pinout-to
     two(s, "C_X2", "C30p", 88.9, 134.62, "OSC_OUT", "GND")
     # reset and boot
     two(s, "C_NRST", "C100n", 63.5, 175.26, "NRST", "GND")
-    place(s, "SW_RESET", "BTN", (81.28, 175.26), {"1": "NRST", "2": "GND"}, rot=90)
-    place(s, "SW_BOOT", "BTN", (106.68, 175.26), {"1": v33, "2": "SWCLK"}, rot=90)
+    place(s, "SW_RESET", button, (81.28, 175.26), {"1": "NRST", "2": "GND"}, rot=90)
+    place(s, "SW_BOOT", button, (106.68, 175.26), {"1": v33, "2": "SWCLK"}, rot=90)
     two(s, "R_BOOT", "R10k", 124.46, 175.26, "SWCLK", "GND")
     # SWD header 3V3 - SWDIO - SWCLK - GND
     place(s, "J_SWD", "SWD", (342.9, 101.6), {"1": v33, "2": "SWDIO", "3": "SWCLK", "4": "GND"})

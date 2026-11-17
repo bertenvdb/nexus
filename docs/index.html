@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexus — hotend changer controller boards</title>
+<meta name="description" content="Nexus Tools Board and Nexus Docks Board: open-source Klipper controller boards for a hotend changer with up to 8 tools, designed with the YUDX tool changer in mind.">
+<style>
+  :root{
+    --bg:#0c1210; --bg2:#111a17; --card:#15211d; --line:#24352f;
+    --pcb:#1f4a36; --copper:#d9a35b; --gold:#f2c94c; --text:#e6ece9; --muted:#9aaba4;
+    --warn:#f2994a; --danger:#eb5757; --ok:#6fcf97;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 var(--sans)}
+  a{color:var(--copper)} a:hover{color:var(--gold)}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  code{font-family:var(--mono);font-size:.9em;background:#0003;padding:.1em .35em;border-radius:4px;border:1px solid var(--line)}
+
+  /* WIP banner */
+  .wip{background:repeating-linear-gradient(-45deg,#f2c94c 0 18px,#1a1a1a 18px 36px);padding:6px 0}
+  .wip-inner{background:#1a1408;border:1px solid #f2c94c55}
+  .wip-inner .wrap{display:flex;gap:16px;align-items:flex-start;padding-top:14px;padding-bottom:14px}
+  .wip-badge{flex:none;font:700 12px/1 var(--mono);letter-spacing:.12em;background:var(--gold);color:#1a1408;padding:7px 10px;border-radius:4px;margin-top:2px}
+  .wip p{margin:0;font-size:15px;color:#f5e6c4}
+  @media(max-width:600px){.wip-inner .wrap{flex-direction:column;gap:10px}}
+  .wip strong{color:#fff}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:10;background:#0c1210e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+  .logo{font:700 18px var(--mono);letter-spacing:.08em;color:var(--text);text-decoration:none}
+  .logo span{color:var(--copper)}
+  nav ul{list-style:none;display:flex;gap:22px;margin:0;padding:0;font-size:14px}
+  nav ul a{color:var(--muted);text-decoration:none} nav ul a:hover{color:var(--text)}
+  @media(max-width:760px){nav ul{display:none}}
+
+  /* hero */
+  header.hero{position:relative;overflow:hidden;padding:84px 0 64px;
+    background:
+      radial-gradient(900px 400px at 85% 10%, #1f4a3655, transparent 70%),
+      linear-gradient(transparent 0 0);}
+  .hero::before{content:"";position:absolute;inset:0;opacity:.18;pointer-events:none;
+    background-image:
+      linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:32px 32px;mask-image:linear-gradient(#000,transparent 85%)}
+  .hero .wrap{position:relative;display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+  @media(max-width:900px){.hero .wrap{grid-template-columns:1fr}}
+  .eyebrow{font:600 13px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--copper)}
+  h1{font-size:clamp(34px,5vw,54px);line-height:1.08;margin:14px 0 18px;letter-spacing:-.02em}
+  h1 em{font-style:normal;color:var(--gold)}
+  .lead{font-size:19px;color:var(--muted);max-width:56ch}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:8px;font-weight:600;text-decoration:none;border:1px solid var(--line)}
+  .btn.primary{background:var(--copper);color:#1b130a;border-color:var(--copper)}
+  .btn.primary:hover{background:var(--gold);color:#1b130a}
+  .btn.ghost{color:var(--text)} .btn.ghost:hover{border-color:var(--copper);color:var(--text)}
+  .hero-img{position:relative}
+  .hero-img img{width:100%;display:block;filter:drop-shadow(0 30px 40px #0009)}
+  .hero-img .back{position:absolute;width:62%;right:-4%;bottom:-10%;transform:rotate(4deg);opacity:.95}
+  .hero-img .front{position:relative;width:88%;transform:rotate(-3deg)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{font:12px var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--bg2)}
+
+  section{padding:76px 0;border-top:1px solid var(--line)}
+  section.alt{background:var(--bg2)}
+  h2{font-size:clamp(26px,3.4vw,36px);margin:8px 0 14px;letter-spacing:-.01em}
+  .sub{color:var(--muted);max-width:68ch;margin:0 0 36px;font-size:17px}
+
+  /* YUDX */
+  .yudx{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+  @media(max-width:860px){.yudx{grid-template-columns:1fr}}
+  .note{border-left:3px solid var(--copper);background:var(--card);padding:16px 18px;border-radius:0 8px 8px 0;color:var(--muted);font-size:15px}
+  .note strong{color:var(--text)}
+
+  /* topology diagram */
+  .topo{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .topo svg{width:100%;height:auto;display:block}
+
+  /* boards */
+  .boards{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  @media(max-width:900px){.boards{grid-template-columns:1fr}}
+  .board{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .board figure{margin:0;background:radial-gradient(circle at 50% 45%,#1d2f28,#0f1714 75%);padding:12px 8px;border-bottom:1px solid var(--line)}
+  .board figure img{width:100%;display:block}
+  .board figcaption{font:12px var(--mono);color:var(--muted);text-align:center;padding-top:4px}
+  .board .body{padding:24px 26px 28px}
+  .tag{display:inline-block;font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--copper);border:1px solid #d9a35b55;border-radius:4px;padding:3px 7px}
+  .board h3{font-size:24px;margin:12px 0 6px}
+  .board .where{color:var(--muted);margin:0 0 16px}
+  .board ul{margin:0;padding-left:20px}
+  .board li{margin:5px 0}
+  .board li::marker{color:var(--copper)}
+
+  /* features */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:900px){.grid3{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.grid3{grid-template-columns:1fr}}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px}
+  .feat .ico{font:700 13px var(--mono);color:var(--gold);letter-spacing:.06em}
+  .feat h4{margin:8px 0 6px;font-size:17px}
+  .feat p{margin:0;color:var(--muted);font-size:15px}
+
+  /* safety */
+  .layers{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:28px}
+  @media(max-width:760px){.layers{grid-template-columns:1fr}}
+  .layer{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px;position:relative}
+  .layer .n{position:absolute;top:-14px;left:20px;background:var(--copper);color:#1b130a;font:700 13px var(--mono);border-radius:6px;padding:4px 9px}
+  .layer h4{margin:6px 0 8px;font-size:18px}
+  .layer p{margin:0;color:var(--muted);font-size:15px}
+
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+  td:first-child{white-space:nowrap;font-weight:600}
+  .led{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:9px;vertical-align:middle;box-shadow:0 0 8px currentColor}
+
+  /* specs */
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}
+  summary{cursor:pointer;padding:16px 20px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";font:400 22px var(--mono);color:var(--copper)}
+  details[open] summary::after{content:"–"}
+  details .inner{padding:0 20px 18px}
+  details td:first-child{width:34%;color:var(--muted);font-weight:500;white-space:normal}
+
+  /* status */
+  .status{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:860px){.status{grid-template-columns:1fr}}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+  .step .s{font:600 12px var(--mono);letter-spacing:.08em}
+  .step.done .s{color:var(--ok)} .step.wip .s{color:var(--gold)} .step.todo .s{color:var(--muted)}
+  .step p{margin:6px 0 0;font-size:14px;color:var(--text)}
+
+  /* licenses */
+  .lic{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:760px){.lic{grid-template-columns:1fr}}
+  .lic a.card{display:block;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;color:var(--text)}
+  .lic a.card:hover{border-color:var(--copper)}
+  .lic .what{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .lic .name{font:700 20px var(--mono);color:var(--copper);margin:8px 0}
+  .lic p{margin:0;color:var(--muted);font-size:14px}
+
+  /* disclaimer */
+  .disclaimer{border:1px solid #eb575766;background:linear-gradient(#2a1414,#1d1111);border-radius:14px;padding:28px 30px}
+  .disclaimer h2{color:#ffb3b3;margin-top:0}
+  .disclaimer ol,.disclaimer ul{padding-left:22px;color:#f1d6d6}
+  .disclaimer li{margin:6px 0}
+  .disclaimer p{color:#f1d6d6}
+
+  footer{border-top:1px solid var(--line);padding:36px 0 48px;color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+
+<!-- Work-in-progress + risk notice: always first -->
+<div class="wip" role="note" aria-label="Work in progress notice">
+  <div class="wip-inner">
+    <div class="wrap">
+      <span class="wip-badge">WORK IN PROGRESS</span>
+      <p><strong>These boards are still being designed and have not been built or tested.</strong>
+      Specifications can change at any time. Nexus drives heaters: a mistake in design, assembly, wiring or configuration can cause a fire.
+      It is not certified and not CE marked. <strong>Anything you build or use from this project is entirely at your own risk.</strong>
+      <a href="#safety">Read the safety section</a>.</p>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#">NEX<span>US</span></a>
+    <ul>
+      <li><a href="#yudx">YUDX</a></li>
+      <li><a href="#boards">Boards</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#safety">Safety</a></li>
+      <li><a href="#specs">Specs</a></li>
+      <li><a href="#license">License</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Open-source Klipper hardware</div>
+      <h1>Eight hotends.<br><em>Two boards.</em> No tangle.</h1>
+      <p class="lead">Nexus is a pair of Klipper controller boards for a hotend changer with up to eight tools, designed with the <strong>YUDX tool changer</strong> in mind. One board runs the heaters, thermistors and filament sensors, the other runs the dock fans.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/bertenvdb/nexus">View on GitHub →</a>
+        <a class="btn ghost" href="#boards">Meet the boards</a>
+      </div>
+      <div class="chips">
+        <span class="chip">STM32G0B1</span><span class="chip">Klipper + Katapult</span><span class="chip">USB-C + CAN</span><span class="chip">KiCad 10</span><span class="chip">JLCPCB assembly</span>
+      </div>
+    </div>
+    <div class="hero-img" aria-hidden="true">
+      <img class="back" src="img/dockboard-3d-top.png" alt="">
+      <img class="front" src="img/toolboard-3d-top.png" alt="">
+    </div>
+  </div>
+</header>
+
+<section id="yudx" class="alt">
+  <div class="wrap yudx">
+    <div>
+      <div class="eyebrow">Built around YUDX</div>
+      <h2>Electronics for a hotend changer</h2>
+      <p class="sub" style="margin-bottom:18px"><a href="https://github.com/dumplinglab/YUDX-tool-changer">YUDX</a> is an open-source tool changer for the Voron 2.4 and Trident. Every tool head has its own heater and thermistor, so parked tools can stay hot. That is fast, but it means up to eight heaters, eight thermistors and eight filament paths that all need to be controlled and watched.</p>
+      <p class="sub" style="margin-bottom:18px">Nexus puts all of that on two purpose-built boards. Klipper supports multiple MCUs natively, so each board is simply another MCU in your config: no custom protocol, no extra daemon.</p>
+      <div class="note"><strong>Independent project.</strong> Nexus is not affiliated with or endorsed by the YUDX authors. YUDX's own G-code targets RepRapFirmware; Nexus is Klipper-only.</div>
+    </div>
+    <div class="topo" aria-label="System overview diagram">
+      <svg viewBox="0 0 520 360" role="img" aria-label="Host connects over USB or CAN to the Nexus Tools Board near the umbilicals and the Nexus Docks Board at the docks. The Tools Board has one cable per tool head.">
+        <defs>
+          <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#d9a35b"/></marker>
+        </defs>
+        <style>
+          .bx{fill:#15211d;stroke:#2f4a40;stroke-width:1.5}
+          .hl{fill:#1f4a36;stroke:#d9a35b;stroke-width:1.5}
+          .t{fill:#e6ece9;font:600 13px system-ui,sans-serif}
+          .s{fill:#9aaba4;font:11px ui-monospace,monospace}
+          .w{stroke:#d9a35b;stroke-width:1.6;fill:none}
+          .w2{stroke:#6c8a80;stroke-width:1.2;fill:none}
+        </style>
+        <rect class="bx" x="185" y="14" width="150" height="48" rx="8"/>
+        <text class="t" x="260" y="36" text-anchor="middle">Klipper host</text>
+        <text class="s" x="260" y="52" text-anchor="middle">Raspberry Pi etc.</text>
+
+        <rect class="hl" x="30" y="122" width="200" height="64" rx="8"/>
+        <text class="t" x="130" y="148" text-anchor="middle">Nexus Tools Board</text>
+        <text class="s" x="130" y="166" text-anchor="middle">near the umbilicals</text>
+
+        <rect class="hl" x="290" y="122" width="200" height="64" rx="8"/>
+        <text class="t" x="390" y="148" text-anchor="middle">Nexus Docks Board</text>
+        <text class="s" x="390" y="166" text-anchor="middle">at the docks</text>
+
+        <path class="w" d="M230,62 L150,120" marker-end="url(#a)"/>
+        <path class="w" d="M290,62 L370,120" marker-end="url(#a)"/>
+        <text class="s" x="168" y="90" text-anchor="end">USB-C / CAN</text>
+        <text class="s" x="352" y="90">USB-C / CAN</text>
+        <path class="w2" d="M230,154 L290,154" stroke-dasharray="4 4"/>
+        <text class="s" x="260" y="146" text-anchor="middle">CAN</text>
+
+        <!-- tools -->
+        <g>
+          <path class="w2" d="M130,186 V228"/>
+          <path class="w2" d="M45,228 H215"/>
+          <g id="tools">
+            <path class="w2" d="M45,228 V262"/><path class="w2" d="M69,228 V262"/><path class="w2" d="M93,228 V262"/><path class="w2" d="M117,228 V262"/>
+            <path class="w2" d="M143,228 V262"/><path class="w2" d="M167,228 V262"/><path class="w2" d="M191,228 V262"/><path class="w2" d="M215,228 V262"/>
+          </g>
+          <g fill="#15211d" stroke="#2f4a40">
+            <rect x="35" y="262" width="20" height="30" rx="3"/><rect x="59" y="262" width="20" height="30" rx="3"/><rect x="83" y="262" width="20" height="30" rx="3"/><rect x="107" y="262" width="20" height="30" rx="3"/>
+            <rect x="133" y="262" width="20" height="30" rx="3"/><rect x="157" y="262" width="20" height="30" rx="3"/><rect x="181" y="262" width="20" height="30" rx="3"/><rect x="205" y="262" width="20" height="30" rx="3"/>
+          </g>
+          <text class="s" x="130" y="314" text-anchor="middle">T0 … T7 — one cable per tool</text>
+          <text class="s" x="130" y="330" text-anchor="middle">heater · thermistor · runout · motion</text>
+        </g>
+        <g>
+          <path class="w2" d="M390,186 V228"/>
+          <path class="w2" d="M310,228 H470"/>
+          <g fill="none" stroke="#6c8a80" stroke-width="1.2">
+            <circle cx="310" cy="262" r="11"/><circle cx="350" cy="262" r="11"/><circle cx="390" cy="262" r="11"/><circle cx="430" cy="262" r="11"/><circle cx="470" cy="262" r="11"/>
+            <path d="M310,228V251M350,228V251M390,228V251M430,228V251M470,228V251"/>
+          </g>
+          <text class="s" x="390" y="314" text-anchor="middle">up to 9 fans · 5 / 12 / 24 V</text>
+          <text class="s" x="390" y="330" text-anchor="middle">+ WS2812 status lighting</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="boards">
+  <div class="wrap">
+    <div class="eyebrow">The hardware</div>
+    <h2>Two boards, one design language</h2>
+    <p class="sub">Same MCU, same firmware flow, same diagnostic approach. Parts are shared between the boards wherever possible and everything is in stock at LCSC.</p>
+    <div class="boards">
+      <article class="board">
+        <figure>
+          <img src="img/toolboard-3d-top.png" alt="3D render of the Nexus Tools Board, top side" loading="lazy">
+          <figcaption>Preliminary KiCad render — layout not final</figcaption>
+        </figure>
+        <div class="body">
+          <span class="tag">Tools</span>
+          <h3>Nexus Tools Board</h3>
+          <p class="where">Mounted close to where the umbilicals start. One cable runs from here to each tool head.</p>
+          <ul>
+            <li><strong>8 heater channels</strong>, up to 70 W each, all eight at once from a cold start</li>
+            <li><strong>8 thermistor inputs</strong>, NTC 100K or PT1000 per channel, 0.1 % pull-ups</li>
+            <li><strong>8 filament ports</strong>, each with a runout and a motion input for clog detection</li>
+            <li><strong>Hardware cutoff</strong> of the heater rail with a self-test at every startup</li>
+            <li>Diagnostic LED per rail and per heater channel</li>
+            <li>WS2812 port, USB-C and CAN with USB-CAN bridge, 24 V in via XT60</li>
+          </ul>
+        </div>
+      </article>
+      <article class="board">
+        <figure>
+          <img src="img/dockboard-3d-top.png" alt="3D render of the Nexus Docks Board, top side" loading="lazy">
+          <figcaption>Preliminary KiCad render — layout not final</figcaption>
+        </figure>
+        <div class="body">
+          <span class="tag">Docks</span>
+          <h3>Nexus Docks Board</h3>
+          <p class="where">Mounted at the docks, where the parked tools need their cooling.</p>
+          <ul>
+            <li><strong>9 fan outputs</strong>, up to 1 A per fan and 3 A in total</li>
+            <li><strong>Fan voltage 5, 12 or 24 V</strong>, selectable per board. Nothing is selected by default, so a 5 V fan never gets 24 V by accident</li>
+            <li>Diagnostic LEDs for every rail, USB and MCU</li>
+            <li>WS2812 port, USB-C and CAN</li>
+            <li>Own 24 V input via XT30, with reverse polarity protection</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Why Nexus</div>
+    <h2>Built to make faults visible</h2>
+    <p class="sub">Most printer boards only show whether they have power. Nexus shows where things go wrong, and puts safety in the hardware instead of only in the firmware.</p>
+    <div class="grid3">
+      <div class="feat"><div class="ico">01 / CUTOFF</div><h4>Hardware heater cutoff</h4><p>The heater rail is switched by Klipper and off by default. If the firmware stops, resets or hangs, the heaters lose power — even if a heater MOSFET has failed short.</p></div>
+      <div class="feat"><div class="ico">02 / SELF-TEST</div><h4>Proven at every start</h4><p>A voltage measurement on the heater rail checks at every startup that the cutoff actually switches.</p></div>
+      <div class="feat"><div class="ico">03 / LEDS</div><h4>See what the MOSFET does</h4><p>Each heater channel has an LED that shows what the MOSFET is really doing, not what the software thinks it is doing.</p></div>
+      <div class="feat"><div class="ico">04 / CLOGS</div><h4>Clog detection per tool</h4><p>Runout and motion input on every filament port. Use a simple D2F switch, or a motion sensor that notices a clogged nozzle or a slipping extruder.</p></div>
+      <div class="feat"><div class="ico">05 / CONFIG</div><h4>Simple Klipper setup</h4><p>Connect over USB-C or CAN, add a short config file per tool, and Klipper sees eight full hotends. Disable a tool by commenting out one line.</p></div>
+      <div class="feat"><div class="ico">06 / OPEN</div><h4>Fully open source</h4><p>KiCad files, BOM with LCSC numbers, production files for JLCPCB and the Klipper config are all in the repository.</p></div>
+    </div>
+
+    <h3 style="margin:48px 0 14px">What the LEDs tell you</h3>
+    <table>
+      <thead><tr><th>LED</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span class="led" style="color:#6fcf97;background:#6fcf97"></span>24V IN</td><td>Power is coming in and the main fuse is intact.</td></tr>
+        <tr><td><span class="led" style="color:#f2994a;background:#f2994a"></span>HEATER RAIL</td><td>The cutoff is on: the heaters can heat.</td></tr>
+        <tr><td><span class="led" style="color:#6fcf97;background:#6fcf97"></span>5V / 3V3</td><td>The internal supplies are working.</td></tr>
+        <tr><td><span class="led" style="color:#56ccf2;background:#56ccf2"></span>VBUS</td><td>The USB cable is connected and the host supplies power.</td></tr>
+        <tr><td><span class="led" style="color:#56ccf2;background:#56ccf2"></span>MCU</td><td>Klipper is running.</td></tr>
+        <tr><td><span class="led" style="color:#eb5757;background:#eb5757"></span>HEATER T0–T7</td><td>This channel is actually on. Lit while Klipper has the channel off? Then the MOSFET is defective.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap">
+    <div class="eyebrow">Protection</div>
+    <h2>Two protection layers in the board</h2>
+    <p class="sub">On top of a fuse per heater channel, an input that withstands reverse polarity and voltage spikes, and ESD protection on every external signal connector.</p>
+    <div class="layers">
+      <div class="layer"><span class="n">LAYER 1</span><h4>Klipper</h4><p><code>verify_heater</code>, temperature limits and communication monitoring.</p></div>
+      <div class="layer"><span class="n">LAYER 2</span><h4>Hardware cutoff</h4><p>Two 60 V MOSFETs in the heater rail supply, off by default. On shutdown, reset or hung firmware the heater rail drops out. Checked by a self-test at every startup.</p></div>
+    </div>
+    <p class="sub" style="margin-bottom:40px">Want an extra passive layer? Use PTC heaters (self-limiting) or fit a thermal fuse on the heatsink or tool holder. A thermal fuse on the heater block itself does not work: those trip around 240 °C, at or below print temperature.</p>
+
+    <div class="disclaimer">
+      <h2>⚠ Read this before you build or use a board</h2>
+      <p>This is a hobby project and a <strong>work in progress</strong>. The boards are <strong>not built, not tested, not certified and not CE marked</strong>. They drive heaters: a mistake in the design, assembly, wiring or configuration can cause a <strong>fire</strong>.</p>
+      <p><strong>Design limits:</strong> 24 V DC only · max. 70 W per heater channel · max. 8 channels · NTC 100K or PT1000 only (no thermocouples or PT100) · Klipper only, with the included safety macros.</p>
+      <p><strong>Mandatory:</strong></p>
+      <ol>
+        <li>Klipper's <code>verify_heater</code> active, with sensible <code>max_temp</code> values.</li>
+        <li>Keep the cutoff startup self-test enabled. Do not print if it fails.</li>
+        <li>Run the commissioning macro after every (re)wiring: it checks that each heater heats the correct thermistor.</li>
+        <li>Never print unattended until the whole setup has proven itself over multiple prints.</li>
+        <li>One PSU, or PSUs with a common negative.</li>
+      </ol>
+      <p style="margin-bottom:0">The design is provided "as is", without warranty of any kind. <strong>You build and use it entirely at your own risk.</strong> See the disclaimers in the licenses.</p>
+    </div>
+  </div>
+</section>
+
+<section id="specs" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Draft specifications · design v1.6</div>
+    <h2>Specifications</h2>
+    <p class="sub">Preliminary. Dimensions and mounting holes are not fixed yet.</p>
+
+    <details open>
+      <summary>General</summary>
+      <div class="inner"><table>
+        <tr><td>Microcontroller</td><td>STM32G0B1RBT6 (Arm Cortex-M0+, 64 MHz, 128 KB flash)</td></tr>
+        <tr><td>Firmware</td><td>Klipper, with Katapult bootloader for updates over USB or CAN</td></tr>
+        <tr><td>Host connection</td><td>USB-C (USB 2.0) and/or CAN 1 Mbit/s, USB-CAN bridge supported</td></tr>
+        <tr><td>PCB</td><td>4 layers (Tools Board)</td></tr>
+        <tr><td>Dimensions</td><td><em>To be determined</em></td></tr>
+      </table></div>
+    </details>
+    <details>
+      <summary>Power — Tools Board</summary>
+      <div class="inner"><table>
+        <tr><td>Input</td><td>24 V DC via XT60</td></tr>
+        <tr><td>Main fuse</td><td>25 A</td></tr>
+        <tr><td>Protection</td><td>Reverse polarity protection (heater path and logic), TVS against voltage spikes</td></tr>
+        <tr><td>Internal rails</td><td>5 V (buck, 60 V input), separate 3.3 V for MCU and sensors</td></tr>
+        <tr><td>Flashing without 24 V</td><td>Yes, the MCU runs on USB power</td></tr>
+      </table></div>
+    </details>
+    <details>
+      <summary>Heaters</summary>
+      <div class="inner"><table>
+        <tr><td>Channels</td><td>8</td></tr>
+        <tr><td>Power</td><td>Up to 70 W per channel at 24 V (measured at room temperature)</td></tr>
+        <tr><td>Simultaneous</td><td>All 8 at once from a cold start (≈ 23.6 A total)</td></tr>
+        <tr><td>Switching</td><td>Low-side, 40 V MOSFET (4.5 mΩ), 5 V gate drive</td></tr>
+        <tr><td>Channel fuse</td><td>5 A per channel</td></tr>
+        <tr><td>Cutoff</td><td>Hardware, Klipper-controlled, off by default, with voltage measurement for the self-test</td></tr>
+        <tr><td>Connector</td><td>2-pole screw terminal, 5.08 mm</td></tr>
+      </table></div>
+    </details>
+    <details>
+      <summary>Thermistors</summary>
+      <div class="inner"><table>
+        <tr><td>Inputs</td><td>8</td></tr>
+        <tr><td>Types</td><td>NTC 100K (default) or PT1000, per channel via solder jumper</td></tr>
+        <tr><td>Pull-up</td><td>4.7 kΩ / 2.2 kΩ, 0.1 % tolerance</td></tr>
+        <tr><td>Protection</td><td>RC filter, clamp diode, ESD (survives 24 V on the input)</td></tr>
+        <tr><td>Connector</td><td>JST-XH 2-pin</td></tr>
+      </table></div>
+    </details>
+    <details>
+      <summary>Filament sensors</summary>
+      <div class="inner"><table>
+        <tr><td>Ports</td><td>8, each with 2 inputs: runout and motion</td></tr>
+        <tr><td>Supported</td><td>D2F and other switches, Hall and optical sensors, combined runout/motion sensors</td></tr>
+        <tr><td>Sensor supply</td><td>5 V (default) or 3.3 V per board, with polyfuse</td></tr>
+        <tr><td>Inputs</td><td>5 V tolerant, with filter and ESD protection</td></tr>
+        <tr><td>Connector</td><td>JST-XH 4-pin: RUNOUT · GND · VCC · MOTION</td></tr>
+      </table></div>
+    </details>
+    <details>
+      <summary>Other connections — Tools Board</summary>
+      <div class="inner"><table>
+        <tr><td>LED port</td><td>1× WS2812, up to 8 LEDs, 5 V data via level shifter, 0.75 A polyfuse (JST-XH 3-pin)</td></tr>
+        <tr><td>CAN</td><td>2× Micro-Fit 3.0 2×2 (in/out), 120 Ω termination via jumper</td></tr>
+        <tr><td>Debug</td><td>BOOT and RESET buttons, SWD header, test points on all rails</td></tr>
+      </table></div>
+    </details>
+    <details>
+      <summary>Docks Board</summary>
+      <div class="inner"><table>
+        <tr><td>Fan outputs</td><td>9, up to 1 A per fan, 3 A total, no tacho</td></tr>
+        <tr><td>Fan voltage</td><td>5, 12 or 24 V, selectable per board, none selected by default</td></tr>
+        <tr><td>Input</td><td>24 V DC via XT30, reverse polarity protected</td></tr>
+        <tr><td>Other</td><td>WS2812 port, USB-C and CAN, diagnostic LEDs for every rail, USB and MCU</td></tr>
+      </table></div>
+    </details>
+
+    <h3 style="margin:40px 0 12px">What you need</h3>
+    <ul>
+      <li>A <strong>24 V power supply</strong>. Budget ≥ 600 W for both boards with eight 70 W heaters; less with lighter heaters or fewer tools.</li>
+      <li>A Klipper host (e.g. a Raspberry Pi) with Mainsail, Fluidd or similar.</li>
+      <li>Optional: a CAN adapter, or use the Tools Board itself as a USB-CAN bridge.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="status">
+  <div class="wrap">
+    <div class="eyebrow">Where we are</div>
+    <h2>Project status</h2>
+    <p class="sub">Nothing has been ordered or built yet. Follow progress in the <a href="https://github.com/bertenvdb/nexus/blob/main/docs/README.md">documentation</a>.</p>
+    <div class="status">
+      <div class="step done"><div class="s">✓ DONE</div><p>Concept architecture (v1.6)</p></div>
+      <div class="step done"><div class="s">✓ DONE</div><p>Component selection, both boards</p></div>
+      <div class="step wip"><div class="s">● IN PROGRESS</div><p>Cost estimate (no JLC quote yet)</p></div>
+      <div class="step wip"><div class="s">● IN PROGRESS</div><p>KiCad implementation: schematics, placement and routing</p></div>
+      <div class="step todo"><div class="s">○ TODO</div><p>Klipper config and safety macros, prototype order, bring-up and testing</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="license" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Open source</div>
+    <h2>Licenses</h2>
+    <p class="sub">Free to study, build and modify under the terms below. This project is not sold.</p>
+    <div class="lic">
+      <a class="card" href="https://github.com/bertenvdb/nexus/blob/main/LICENSES/CERN-OHL-S-2.0.txt">
+        <div class="what">Hardware</div><div class="name">CERN-OHL-S-2.0</div>
+        <p>KiCad files and production files. Strongly reciprocal: modified designs must be shared under the same license.</p>
+      </a>
+      <a class="card" href="https://github.com/bertenvdb/nexus/blob/main/LICENSES/GPL-3.0-or-later.txt">
+        <div class="what">Software</div><div class="name">GPL-3.0-or-later</div>
+        <p>Klipper macros, config and scripts. Same license family as Klipper itself.</p>
+      </a>
+      <a class="card" href="https://github.com/bertenvdb/nexus/blob/main/LICENSES/CC-BY-SA-4.0.txt">
+        <div class="what">Documentation</div><div class="name">CC-BY-SA-4.0</div>
+        <p>Docs, descriptions and this page. Share and adapt with attribution, under the same license.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Copyright © 2026 Berten Vandebroek · Nexus hotend changer controller boards</span>
+    <span><a href="https://github.com/bertenvdb/nexus">github.com/bertenvdb/nexus</a> · Work in progress · Use at your own risk</span>
+  </div>
+</footer>
+
+</body>
+</html>

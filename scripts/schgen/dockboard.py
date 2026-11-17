@@ -32,8 +32,8 @@ def power_input(b):
     two(s, "C_BULK", "C100u63", 251.46, 101.6, "+24V_INT", "GND")
     two(s, "C_INT1", "C10u50", 266.7, 101.6, "+24V_INT", "GND")
     two(s, "C_INT2", "C100n", 281.94, 101.6, "+24V_INT", "GND")
-    place(s, "TP_24VINT", "TP", (297.18, 93.98), {"1": "+24V_INT"})
-    place(s, "TP_GND", "TP", (312.42, 93.98), {"1": "GND"})
+    place(s, "TP_24VINT", "TP_S", (297.18, 93.98), {"1": "+24V_INT"})
+    place(s, "TP_GND", "TP_S", (312.42, 93.98), {"1": "GND"})
     place(s, "FLG_24VINT", "FLAG", (327.66, 93.98), {"1": "+24V_INT"})
     s.text("XT30 male on the board. Input fuse 5 A 1206 (same part as the tool board channel fuse).\n"
            "Reverse polarity: one BSC016N06NS with its SOURCE at the input (design 20 §4).\n"
@@ -65,7 +65,7 @@ def logic_power(b):
     for i, x in enumerate([304.8, 320.04, 335.28]):
         two(s, f"C_BOUT{i + 1}", "C22u25", x, 88.9, "+5V", "GND")
     place(s, "FLG_5V", "FLAG", (350.52, 76.2), {"1": "+5V"})
-    place(s, "TP_5V", "TP", (365.76, 76.2), {"1": "+5V"})
+    place(s, "TP_5V", "TP_S", (365.76, 76.2), {"1": "+5V"})
     s.text("Same 5 V converter as the tool board (docs/calculations.md §1, §4, §5),\n"
            "fed from +24V_INT (after the reverse-polarity FET), so no series diode.",
            (38.1, 139.7))
@@ -77,7 +77,7 @@ def logic_power(b):
         "1": "+5V_OR", "2": "GND", "3": "+5V_OR", "4": "NC", "5": V33})
     two(s, "C_L1OUT", "C1u", 142.24, 177.8, V33, "GND")
     two(s, "C_L1OUT2", "C100n", 157.48, 177.8, V33, "GND")
-    place(s, "TP_3V3", "TP", (172.72, 170.18), {"1": V33})
+    place(s, "TP_3V3", "TP_S", (172.72, 170.18), {"1": V33})
     s.text("+3V3: diode-OR of +5V and USB VBUS (flashing without 24 V). One LDO: no analog sensors.",
            (38.1, 213.36))
 
@@ -110,7 +110,7 @@ def fan_rail(b):
     # rail selection: 1-2 = 24 V direct, 2-3 = buck. Default OPEN: no fan voltage.
     place(s, "JP_FRAIL", "SJ3O", (127.0, 177.8), {"1": "+24V_INT", "2": "FAN_RAIL", "3": "FAN_BUCK"})
     two(s, "C_FRAIL", "C10u50", 165.1, 177.8, "FAN_RAIL", "GND")
-    place(s, "TP_FRAIL", "TP", (182.88, 170.18), {"1": "FAN_RAIL"})
+    place(s, "TP_FRAIL", "TP_S", (182.88, 170.18), {"1": "FAN_RAIL"})
     place(s, "FLG_FRAIL", "FLAG", (198.12, 170.18), {"1": "FAN_RAIL"})
     s.text("Buck 2: same converter as the 5 V rail. JP_FVSEL bridged (default) = 0.8 x (1 + 39k/7.5k) = 4.96 V;\n"
            "cut = 0.8 x (1 + 107k/7.5k) = 12.2 V. Compensation 12k + 8.2nF // 47pF (calculations.md §5).",
@@ -183,7 +183,8 @@ def build():
     power_input(b)
     logic_power(b)
     fan_rail(b)
-    tb.mcu(b, pins=DOCK_PINS, v33=V33, star=False, spare=41, pinout_doc="pinout-dockboard.md")
+    tb.mcu(b, pins=DOCK_PINS, v33=V33, star=False, spare=41, pinout_doc="pinout-dockboard.md",
+           button="BTN_S")
     tb.usb_can(b, v33=V33, can_out=False)
     diag_leds(b)
     fans(b)

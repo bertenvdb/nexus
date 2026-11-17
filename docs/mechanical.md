@@ -142,4 +142,14 @@ Area +14 % (12,600 vs 11,050 mm²). Cost effect: to be checked with the JLC quot
 
 ## 9. Dock board size after placement (F6 step 1, brought forward, 2026-11-17)
 
-The dock board is **100 × 70 mm**, not the ≈ 75 × 55 mm of §6. The parts need ≈ 3,170 mm² of courtyard; on 75 × 55 mm that is 77 % fill, which cannot be routed on 2 layers. 100 × 70 mm gives ≈ 45 %. The 9 fan ports (JST-XH 2, 6.8 mm along the edge) sit at a 7.2 mm pitch along the top. Still within 100 × 100 mm (cheapest JLC size class). 2 layers for now; the layer count is decided in F6 step 2 together with the routing.
+Requirements (Berten, 2026-11-17): **as small as possible**, parts on the top side only, 4 layers allowed. USB-C, CAN and XT30 on one edge with 1 mm overhang (M5). The fan and LED connectors are vertical JST-XH (plug perpendicular to the board) and **may sit anywhere** on the board.
+
+Result: **88 × 62 mm**, 4 layers (first attempt 100 × 70 mm with the fans in one row along the top).
+
+| Measure | Effect |
+|---|---|
+| Fans in a 3 × 3 group of 11 × 12 mm cells (connector + MOSFET + flyback + gate resistors), not one row | Removes the ≥ 82 mm top-edge constraint |
+| Smaller BOOT/RESET buttons TS-1088 (C720477, Basic) and 1.0 mm test pads on the dock-only sheets | ≈ 70 mm² less |
+| Two-level packing: each block packed compactly, blocks placed on the board around the edge connectors and hole keep-outs, near their connector or neighbour | |
+
+Limits: the parts need ≈ 3,200 mm² of courtyard; 88 × 62 = 5,456 mm² (≈ 59 %, of which the left-edge connectors and four hole keep-outs take ≈ 750 mm²). 84 × 62 also fits but puts the USB and CAN parts far from their connectors. Smaller would need parts on the bottom side, or smaller parts (SMA instead of SMC catch diodes, SMD bulk capacitor, no SWD header).

@@ -51,7 +51,8 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | Fan connector | JST-XH 2-pin vertical | B2B-XH-A(LF)(SN) | C158012 | 0 | 9 | SELF | Extended | 480587 | 0.04 | stdlib | Pin1 FAN- 2 V+ |
 | CAN termination | 2-pin header + jumper cap + 120R | PZ254V-11-02P, jumper cap | C492401 | 1 | 1 | SELF | Extended | 743995 | 0.02 | stdlib | Jumper cap C100114. 120R C22787 Basic (JLC) |
 | SWD header | 1x4 2.54mm | HX PZ2.54-1x4P ZZ | C32713270 | 1 | 1 | SELF | Extended | 113702 | 0.03 | stdlib | Optional populate |
-| Buttons | Tactile switch SMD 5.1x5.1 (BOOT + RESET) | TS-1187A-B-A-B | C318884 | 2 | 2 | JLC | Basic | 785115 | 0.02 | stdlib |  |
+| Buttons | Tactile switch SMD 5.1x5.1 (BOOT + RESET) | TS-1187A-B-A-B | C318884 | 2 | 0 | JLC | Basic | 785115 | 0.02 | stdlib | Tool board only (dock uses TS-1088 to save space) |
+| Buttons small | Tactile switch SMD 4x3 (BOOT + RESET) | TS-1088-AR02016 | C720477 | 0 | 2 | JLC | Basic | 852756 | 0.05 | stdlib | Dock board (F6 size reduction) |
 | LED red | 0603 LED red (diagnostics, AD-17) | KT-0603R | C2286 | 9 | 1 | JLC | Basic | 5511325 | 0.01 | stdlib | Red for heater channels and MCU (decided 2026-11-17). Tool: 8 heater-drain + MCU. Dock: MCU |
 | LED green | 0805 LED green (diagnostics, AD-17) | KT-0805G | C2297 | 5 | 5 | JLC | Basic | 3158185 | 0.02 | stdlib | Green for rails (decided 2026-11-17). No Basic green 0603 in stock. Rails: 24V IN / HEATER RAIL or FAN RAIL / 5V / 3V3 / VBUS |
 | Capacitor 30pF C0G | Capacitor 30pF C0G 0603 | 0603CG300J500NT | C1658 | 2 | 2 | JLC | Basic |  |  | stdlib | Generic passive |

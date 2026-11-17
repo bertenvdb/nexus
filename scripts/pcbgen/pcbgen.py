@@ -182,39 +182,183 @@ class Pcb:
         return fp
 
     def pack(self, refs, region, gap=0.6, rot=0, turn=True, sort=True):
-        """Place refs row by row inside region (x0, y0, x1, y1) by courtyard.
+        """Place refs inside region (x0, y0, x1, y1) by courtyard.
 
-        If a part does not fit in the rest of the row, it is also tried
-        turned by 90 degrees before a new row is started.
+        MaxRects packing (best short side fit): every part is tried in both
+        orientations in every free rectangle; much denser than row packing.
         """
         x0, y0, x1, y1 = region
         gap = max(gap, MIN_GAP)
-        x, y, row_h = x0, y0, 0.0
-        if sort:
-            def area(ref):
-                bx = self.crt_box(self.place(ref, 0, 0, rot))
-                return -(bx[2] - bx[0]) * (bx[3] - bx[1])
-            refs = sorted(refs, key=area)
+        sizes = {}
         for ref in refs:
-            options = [rot, rot + 90] if turn else [rot]
-            done = False
-            for attempt in ("row", "newrow"):
-                if attempt == "newrow":
-                    x, y, row_h = x0, y + row_h + gap, 0.0
-                for rr in options:
-                    fp = self.place(ref, 0, 0, rr % 360)
-                    cx0, cy0, cx1, cy1 = self.crt_box(fp)
-                    w, h = cx1 - cx0, cy1 - cy0
-                    if x + w <= x1 + 1e-6 and y + h <= y1 + 1e-6:
-                        self.place(ref, x - cx0, y - cy0, rr % 360)
-                        x += w + gap
-                        row_h = max(row_h, h)
-                        done = True
-                        break
-                if done:
-                    break
-            if not done:
-                raise RuntimeError(f"region {region} full at {ref} (part {w:.1f} x {h:.1f})")
+            for rr in ([rot, rot + 90] if turn else [rot]):
+                bx = self.crt_box(self.place(ref, 0, 0, rr % 360))
+                sizes[(ref, rr % 360)] = (bx[2] - bx[0], bx[3] - bx[1], bx[0], bx[1])
+        if sort:
+            refs = sorted(refs, key=lambda r_: -max(
+                w * h for (rf, _), (w, h, _a, _b) in sizes.items() if rf == r_))
+        free = [(x0, y0, x1 + gap, y1 + gap)]   # each part reserves w+gap x h+gap
+        obst = getattr(self, "_obstacles", [])
+        if obst:
+            free = self._cut(free, [(a - gap, b - gap, c + gap, d + gap) for a, b, c, d in obst])
+        for ref in refs:
+            best = None
+            for (rf, rr), (w, h, ox, oy) in sizes.items():
+                if rf != ref:
+                    continue
+                W_, H_ = w + gap, h + gap
+                for fx0, fy0, fx1, fy1 in free:
+                    fw, fh = fx1 - fx0, fy1 - fy0
+                    if W_ <= fw + 1e-6 and H_ <= fh + 1e-6:
+                        score = (min(fw - W_, fh - H_), max(fw - W_, fh - H_), fy0, fx0)
+                        if best is None or score < best[0]:
+                            best = (score, rr, fx0, fy0, W_, H_, ox, oy)
+            if best is None:
+                raise RuntimeError(f"region {region} full at {ref}")
+            _, rr, px, py, W_, H_, ox, oy = best
+            self.place(ref, px - ox, py - oy, rr)
+            # split every free rectangle that intersects the used one
+            used = (px, py, px + W_, py + H_)
+            nf = []
+            for f in free:
+                if (used[0] >= f[2] or used[2] <= f[0] or used[1] >= f[3] or used[3] <= f[1]):
+                    nf.append(f)
+                    continue
+                if used[0] > f[0]:
+                    nf.append((f[0], f[1], used[0], f[3]))
+                if used[2] < f[2]:
+                    nf.append((used[2], f[1], f[2], f[3]))
+                if used[1] > f[1]:
+                    nf.append((f[0], f[1], f[2], used[1]))
+                if used[3] < f[3]:
+                    nf.append((f[0], used[3], f[2], f[3]))
+            # drop rectangles contained in others
+            free = [a for a in nf if not any(
+                a != b and a[0] >= b[0] and a[1] >= b[1] and a[2] <= b[2] and a[3] <= b[3]
+                for b in nf)]
+
+    # ------------------------------------------------- two-level packing --
+    def block(self, refs, widths=(10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 34),
+              gap=0.3, first=None):
+        """Arrange refs compactly at the origin; return the tightest block.
+
+        `first`: a ref placed at the top-left before the rest (e.g. the MCU).
+        Returns dict(refs, w, h, pos={ref: (x, y, rot)}).
+        """
+        best = None
+        for w in widths:
+            try:
+                if first:
+                    self.pack([first], (0, 0, w, 1000), gap=gap, turn=False)
+                    fb = self.crt_box(self.fps[first])
+                    rest = [r_ for r_ in refs if r_ != first]
+                    # pack the rest right of and below the first part
+                    self._pack_obstacles(rest, (0, 0, w, 1000), [fb], gap)
+                else:
+                    self.pack(refs, (0, 0, w, 1000), gap=gap)
+            except RuntimeError:
+                continue
+            boxes = [self.crt_box(self.fps[r_]) for r_ in refs]
+            bw = max(b_[2] for b_ in boxes) - min(b_[0] for b_ in boxes)
+            bh = max(b_[3] for b_ in boxes) - min(b_[1] for b_ in boxes)
+            score = bw * bh + 0.5 * abs(bw - bh)   # small, not too elongated
+            if best is None or score < best[0]:
+                x0 = min(b_[0] for b_ in boxes); y0 = min(b_[1] for b_ in boxes)
+                pos = {}
+                for r_ in refs:
+                    fp = self.fps[r_]
+                    pos[r_] = (pcbnew.ToMM(fp.GetPosition().x) - self.ox - x0,
+                               pcbnew.ToMM(fp.GetPosition().y) - self.oy - y0,
+                               fp.GetOrientationDegrees())
+                best = (score, dict(refs=refs, w=bw, h=bh, pos=pos))
+        if best is None:
+            raise RuntimeError(f"no block arrangement for {refs[:3]}...")
+        return best[1]
+
+    def _pack_obstacles(self, refs, region, obstacles, gap):
+        """pack() with fixed obstacles (courtyard boxes) inside the region."""
+        self._obstacles = obstacles
+        try:
+            self.pack(refs, region, gap=gap)
+        finally:
+            self._obstacles = []
+
+    def place_blocks(self, blocks, region, obstacles=(), gap=0.6):
+        """MaxRects placement of whole blocks inside region around obstacles.
+
+        Several block orders and fit rules are tried; the first complete
+        placement wins.
+        """
+        x0, y0, x1, y1 = region
+        base = [(x0, y0, x1 + gap, y1 + gap)]
+        base = self._cut(base, [(a - gap, b - gap, c + gap, d + gap) for a, b, c, d in obstacles])
+        orders = [lambda b_: -b_["w"] * b_["h"], lambda b_: -b_["h"], lambda b_: -b_["w"],
+                  lambda b_: -max(b_["w"], b_["h"])]
+        rules = ["bssf", "blsf", "baf", "bl"]
+        for order in orders:
+            for rule in rules:
+                ordered = sorted(blocks, key=lambda b_: (b_.get("near") is None, order(b_)))
+                plan = self._try_blocks(ordered, base, gap, rule)
+                if plan:
+                    for blk, px, py in plan:
+                        for r_, (x, y, rr) in blk["pos"].items():
+                            self.place(r_, px + x, py + y, rr)
+                    return
+        raise RuntimeError("board full: no block placement found")
+
+    def _try_blocks(self, blocks, free, gap, rule):
+        plan = []
+        for blk in blocks:
+            W_, H_ = blk["w"] + gap, blk["h"] + gap
+            best = None
+            near = blk.get("near")
+            for f in free:
+                fw, fh = f[2] - f[0], f[3] - f[1]
+                if W_ <= fw + 1e-6 and H_ <= fh + 1e-6:
+                    lw, lh = fw - W_, fh - H_
+                    if near:
+                        # the four corners of f keep the packing tight; take
+                        # the one whose block centre is closest to the target
+                        cands = []
+                        for cx in (f[0], f[2] - W_):
+                            for cy in (f[1], f[3] - H_):
+                                d = ((cx + W_ / 2 - near[0]) ** 2 + (cy + H_ / 2 - near[1]) ** 2) ** 0.5
+                                cands.append(((d, min(lw, lh)), cx, cy))
+                    else:
+                        cands = [({"bssf": (min(lw, lh), max(lw, lh)),
+                                   "blsf": (max(lw, lh), min(lw, lh)),
+                                   "baf": (fw * fh - W_ * H_, min(lw, lh)),
+                                   "bl": (f[1], f[0])}[rule], f[0], f[1])]
+                    for score, cx, cy in cands:
+                        if best is None or score < best[0]:
+                            best = (score, cx, cy)
+            if best is None:
+                return None
+            _, px, py = best
+            plan.append((blk, px, py))
+            free = self._cut(free, [(px, py, px + W_, py + H_)])
+        return plan
+
+    @staticmethod
+    def _cut(free, used_list):
+        for used in used_list:
+            nf = []
+            for f in free:
+                if used[0] >= f[2] or used[2] <= f[0] or used[1] >= f[3] or used[3] <= f[1]:
+                    nf.append(f)
+                    continue
+                if used[0] > f[0]:
+                    nf.append((f[0], f[1], used[0], f[3]))
+                if used[2] < f[2]:
+                    nf.append((used[2], f[1], f[2], f[3]))
+                if used[1] > f[1]:
+                    nf.append((f[0], f[1], f[2], used[1]))
+                if used[3] < f[3]:
+                    nf.append((f[0], used[3], f[2], f[3]))
+            free = [a for a in nf if a[2] - a[0] > 0.5 and a[3] - a[1] > 0.5 and not any(
+                a != b and a[0] >= b[0] and a[1] >= b[1] and a[2] <= b[2] and a[3] <= b[3]
+                for b in nf)]
+        return free
 
     def zone(self, net, layer, pts, priority=0, clearance=0.3, min_width=0.25,
              full=True, name=None):

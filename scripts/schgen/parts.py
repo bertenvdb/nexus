@@ -108,6 +108,10 @@ P = {
             "C144394", "B3B-XH-A(LF)(SN)", "SELF"),
     "SJ3": ("Jumper:SolderJumper_3_Bridged12", "VCC_FIL 5V|3V3",
             "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm", "", "", "NONE"),
+    # F6 dock board size reduction
+    "BTN_S": ("Switch:SW_Push", "TS-1088", "Button_Switch_SMD:SW_SPST_TS-1088-xR020",
+              "C720477", "TS-1088-AR02016", "JLC"),
+    "TP_S": ("Connector:TestPoint", "TP", "TestPoint:TestPoint_Pad_D1.0mm", "", "", "NONE"),
     # F4 dock board
     "R7k5":  ("Device:R", "7.5k", R0603, "C23234", "0603WAF7501T5E", "JLC"),
     "R12k":  ("Device:R", "12k", R0603, "C22790", "0603WAF1202T5E", "JLC"),
@@ -126,7 +130,7 @@ P = {
 def place(sheet, key, cat, at, nets, rot=0, value=None, **kw):
     lib_id, val, fp, lcsc, mpn, asm = P[cat]
     prefix = None
-    if lib_id == "Connector:TestPoint":
+    if lib_id == "Connector:TestPoint":  # TP and TP_S
         prefix = "TP"
     if lib_id == "power:PWR_FLAG":
         prefix = "#FLG"
