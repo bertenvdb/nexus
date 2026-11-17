@@ -14,6 +14,17 @@
 		(comment 3 "github.com/bertenvdb/nexus")
 	)
 	(lib_symbols)
+	(text "8 heater channels: gate buffer, low-side MOSFET, 5 A fuse, screw terminal"
+		(exclude_from_sim no)
+		(at 210.82 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "189521e4-5178-545c-bd13-0d8b2c436dd1")
+	)
 	(text "Diagnostic LEDs (AD-17)"
 		(exclude_from_sim no)
 		(at 121.92 104.14 0)
@@ -79,6 +90,17 @@
 			(justify left)
 		)
 		(uuid "e8207c6d-d3f3-53b7-8d0d-8eecb80994cf")
+	)
+	(text "8 thermistor inputs (NTC 100K / PT1000), RC filter, clamp, ESD"
+		(exclude_from_sim no)
+		(at 299.72 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f56c194a-610d-5029-a906-e87d96d5d67b")
 	)
 	(sheet
 		(at 119.38 91.44)
@@ -219,6 +241,52 @@
 		)
 	)
 	(sheet
+		(at 208.28 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "78fba2b5-436d-528c-bbde-49c2707cf03d")
+		(property "Sheetname" "heaters"
+			(at 208.28 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "heaters.kicad_sch"
+			(at 208.28 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
 		(at 30.48 91.44)
 		(size 63.5 25.4)
 		(exclude_from_sim no)
@@ -352,6 +420,52 @@
 			(project "toolboard"
 				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
 					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 297.18 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "d24c74e1-5c7e-53de-b37d-d4302147a9af")
+		(property "Sheetname" "thermistors"
+			(at 297.18 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "thermistors.kicad_sch"
+			(at 297.18 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "9")
 				)
 			)
 		)

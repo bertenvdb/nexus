@@ -125,4 +125,4 @@ Connector widths (incl. 1 mm gap): screw terminal 5.08 mm 2-pole 10.2 mm, JST-XH
 | Connector overhang | **1.0 mm** for USB-C, CAN and XT60/XT30 |
 | Copper | **1 oz** outer, power trunk 12 mm on L1 + L3 + L4 ([calculations.md](calculations.md) §2.1) |
 | JST-XH | **Straight (vertical)** |
-| Screw terminal | WJ500V-5.08-2P (C8465); footprint from the Kangnex drawing in F3 |
+| Screw terminal | WJ500V-5.08-2P (C8465) on KiCad `TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal`: checked against the Kangnex drawing (pitch 5.08, recommended hole 1.2 mm vs 1.3 mm drill, pin row 4.5 vs 4.65 mm from the back, width 10.16 vs 10.26 mm) |

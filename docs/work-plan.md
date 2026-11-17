@@ -87,8 +87,8 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | `power_input` | ✅ review 1 (2026-11-17) |
 | `heater_cutoff` | ✅ review 1 (2026-11-17) |
 | `logic_power` | ✅ review 1 (2026-11-17) |
-| `mcu`, `usb_can`, `diag_leds` | 🔍 review 2 |
-| `heaters`, `thermistors` | ⏳ |
+| `mcu`, `usb_can`, `diag_leds` | ✅ review 2 (2026-11-17) |
+| `heaters`, `thermistors` | 🔍 review 3 |
 | `filament_inputs`, `led_port` | ⏳ |
 
 **Goal:** a complete hierarchical schematic with ERC = 0 errors.

@@ -79,6 +79,23 @@ P = {
              "C492401", "PZ254V-11-02P", "SELF"),
     "LED_G": ("Device:LED", "green", "LED_SMD:LED_0805_2012Metric", "C2297", "KT-0805G", "JLC"),
     "LED_R": ("Device:LED", "red", "LED_SMD:LED_0603_1608Metric", "C2286", "KT-0603R", "JLC"),
+    # F3 batch 3
+    "R22":   ("Device:R", "22R", R0603, "C23345", "0603WAF220JT5E", "JLC"),
+    "R4k7":  ("Device:R", "4.7k", R0603, "C23162", "0603WAF4701T5E", "JLC"),
+    "R4k7p": ("Device:R", "4.7k 0.1%", R0603, "C666997", "TD03G4701BT", "JLC"),
+    "R4k12p": ("Device:R", "4.12k 0.1%", R0603, "C2984354", "AR03BTCX4121", "JLC"),
+    "SMF30CA": ("Device:D_TVS", "SMF30CA", "Diode_SMD:D_SOD-123F", "C19077519", "SMF30CA", "JLC"),
+    "FUSE5": ("Device:Fuse", "5A", "Fuse:Fuse_1206_3216Metric", "C57525", "0466005.NRHF", "SELF"),
+    "WSD": ("nexus:WSD4070DN", "WSD4070DN33", None, "C719095", "WSD4070DN33", "JLC"),
+    "HCT541": ("74xx:74HCT541", "CD74HCT541M96", "Package_SO:SOIC-20W_7.5x12.8mm_P1.27mm",
+               "C6560", "CD74HCT541M96", "JLC"),
+    "SCREW2": ("Connector_Generic:Conn_01x02", "WJ500V-5.08-2P",
+               "TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal",
+               "C8465", "WJ500V-5.08-2P", "SELF"),
+    "XH2": ("Connector_Generic:Conn_01x02", "JST-XH 2", "Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical",
+            "C158012", "B2B-XH-A(LF)(SN)", "SELF"),
+    "SJ2": ("Jumper:SolderJumper_2_Open", "PT1000", "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+            "", "", "NONE"),
 }
 
 
@@ -89,6 +106,8 @@ def place(sheet, key, cat, at, nets, rot=0, value=None, **kw):
         prefix = "TP"
     if lib_id == "power:PWR_FLAG":
         prefix = "#FLG"
+    if lib_id.startswith("Jumper:"):
+        prefix = "JP"
     if lib_id == "Device:NetTie_2":
         prefix = "NT"
     if lib_id.startswith("Connector_Generic") or lib_id.startswith("Connector:USB"):

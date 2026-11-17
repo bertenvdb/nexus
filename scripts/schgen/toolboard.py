@@ -247,6 +247,54 @@ def diag_leds(b):
            (38.1, 215.9))
 
 
+def heaters(b):
+    s = b.sheet("heaters", "8 heater channels: gate buffer, low-side MOSFET, 5 A fuse, screw terminal")
+    buf = {"1": "GND", "19": "GND", "10": "GND", "20": "+5V"}
+    for i in range(8):
+        buf[str(2 + i)] = f"HEATER_T{i}_CTRL"
+        buf[str(18 - i)] = f"GATE_T{i}_B"
+    place(s, "U_GATEBUF", "HCT541", (45.72, 120.65), buf)
+    two(s, "C_GATEBUF", "C100n", 30.48, 167.64, "+5V", "GND")
+    for i in range(8):
+        y = 38.1 + i * 27.94
+        place(s, f"R_IN{i}", "R100k", (101.6, y), {"1": f"HEATER_T{i}_CTRL", "2": "GND"}, rot=90)
+        place(s, f"R_G{i}", "R22", (144.78, y), {"1": f"GATE_T{i}_B", "2": f"GATE_T{i}"}, rot=90)
+        place(s, f"R_GPD{i}", "R100k", (187.96, y), {"1": f"GATE_T{i}", "2": "GND"}, rot=90)
+        place(s, f"Q_H{i}", "WSD", (228.6, y), {
+            "1": "GND", "2": "GND", "3": "GND", "4": f"GATE_T{i}", "5": f"HEATER_T{i}_N"}, rot=90)
+        place(s, f"F_H{i}", "FUSE5", (281.94, y), {"1": "+24V_HEATER", "2": f"HEATER_T{i}_P"}, rot=90)
+        place(s, f"J_H{i}", "SCREW2", (342.9, y + 1.27),
+              {"1": f"HEATER_T{i}_P", "2": f"HEATER_T{i}_N"}, value=f"HEATER T{i}")
+    place(s, "TP_GATE0", "TP", (370.84, 30.48), {"1": "GATE_T0"})
+    place(s, "TP_DRAIN0", "TP", (386.08, 30.48), {"1": "HEATER_T0_N"})
+    s.text("74HCT541: TTL inputs (3.3 V = high), 5 V gate drive. OE (G1/G2) tied to GND.\n"
+           "100k pull-downs on inputs and gates: all MOSFETs off during reset/boot.\n"
+           "Low-side WSD4070DN33 (40 V, 7.6 mOhm max at 4.5 V); fuse 5 A in the +24 V lead.\n"
+           "Terminal: pin 1 = +24V (fused, behind the cutoff), pin 2 = HEATER- (drain).",
+           (20.32, 205.74))
+
+
+def thermistors(b):
+    s = b.sheet("thermistors", "8 thermistor inputs (NTC 100K / PT1000), RC filter, clamp, ESD")
+    for i in range(8):
+        y = 38.1 + i * 27.94
+        c, n = f"THERM_T{i}_C", f"THERM_T{i}"
+        place(s, f"R_PU{i}", "R4k7p", (45.72, y), {"1": "VREF_A", "2": c}, rot=90)
+        place(s, f"JP_PT{i}", "SJ2", (88.9, y), {"1": "VREF_A", "2": f"THERM_T{i}_PT"})
+        place(s, f"R_PT{i}", "R4k12p", (134.62, y), {"1": f"THERM_T{i}_PT", "2": c}, rot=90)
+        place(s, f"D_TESD{i}", "SMF30CA", (175.26, y), {"1": c, "2": "AGND"})
+        place(s, f"C_TIN{i}", "C100n", (213.36, y), {"1": c, "2": "AGND"}, rot=90)
+        place(s, f"R_TS{i}", "R4k7", (254.0, y), {"1": c, "2": n}, rot=90)
+        place(s, f"C_TADC{i}", "C100n", (294.64, y), {"1": n, "2": "AGND"}, rot=90)
+        place(s, f"D_TCL{i}", "BAT54S", (335.28, y), {"1": "AGND", "2": "VREF_A", "3": n})
+        place(s, f"J_T{i}", "XH2", (378.46, y + 1.27), {"1": c, "2": "AGND"}, value=f"THERM T{i}")
+    s.text("Pull-up 4.7k 0.1 % (NTC 100K, pullup_resistor: 4700). Close JP = PT1000:\n"
+           "4.7k // 4.12k = 2195 Ohm (pullup_resistor: 2195). Pull-ups on VREF_A = ADC reference.\n"
+           "24 V on the input (heater wire touching the thermistor wire): 4.7k + BAT54S limit\n"
+           "the ADC pin current to ~4 mA; SMF30CA does not conduct at 24 V. Connector pin 2 = AGND.",
+           (20.32, 266.7))
+
+
 def build():
     b = Board("toolboard", "Nexus Tools Board")
     b.power_nets = POWER_NETS
@@ -262,4 +310,6 @@ def build():
     mcu(b)
     usb_can(b)
     diag_leds(b)
+    heaters(b)
+    thermistors(b)
     return b
