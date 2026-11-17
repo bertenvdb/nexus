@@ -1,0 +1,67 @@
+# ============================================================
+# nexus — .gitignore
+# Deliberately committed: *.kicad_pro, *.kicad_sch, *.kicad_pcb,
+# *.kicad_sym, *.kicad_mod, sym-lib-table, fp-lib-table,
+# lib/**/3D models (*.step, *.wrl), fab/rev-*/ (releases)
+# ============================================================
+
+# --- KiCad: local/temporary files --------------------------
+*-backups/
+*.lck
+\#auto_saved_files\#
+_autosave-*
+*.kicad_prl
+fp-info-cache
+*.bak
+*.bck
+*.kicad_pcb-bak
+*.sch-bak
+*~
+
+# KiCad exports created locally (belong in fab/ as a release)
+*.gbr
+*.gbrjob
+*.drl
+*.pos
+*-job.gbrjob
+*.dsn
+*.ses
+*.rules
+!fab/**/*.gbr
+!fab/**/*.gbrjob
+!fab/**/*.drl
+!fab/**/*.pos
+
+# --- JLC plugin and generated output ----------------------
+jlcpcb/
+out/
+production/
+
+# --- Freerouting --------------------------------------------
+freerouting.log
+*.frb
+
+# --- easyeda2kicad cache ------------------------------------
+.easyeda2kicad/
+
+# --- Python (scripts/) --------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# --- Editors / IDE ------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# --- Claude Code: local settings ---------------------------
+.claude/settings.local.json
+
+# --- OS -----------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini

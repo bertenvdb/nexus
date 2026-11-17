@@ -1,0 +1,19 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "b8f52e4c-e95b-4e55-bb76-6b9291544720")
+	(paper "A4")
+	(title_block
+		(title "Nexus Docks Board")
+		(date "2026-11-17")
+		(rev "A")
+		(comment 1 "CERN-OHL-S-2.0")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

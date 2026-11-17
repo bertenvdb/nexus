@@ -1,0 +1,19 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "c5ae0d27-934d-426f-a59c-790190f7f6cf")
+	(paper "A4")
+	(title_block
+		(title "Nexus Tools Board")
+		(date "2026-11-17")
+		(rev "A")
+		(comment 1 "CERN-OHL-S-2.0")
+	)
+	(lib_symbols)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)

@@ -1,0 +1,58 @@
+# BOM master — Nexus Tools Board and Nexus Docks Board
+
+Source of truth: [`bom-master.csv`](bom-master.csv). This is a readable view. Status: component selection done, not yet verified in KiCad (phase F1).
+
+Column **Tool** = Nexus Tools Board, **Dock** = Nexus Docks Board.
+
+**Assembly:** `JLC` = placed by JLC, `SELF` = hand-soldered, `DNP` = do not populate. **TBD** = concrete part still to be chosen in F1.
+
+| Group | Description | MPN | LCSC | Tool | Dock | Assembly | Basic? | Stock 10/11 | Price $ | Notes |
+|---|---|---|---|---|---|---|---|---|---|---|
+| MCU | STM32G0B1 MCU LQFP-64 128KB | STM32G0B1RBT6 | C5143679 | 1 | 1 | JLC | Extended | 827 | 2.10 | Shared. CBT6/CET6 sold out; RET6 only 26 pcs |
+| Heater/Fan switch | N-MOSFET 40V 4.5mOhm DFN3x3 | WSD4070DN | C719095 | 8 | 9 | JLC | Extended | 11723 | 0.17 | Shared. Verify RDS(on) at VGS=4.5V |
+| Gate buffer | Octal buffer HCT 5V TTL inputs SOIC-20 | CD74HCT541M96 | C6560 | 1 | 1 | JLC | Extended | 987 | 0.64 | Shared. Inputs 100k pull-down; OE to GND |
+| Single buffer | Single buffer AHCT SOT-23-5 | SN74AHCT1G125DBVR | C7484 | 1 | 2 | JLC | Extended | 4815 | 0.05 | Tool: LED shifter. Dock: LED shifter + fan 9 gate |
+| Cutoff/RPP controller | Ideal diode / high-side switch controller | LM74502DDFR | C3236215 | 1 | 1 | JLC | Extended | 1880 | 0.57 | Tool: cutoff back-to-back. Dock: reverse polarity, EN tied high |
+| Cutoff/RPP FET | N-MOSFET 60V 1.6mOhm SuperSO8 | BSC016N06NS | C454269 | 2 | 1 | JLC | Extended | 6793 | 0.62 | Shared |
+| Buck | Buck 4.5-60V 3.5A SO8-PowerPAD | TPS54360BDDAR | C524806 | 1 | 2 | JLC | Extended | 58193 | 0.63 | Tool: 5V. Dock: 5V + fan rail 12/5V |
+| Buck inductor | 10uH >=4.5A sat (value via WEBENCH) | TBD | TBD | 1 | 2 | JLC | TBD |  | 0.20 | Same part for all bucks |
+| LDO | LDO 3.3V 500mA SOT-23-5 | ME6211C33M5G-N | C82942 | 2 | 1 | JLC | Likely basic | 334460 | 0.04 | Tool: 3V3_MCU + 3V3_AUX |
+| CAN transceiver | CAN transceiver 5V with VIO | TJA1051T/3/1J | C38695 | 1 | 1 | JLC | Extended | 149768 | 0.32 | AD-12 populated |
+| CAN ESD | CAN bus ESD SOT-23 | PESD2CAN (pick highest stock variant) | C907830 | 1 | 1 | JLC | Extended | TBD | 0.05 | SM24CANB only 155 pcs |
+| Crystal | 8MHz 20pF 5032 | X50328MSB2GI | C115962 | 1 | 1 | JLC | Likely basic | 273790 | 0.13 | Load caps per AN2867 |
+| USB ESD | USB ESD SOT-23-6 | USBLC6-2SC6 | C7519 | 1 | 1 | JLC | Likely basic | 27880 | 0.08 |  |
+| USB connector | USB-C 16-pin USB2.0 | TBD (basic variant) | TBD | 1 | 1 | JLC | TBD |  | 0.10 | CC1/CC2 5.1k to GND |
+| Input TVS | TVS 30V bidirectional SMB | SMBJ30CA | Basic | 1 | 1 | JLC | Basic |  | 0.04 |  |
+| Logic Schottky | Schottky 60V 3A SMA | SS36 | TBD (basic variant) | 1 | 0 | JLC | TBD |  | 0.05 | Tool: reverse polarity logic path |
+| Fan flyback | Schottky >=40V per fan | SS36 or basic B5819W | TBD | 0 | 9 | JLC | TBD |  | 0.05 | Dock only |
+| Analog clamp | Dual Schottky SOT-23 | BAT54S | TBD (basic if available) | 9 | 0 | JLC | TBD |  | 0.03 | 8 thermistor + 1 RAIL_SENSE |
+| Thermistor ESD | TVS 30V bidirectional SOD-123F | SMF30CA | TBD (basic if available) | 8 | 0 | JLC | TBD |  | 0.03 | Must not conduct at 24V |
+| Signal ESD | ESD diode >=5.5V standoff | TBD (basic) | TBD | 19 | 2 | JLC | TBD |  | 0.02 | AD-14. Tool: 8 RUNOUT + 8 MOTION + VCC_FIL + LED DIN + LED 5V. Dock: LED DIN + LED 5V |
+| Pull-up NTC | 4.7k 0.1% 25ppm 0603 | TD03G4701BT | C666997 | 8 | 0 | JLC | Extended | 12610 | 0.015 |  |
+| Pull-up PT1000 parallel | 4.12k 0.1% 0603 | TBD | TBD | 8 | 0 | JLC | Extended |  | 0.02 | Bridge closed = 2195 ohm |
+| Rail sense | Divider 100k + 10k 1% 0603, 1k series, 100nF | generic | Basic | 1 set | 0 | JLC | Basic |  | 0.01 | AD-13 |
+| Rail bleeder | 4.7k >=0.25W 1206 | generic | Basic | 1 | 0 | JLC | Basic |  | 0.01 | Recalculate with real rail capacitance |
+| Channel fuse | Fuse 1206 5A 32V | AEM F1206SB5000V032TM or alt | C311004 | 8 | 1 | SELF | Extended | 85 | 0.16 | Dock: input fuse (same part). Find alternative with more stock |
+| Main fuse | Fuse 25A 125V SMD very fast | 0456025.ER | C315877 | 1 | 0 | SELF | Extended | 2574 | 1.07 |  |
+| PPTC | PPTC 1206 0.75A hold 1.5A trip 6V | JK-NSMD075 | C692900 | 2 | 1 | JLC | Extended | TBD | 0.05 | Tool: VCC_FIL + LED. Dock: LED |
+| Bulk electrolytic | 100uF 50V | TBD (basic) | TBD | 2 | 1 | JLC | TBD |  | 0.10 |  |
+| Bulk ceramic | 10uF 50V X7R 1206 | TBD (basic) | TBD | 4 | 2 | JLC | TBD |  | 0.08 |  |
+| Power input tool | XT60 male right angle PCB | XT60PW-M | C98732 | 1 | 0 | SELF | Extended | 12120 | 0.46 |  |
+| Power input dock | XT30 male right angle PCB | XT30PW-M | C431092 | 0 | 1 | SELF | Extended | 26030 | 0.38 |  |
+| CAN connector | Micro-Fit 3.0 2x2 right angle | 43045-0400 | C122413 | 2 | 1 | SELF | Extended | 53790 | 0.21 | Pinout 24V(NC)-GND-CANH-CANL |
+| Heater connector | Screw terminal 2-pole 5.08mm | TBD | TBD | 8 | 0 | SELF | TBD |  | 0.08 |  |
+| Thermistor connector | JST-XH 2-pin | B2B-XH-A or equivalent | TBD | 8 | 0 | SELF | TBD |  | 0.03 |  |
+| Filament connector | JST-XH 4-pin | B4B-XH-A or equivalent | TBD | 8 | 0 | SELF | TBD |  | 0.04 | Pin1 RUNOUT 2 GND 3 VCC 4 MOTION |
+| LED connector | JST-XH 3-pin | B3B-XH-A or equivalent | TBD | 1 | 1 | SELF | TBD |  | 0.03 | Pin1 DIN 2 GND 3 5V |
+| Fan connector | JST-XH 2-pin | B2B-XH-A or equivalent | TBD | 0 | 9 | SELF | TBD |  | 0.03 | Pin1 FAN- 2 V+ |
+| CAN termination | 2-pin header + jumper | TBD | TBD | 1 | 1 | SELF | TBD |  | 0.02 | 120R resistor basic |
+| SWD header | 1x4 2.54mm | TBD | TBD | 1 | 1 | SELF | TBD |  | 0.02 | Optional populate |
+| Buttons | Tactile switch SMD (BOOT + RESET) | TBD (basic) | TBD | 2 | 2 | JLC | TBD |  | 0.02 |  |
+| LEDs | 0603 LED (diagnostics, AD-17) | TBD (basic) | TBD | 14 | 6 | JLC | Basic |  | 0.01 | Tool: 24V IN / HEATER RAIL / 5V / 3V3 / VBUS / MCU + 8 heater-drain. Dock: 24V IN / FAN RAIL / 5V / 3V3 / VBUS / MCU. Resistors basic |
+| Passives | 0603 R/C generic | various | Basic | ~160 | ~85 | JLC | Basic |  | 0.005 |  |
+
+## Unique Extended parts placed by JLC (fee ≈ $3.07 each per order)
+
+STM32G0B1RBT6, WSD4070DN, CD74HCT541, SN74AHCT1G125, LM74502, BSC016N06NS, TPS54360B, TJA1051T/3, PESD2CAN, 4.7 kΩ 0.1 %, 4.12 kΩ 0.1 %, JK-NSMD075, plus possibly the inductor, BAT54S, SMF30CA, the signal ESD diode, SS36 and USB-C, if no Basic variant of them exists.
+
+With **one panel containing both boards** you pay this fee only once.
