@@ -44,7 +44,7 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | Buck output cap | 22uF 25V X5R 1206 | CL31A226KAHNNNE | C12891 | 3 | 7 | JLC | Basic | 2642645 | 0.10 | stdlib | Tool 5V: 3. Dock 5V: 3, fan rail: 4 (25V needed for 12V). See calculations.md |
 | Power input tool | XT60 male right angle PCB | XT60PW-M | C98732 | 1 | 0 | SELF | Extended | 141599 | 0.55 | stdlib |  |
 | Power input dock | XT30 male right angle PCB | XT30PW-M30.G.Y | C431092 | 0 | 1 | SELF | Extended | 101327 | 0.34 | stdlib |  |
-| CAN connector | Micro-Fit 3.0 2x2 right angle | 43045-0400 | C122413 | 2 | 1 | SELF | Extended | 49412 | 0.37 | stdlib | Pinout 24V(NC)-GND-CANH-CANL |
+| CAN connector | Micro-Fit 3.0 2x2 right angle | 43045-0400 | C122413 | 2 | 1 | SELF | Extended | 49412 | 0.37 | stdlib | Pads 1 GND / 2 24V(NC) / 3 CANL / 4 CANH = EBB layout (bottom row 24V GND |
 | Heater connector | Screw terminal 2-pole 5.08mm | WJ500V-5.08-2P | C8465 | 8 | 0 | SELF | Extended | 280498 | 0.14 | F2 | Footprint after orientation choice (F2). Alt KF128-5.08-2P C474952 |
 | Thermistor connector | JST-XH 2-pin vertical | B2B-XH-A(LF)(SN) | C158012 | 8 | 0 | SELF | Extended | 480587 | 0.04 | stdlib | Right-angle S2B-XH-A C157931 if F2 requires |
 | Filament connector | JST-XH 4-pin vertical | B4B-XH-A(LF)(SN) | C144395 | 8 | 0 | SELF | Extended | 523031 | 0.05 | stdlib | Pin1 RUNOUT 2 GND 3 VCC 4 MOTION. Right-angle S4B-XH-A C157925 |

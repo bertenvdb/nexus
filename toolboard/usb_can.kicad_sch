@@ -3191,7 +3191,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "CAN connectors: pin 1 = 24V NOT CONNECTED (AD-07), 2 = GND, 3 = CAN-H, 4 = CAN-L.\nTermination 120R: fit the jumper only at the end of the bus.\nTJA1051T/3: VCC 5 V, VIO 3.3 V, S to GND (normal mode)."
+	(text "CAN connectors, seen into the mating face (PCB below), as on BTT EBB boards:\n  top row:    CAN-H (pad 4) | CAN-L (pad 3)\n  bottom row: 24V (pad 2, NOT CONNECTED, AD-07) | GND (pad 1)\nTermination 120R: fit the jumper only at the end of the bus.\nTJA1051T/3: VCC 5 V, VIO 3.3 V, S to GND (normal mode)."
 		(exclude_from_sim no)
 		(at 38.1 254 0)
 		(effects
@@ -3200,7 +3200,7 @@
 			)
 			(justify left)
 		)
-		(uuid "0a51a111-4435-5cb1-b081-e4c3ea1f2ad2")
+		(uuid "3071e6db-e5ea-50ef-81a0-37aee84dbebe")
 	)
 	(text "USB: device, CC1/CC2 5.1k (Rd). VBUS only feeds the 3V3_MCU diode-OR.\nShield to GND via 1M // 4.7nF (no hard ground loop over the cable shield)."
 		(exclude_from_sim no)
@@ -3214,16 +3214,16 @@
 		(uuid "bc673a13-eb48-55b0-9a1e-e800d8124a90")
 	)
 	(no_connect
-		(at 251.46 195.58)
-		(uuid "3259f9d4-13f6-58f9-9fa2-34ca1f331cf0")
-	)
-	(no_connect
-		(at 208.28 195.58)
-		(uuid "a9ce1fd7-84cc-5470-8bb3-31cf2cecb284")
+		(at 264.16 195.58)
+		(uuid "ced40629-ef08-514b-9a83-cd652a77131e")
 	)
 	(no_connect
 		(at 78.74 116.84)
 		(uuid "f4e8c491-acbb-55c5-a6c3-bde0aa10514f")
+	)
+	(no_connect
+		(at 220.98 195.58)
+		(uuid "f722c88d-dff8-5657-bca5-af50a12bc8ff")
 	)
 	(no_connect
 		(at 78.74 114.3)
@@ -3238,6 +3238,16 @@
 			(type default)
 		)
 		(uuid "01acef2c-85a6-5312-827e-2e7ad5f4f0e8")
+	)
+	(wire
+		(pts
+			(xy 208.28 195.58) (xy 203.2 195.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09114635-a2f2-544b-add2-529f5cc1ea11")
 	)
 	(wire
 		(pts
@@ -3348,16 +3358,6 @@
 			(type default)
 		)
 		(uuid "2aacce13-139f-54d8-80d7-f244ba8994ea")
-	)
-	(wire
-		(pts
-			(xy 220.98 195.58) (xy 226.06 195.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2e6b0e2a-7ad8-5825-b536-9461a958871b")
 	)
 	(wire
 		(pts
@@ -3731,6 +3731,16 @@
 	)
 	(wire
 		(pts
+			(xy 251.46 195.58) (xy 246.38 195.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1041a42-71a1-5cac-b8be-e80aa0eb91bb")
+	)
+	(wire
+		(pts
 			(xy 66.04 242.57) (xy 66.04 245.11)
 		)
 		(stroke
@@ -3768,16 +3778,6 @@
 			(type default)
 		)
 		(uuid "f17ac476-faa0-5731-b756-9b9fbad1ef5c")
-	)
-	(wire
-		(pts
-			(xy 264.16 195.58) (xy 269.24 195.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f53ded25-072f-5bb3-a57d-9991a8da02c9")
 	)
 	(wire
 		(pts
@@ -3829,7 +3829,7 @@
 		)
 		(uuid "0d417be5-3369-5c86-9923-12645e6f7e00")
 	)
-	(label "CANL"
+	(label "CANH"
 		(at 269.24 198.12 0)
 		(effects
 			(font
@@ -3849,7 +3849,7 @@
 		)
 		(uuid "2d7c3c81-19a8-529f-a49c-52245fe11446")
 	)
-	(label "CANH"
+	(label "CANL"
 		(at 203.2 198.12 180)
 		(effects
 			(font
@@ -3859,7 +3859,7 @@
 		)
 		(uuid "407bc8ad-0c9e-595a-83db-bd926fe94af7")
 	)
-	(label "CANL"
+	(label "CANH"
 		(at 226.06 198.12 0)
 		(effects
 			(font
@@ -3959,7 +3959,7 @@
 		)
 		(uuid "8de15127-7434-5c6b-bc32-b7117984e38c")
 	)
-	(label "CANH"
+	(label "CANL"
 		(at 246.38 198.12 180)
 		(effects
 			(font
@@ -4088,6 +4088,29 @@
 			)
 		)
 	)
+	(global_label "GND"
+		(shape passive)
+		(at 246.38 195.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1929f136-ccf0-5237-a34e-dbecbd466d03")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 246.38 195.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+	)
 	(global_label "USB_DP"
 		(shape passive)
 		(at 175.26 104.14 0)
@@ -4101,6 +4124,29 @@
 		(uuid "299917cf-a198-59d9-8162-8ce939a7eb82")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 175.26 104.14 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+	)
+	(global_label "GND"
+		(shape passive)
+		(at 203.2 195.58 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "34a2794f-5aec-5a67-95d0-f405a6b3745e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 203.2 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4366,29 +4412,6 @@
 	)
 	(global_label "GND"
 		(shape passive)
-		(at 269.24 195.58 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "99eaf82b-7b17-5fe2-9378-a427b6a6bdd4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 269.24 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-	)
-	(global_label "GND"
-		(shape passive)
 		(at 63.5 129.54 270)
 		(fields_autoplaced yes)
 		(effects
@@ -4584,29 +4607,6 @@
 		(uuid "e4e828c2-911e-5b83-820c-ee3d3eb04377")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 154.94 104.14 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-	)
-	(global_label "GND"
-		(shape passive)
-		(at 226.06 195.58 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "ebbdeb31-9bd0-5d74-8221-bda13cf93888")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 226.06 195.58 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

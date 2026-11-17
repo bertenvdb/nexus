@@ -38,7 +38,7 @@ Close an item with date and result. If the result changes a design document, upd
 
 | # | Item | Source | Status |
 |---|---|---|---|
-| 29 | CAN Micro-Fit pin numbering (1 = 24V NC, 2 = GND, 3 = CAN-H, 4 = CAN-L): check against BTT EBB/U2C cables before layout | design 11 §5, sheet `usb_can` | ⏳ before F5 |
+| 29 | CAN Micro-Fit pin numbering: check against BTT EBB/U2C cables before layout | design 11 §5, sheet `usb_can` | ✅ 2026-11-17: EBB photo (Berten). Mating face, PCB below: bottom 24V · GND, top CAN-H · CAN-L → KiCad pads 1 GND, 2 24V (NC), 3 CAN-L, 4 CAN-H. The first assumption (1 24V, 2 GND, 3 CAN-H, 4 CAN-L) was wrong and is corrected |
 | 30 | STM32G0 option byte nBOOT_SEL: does the BOOT button select DFU on a fresh chip? (empty flash boots to DFU regardless) | sheet `mcu` | ⏳ F8, first board |
 
 ## F7 (ordering)

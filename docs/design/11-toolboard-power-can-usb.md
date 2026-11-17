@@ -117,7 +117,7 @@ That is ≈ 0.25 A on the 24V side, negligible in the architecture's power budge
 | Transceiver | TJA1051T/3: VCC 5 V, VIO 3.3 V | The same transceiver as in most Klipper toolboards. The VIO pin makes a level shifter unnecessary. |
 | ESD | PESD2CAN class on CAN-H/CAN-L | Pick the variant with the largest stock. The Littelfuse SM24CANB has only 155 pcs. |
 | Connectors | 2× Micro-Fit 43045-0400 (IN and OUT), right-angle | Internally passed through. |
-| Pinout | **24V – GND – CAN-H – CAN-L**, the common layout on Klipper toolboards | So existing CAN cables and adapters work. The 24V pin is **not connected** on both connectors (AD-07). |
+| Pinout | Seen into the mating face with the PCB below: **bottom row 24V · GND, top row CAN-H · CAN-L**, as on BTT EBB toolboards (checked against a photo, 2026-11-17). KiCad pads: 1 GND, 2 24V, 3 CAN-L, 4 CAN-H | So existing CAN cables and adapters work. The 24V pin is **not connected** on both connectors (AD-07). |
 | Termination | 120 Ω via 2-pin header + jumper | Fit on the board at the end of the bus. |
 | MCU pins | FDCAN1 | Pin choice in the schematic phase. Must be compatible with Klipper's G0B1 options for CAN, and for USB-CAN bridge together with USB on PA11/PA12. |
 | Bitrate | 1 Mbit/s (Klipper default) | Hence a crystal (§7). The internal HSI16 is not accurate enough over the temperature range for reliable CAN at 1 Mbit/s. |

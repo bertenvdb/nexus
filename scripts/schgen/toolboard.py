@@ -205,9 +205,9 @@ def usb_can(b):
     two(s, "C_CANVIO", "C100n", 66.04, 238.76, "+3V3_MCU", "GND")
     place(s, "D_CANESD", "PESD2CAN", (152.4, 200.66), {"1": "CANH", "2": "CANL", "3": "GND"})
     place(s, "J_CAN_IN", "MICROFIT", (213.36, 195.58),
-          {"1": "NC", "2": "GND", "3": "CANH", "4": "CANL"}, value="CAN IN")
+          {"1": "GND", "2": "NC", "3": "CANL", "4": "CANH"}, value="CAN IN")
     place(s, "J_CAN_OUT", "MICROFIT", (256.54, 195.58),
-          {"1": "NC", "2": "GND", "3": "CANH", "4": "CANL"}, value="CAN OUT")
+          {"1": "GND", "2": "NC", "3": "CANL", "4": "CANH"}, value="CAN OUT")
     place(s, "R_TERM", "R120", (299.72, 195.58), {"1": "CANH", "2": "CAN_TERM"}, rot=90)
     place(s, "J_TERM", "HDR2", (342.9, 195.58), {"1": "CAN_TERM", "2": "CANL"})
     place(s, "TP_CANH", "TP", (370.84, 187.96), {"1": "CANH"})
@@ -215,7 +215,9 @@ def usb_can(b):
     s.text("USB: device, CC1/CC2 5.1k (Rd). VBUS only feeds the 3V3_MCU diode-OR.\n"
            "Shield to GND via 1M // 4.7nF (no hard ground loop over the cable shield).",
            (38.1, 160.02))
-    s.text("CAN connectors: pin 1 = 24V NOT CONNECTED (AD-07), 2 = GND, 3 = CAN-H, 4 = CAN-L.\n"
+    s.text("CAN connectors, seen into the mating face (PCB below), as on BTT EBB boards:\n"
+           "  top row:    CAN-H (pad 4) | CAN-L (pad 3)\n"
+           "  bottom row: 24V (pad 2, NOT CONNECTED, AD-07) | GND (pad 1)\n"
            "Termination 120R: fit the jumper only at the end of the bus.\n"
            "TJA1051T/3: VCC 5 V, VIO 3.3 V, S to GND (normal mode).",
            (38.1, 254.0))
