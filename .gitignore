@@ -43,6 +43,7 @@ freerouting.log
 
 # --- easyeda2kicad cache ------------------------------------
 .easyeda2kicad/
+.easyeda_cache/
 
 # --- Python (scripts/) --------------------------------------
 __pycache__/
