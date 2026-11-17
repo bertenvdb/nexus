@@ -51,6 +51,34 @@ P = {
              "Connector_AMASS:AMASS_XT60PW-M_1x02_P7.20mm_Horizontal", "C98732", "XT60PW-M", "SELF"),
     "TP": ("Connector:TestPoint", "TP", "TestPoint:TestPoint_Pad_D1.5mm", "", "", "NONE"),
     "FLAG": ("power:PWR_FLAG", "PWR_FLAG", "", "", "", "NONE"),
+    # F3 batch 2
+    "R120":  ("Device:R", "120R", R0603, "C22787", "0603WAF1200T5E", "JLC"),
+    "R5k1":  ("Device:R", "5.1k", R0603, "C23186", "0603WAF5101T5E", "JLC"),
+    "C4n7":  ("Device:C", "4.7nF", C0603, "C53987", "0603B472K500NT", "JLC"),
+    "C4u7":  ("Device:C", "4.7uF 16V", C0603, "C19666", "CL10A475KO8NNNC", "JLC"),
+    "STM32": ("MCU_ST_STM32G0:STM32G0B1RBTx", "STM32G0B1RBT6", "Package_QFP:LQFP-64_10x10mm_P0.5mm",
+              "C5143679", "STM32G0B1RBT6", "JLC"),
+    "XTAL8": ("Device:Crystal", "8MHz 20pF", "Crystal:Crystal_SMD_5032-2Pin_5.0x3.2mm",
+              "C115962", "X50328MSB2GI", "JLC"),
+    "BTN": ("Switch:SW_Push", "TS-1187A", "Button_Switch_SMD:SW_Push_1P1T_XKB_TS-1187A",
+            "C318884", "TS-1187A-B-A-B", "JLC"),
+    "SWD": ("Connector_Generic:Conn_01x04", "SWD", "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
+            "C32713270", "HX PZ2.54-1x4P ZZ", "SELF"),
+    "NETTIE": ("Device:NetTie_2", "AGND-GND", "NetTie:NetTie-2_SMD_Pad0.5mm", "", "", "NONE"),
+    "USBC": ("Connector:USB_C_Receptacle_USB2.0_16P", "USB-C", "Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12",
+             "C165948", "TYPE-C-31-M-12", "JLC"),
+    "USBLC6": ("Power_Protection:USBLC6-2SC6", "USBLC6-2SC6", "Package_TO_SOT_SMD:SOT-23-6",
+               "C7519", "USBLC6-2SC6", "JLC"),
+    "TJA1051": ("Interface_CAN_LIN:TJA1051T-3", "TJA1051T/3", "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+                "C38695", "TJA1051T/3/1J", "JLC"),
+    "PESD2CAN": ("nexus:PESD2CAN", "PESD2CAN", None, "C907830", "PESD2CAN", "JLC"),
+    "MICROFIT": ("Connector_Generic:Conn_02x02_Odd_Even", "Micro-Fit 2x2",
+                 "Connector_Molex:Molex_Micro-Fit_3.0_43045-0400_2x02_P3.00mm_Horizontal",
+                 "C122413", "43045-0400", "SELF"),
+    "HDR2": ("Connector_Generic:Conn_01x02", "CAN TERM", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+             "C492401", "PZ254V-11-02P", "SELF"),
+    "LED_G": ("Device:LED", "green", "LED_SMD:LED_0805_2012Metric", "C2297", "KT-0805G", "JLC"),
+    "LED_R": ("Device:LED", "red", "LED_SMD:LED_0603_1608Metric", "C2286", "KT-0603R", "JLC"),
 }
 
 
@@ -61,6 +89,10 @@ def place(sheet, key, cat, at, nets, rot=0, value=None, **kw):
         prefix = "TP"
     if lib_id == "power:PWR_FLAG":
         prefix = "#FLG"
+    if lib_id == "Device:NetTie_2":
+        prefix = "NT"
+    if lib_id.startswith("Connector_Generic") or lib_id.startswith("Connector:USB"):
+        prefix = "J"
     if cat.startswith("C") and lib_id.startswith("Device:C"):
         prefix = "C"
     return sheet.part(key, lib_id, value or val, at, rot=rot, nets=nets, fp=fp,
@@ -73,6 +105,9 @@ def two(sheet, key, cat, x, y, top, bottom, rot=0, value=None):
     For polarised parts and diodes the caller passes the right order.
     """
     lib_id = P[cat][0]
+    if lib_id == "Device:LED":
+        # LED symbol is horizontal (K=1 left, A=2 right): rot 90 -> A at top
+        return place(sheet, key, cat, (x, y), {"2": top, "1": bottom}, rot=90, value=value)
     if lib_id in ("Device:D_Schottky", "Device:D_TVS"):
         # D symbols are horizontal (K=1 left, A=2 right): rot 270 -> K at top
         return place(sheet, key, cat, (x, y), {"1": top, "2": bottom}, rot=270, value=value)

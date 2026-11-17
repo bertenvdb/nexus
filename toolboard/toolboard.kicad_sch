@@ -14,6 +14,17 @@
 		(comment 3 "github.com/bertenvdb/nexus")
 	)
 	(lib_symbols)
+	(text "Diagnostic LEDs (AD-17)"
+		(exclude_from_sim no)
+		(at 121.92 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "2ae5a3ba-5f74-57fc-9f51-9a0ad4920103")
+	)
 	(text "5V buck, 3V3 LDOs, VBUS diode-OR, VREF_A"
 		(exclude_from_sim no)
 		(at 210.82 53.34 0)
@@ -36,6 +47,28 @@
 		)
 		(uuid "8d5757ce-52f6-5a8f-a66b-89ed7d823b92")
 	)
+	(text "STM32G0B1RBT6, crystal, reset/boot, SWD, AGND star point"
+		(exclude_from_sim no)
+		(at 299.72 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a24c5b42-c9a3-5799-8006-cbb9a2569453")
+	)
+	(text "USB-C (USB 2.0 device), CAN transceiver, CAN connectors"
+		(exclude_from_sim no)
+		(at 33.02 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "dc2a521c-42b1-5f29-9b26-9c77ce22e4d5")
+	)
 	(text "Heater cutoff (AD-10), rail sense (AD-13), heater rail bulk"
 		(exclude_from_sim no)
 		(at 121.92 53.34 0)
@@ -46,6 +79,98 @@
 			(justify left)
 		)
 		(uuid "e8207c6d-d3f3-53b7-8d0d-8eecb80994cf")
+	)
+	(sheet
+		(at 119.38 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "13ee214b-d70f-58db-8fc6-19616a5c5f0f")
+		(property "Sheetname" "diag_leds"
+			(at 119.38 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "diag_leds.kicad_sch"
+			(at 119.38 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 297.18 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "1bd80a44-ae96-5ef8-8a1e-b51aa0bff016")
+		(property "Sheetname" "mcu"
+			(at 297.18 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "mcu.kicad_sch"
+			(at 297.18 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "5")
+				)
+			)
+		)
 	)
 	(sheet
 		(at 119.38 40.64)
@@ -89,6 +214,52 @@
 			(project "toolboard"
 				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
 					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "a911740f-c6aa-598c-974a-36326bb05d3d")
+		(property "Sheetname" "usb_can"
+			(at 30.48 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "usb_can.kicad_sch"
+			(at 30.48 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "6")
 				)
 			)
 		)

@@ -84,10 +84,10 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 
 | Sheet | Status |
 |---|---|
-| `power_input` | 🔍 review 1 |
-| `heater_cutoff` | 🔍 review 1 |
-| `logic_power` | 🔍 review 1 |
-| `mcu`, `usb_can`, `diag_leds` | ⏳ |
+| `power_input` | ✅ review 1 (2026-11-17) |
+| `heater_cutoff` | ✅ review 1 (2026-11-17) |
+| `logic_power` | ✅ review 1 (2026-11-17) |
+| `mcu`, `usb_can`, `diag_leds` | 🔍 review 2 |
 | `heaters`, `thermistors` | ⏳ |
 | `filament_inputs`, `led_port` | ⏳ |
 

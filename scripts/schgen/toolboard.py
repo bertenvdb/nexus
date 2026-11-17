@@ -132,12 +132,132 @@ def logic_power(b):
            (38.1, 213.36))
 
 
+MCU_PINS = {
+    "1": "FIL_MOTION_T0", "2": "FIL_RUNOUT_T0", "3": "NC", "4": "NC", "5": "NC",
+    "6": "+3V3_MCU", "7": "VREF_A", "8": "+3V3_MCU", "9": "GND",
+    "10": "OSC_IN", "11": "OSC_OUT", "12": "NRST",
+    "13": "NC", "14": "NC", "15": "NC", "16": "NC",
+    **{str(17 + i): f"THERM_T{i}" for i in range(8)},
+    "25": "RAIL_SENSE", "26": "NC", "27": "CAN_RX", "28": "CAN_TX",
+    "29": "NC", "30": "NC", "31": "NC", "32": "HEATER_EN",
+    "33": "HEATER_T0_CTRL", "34": "HEATER_T1_CTRL", "35": "HEATER_T2_CTRL",
+    "36": "HEATER_T3_CTRL", "37": "NC", "38": "HEATER_T4_CTRL",
+    "39": "HEATER_T5_CTRL", "40": "HEATER_T6_CTRL", "41": "HEATER_T7_CTRL",
+    "42": "NC", "43": "USB_DM", "44": "USB_DP", "45": "SWDIO", "46": "SWCLK",
+    "47": "FIL_MOTION_T7", "48": "FIL_RUNOUT_T7", "49": "FIL_MOTION_T6",
+    "50": "FIL_RUNOUT_T6", "51": "FIL_MOTION_T5", "52": "FIL_RUNOUT_T5",
+    "53": "FIL_MOTION_T4", "54": "FIL_RUNOUT_T4", "55": "FIL_MOTION_T3",
+    "56": "FIL_RUNOUT_T3", "57": "LED_DATA", "58": "LED_MCU",
+    "59": "FIL_MOTION_T2", "60": "NC", "61": "NC", "62": "FIL_RUNOUT_T2",
+    "63": "FIL_MOTION_T1", "64": "FIL_RUNOUT_T1",
+}
+
+
+def mcu(b):
+    s = b.sheet("mcu", "STM32G0B1RBT6, crystal, reset/boot, SWD, AGND star point")
+    place(s, "U_MCU", "STM32", (203.2, 127.0), MCU_PINS)
+    # supply decoupling, next to pins 6/8 in the layout
+    two(s, "C_VDD1", "C4u7", 63.5, 63.5, "+3V3_MCU", "GND")
+    two(s, "C_VDD2", "C100n", 78.74, 63.5, "+3V3_MCU", "GND")
+    two(s, "C_VBAT", "C100n", 93.98, 63.5, "+3V3_MCU", "GND")
+    two(s, "C_VREF3", "C100n", 109.22, 63.5, "VREF_A", "AGND")
+    # AGND-GND star point at pin 9 (CLAUDE.md §7.4)
+    place(s, "NT_AGND", "NETTIE", (134.62, 58.42), {"1": "AGND", "2": "GND"}, rot=0)
+    # 8 MHz crystal, CL 20 pF -> 2 x 30 pF (AN2867)
+    place(s, "Y_MCU", "XTAL8", (76.2, 116.84), {"1": "OSC_IN", "2": "OSC_OUT"}, rot=0)
+    two(s, "C_X1", "C30p", 63.5, 134.62, "OSC_IN", "GND")
+    two(s, "C_X2", "C30p", 88.9, 134.62, "OSC_OUT", "GND")
+    # reset and boot
+    two(s, "C_NRST", "C100n", 63.5, 175.26, "NRST", "GND")
+    place(s, "SW_RESET", "BTN", (81.28, 175.26), {"1": "NRST", "2": "GND"}, rot=90)
+    place(s, "SW_BOOT", "BTN", (106.68, 175.26), {"1": "+3V3_MCU", "2": "SWCLK"}, rot=90)
+    two(s, "R_BOOT", "R10k", 124.46, 175.26, "SWCLK", "GND")
+    # SWD header 3V3 - SWDIO - SWCLK - GND
+    place(s, "J_SWD", "SWD", (342.9, 101.6), {"1": "+3V3_MCU", "2": "SWDIO", "3": "SWCLK", "4": "GND"})
+    s.text("PA14 = SWCLK / BOOT0. BOOT button pulls it to 3V3; 10k pull-down keeps SWD usable.\n"
+           "DFU: hold BOOT, press RESET. An empty flash boots into the ROM bootloader anyway.\n"
+           "Check option byte nBOOT_SEL on the first board if the button has no effect (F8).\n"
+           "Unused GPIO: no-connect (13 spare, docs/pinout-toolboard.md).",
+           (38.1, 215.9))
+
+
+def usb_can(b):
+    s = b.sheet("usb_can", "USB-C (USB 2.0 device), CAN transceiver, CAN connectors")
+    place(s, "J_USB", "USBC", (63.5, 101.6), {
+        "A1": "GND", "A12": "GND", "B1": "GND", "B12": "GND",
+        "A4": "VBUS", "A9": "VBUS", "B4": "VBUS", "B9": "VBUS",
+        "A5": "USB_CC1", "B5": "USB_CC2", "A6": "USB_DP", "B6": "USB_DP",
+        "A7": "USB_DM", "B7": "USB_DM", "A8": "NC", "B8": "NC", "SH": "USB_SHIELD"})
+    two(s, "R_CC1", "R5k1", 116.84, 76.2, "USB_CC1", "GND")
+    two(s, "R_CC2", "R5k1", 132.08, 76.2, "USB_CC2", "GND")
+    two(s, "R_SHIELD", "R1M", 116.84, 139.7, "USB_SHIELD", "GND")
+    two(s, "C_SHIELD", "C4n7", 132.08, 139.7, "USB_SHIELD", "GND")
+    place(s, "U_USBESD", "USBLC6", (165.1, 101.6), {
+        "1": "USB_DM", "6": "USB_DM", "3": "USB_DP", "4": "USB_DP",
+        "2": "GND", "5": "VBUS"})
+    place(s, "FLG_VBUS", "FLAG", (195.58, 76.2), {"1": "VBUS"})
+    place(s, "TP_VBUS", "TP", (210.82, 76.2), {"1": "VBUS"})
+    # CAN
+    place(s, "U_CAN", "TJA1051", (101.6, 205.74), {
+        "1": "CAN_TX", "2": "GND", "3": "+5V", "4": "CAN_RX",
+        "5": "+3V3_MCU", "6": "CANL", "7": "CANH", "8": "GND"})
+    two(s, "C_CANVCC", "C100n", 50.8, 238.76, "+5V", "GND")
+    two(s, "C_CANVIO", "C100n", 66.04, 238.76, "+3V3_MCU", "GND")
+    place(s, "D_CANESD", "PESD2CAN", (152.4, 200.66), {"1": "CANH", "2": "CANL", "3": "GND"})
+    place(s, "J_CAN_IN", "MICROFIT", (213.36, 195.58),
+          {"1": "NC", "2": "GND", "3": "CANH", "4": "CANL"}, value="CAN IN")
+    place(s, "J_CAN_OUT", "MICROFIT", (256.54, 195.58),
+          {"1": "NC", "2": "GND", "3": "CANH", "4": "CANL"}, value="CAN OUT")
+    place(s, "R_TERM", "R120", (299.72, 195.58), {"1": "CANH", "2": "CAN_TERM"}, rot=90)
+    place(s, "J_TERM", "HDR2", (342.9, 195.58), {"1": "CAN_TERM", "2": "CANL"})
+    place(s, "TP_CANH", "TP", (370.84, 187.96), {"1": "CANH"})
+    place(s, "TP_CANL", "TP", (386.08, 187.96), {"1": "CANL"})
+    s.text("USB: device, CC1/CC2 5.1k (Rd). VBUS only feeds the 3V3_MCU diode-OR.\n"
+           "Shield to GND via 1M // 4.7nF (no hard ground loop over the cable shield).",
+           (38.1, 160.02))
+    s.text("CAN connectors: pin 1 = 24V NOT CONNECTED (AD-07), 2 = GND, 3 = CAN-H, 4 = CAN-L.\n"
+           "Termination 120R: fit the jumper only at the end of the bus.\n"
+           "TJA1051T/3: VCC 5 V, VIO 3.3 V, S to GND (normal mode).",
+           (38.1, 254.0))
+
+
+def diag_leds(b):
+    s = b.sheet("diag_leds", "Diagnostic LEDs (AD-17)")
+    rails = [("24VIN", "+24V_IN", "R10k", "24V IN"), ("RAIL", "+24V_HEATER", "R10k", "HEATER RAIL"),
+             ("5V", "+5V", "R1k", "5V"), ("3V3", "+3V3_MCU", "R470", "3V3"),
+             ("VBUS", "VBUS", "R1k", "VBUS")]
+    x = 50.8
+    for key, rail, rcat, label in rails:
+        two(s, f"R_L{key}", rcat, x, 63.5, rail, f"LED_{key}_A")
+        two(s, f"D_L{key}", "LED_G", x, 88.9, f"LED_{key}_A", "GND", value=f"green {label}")
+        x += 22.86
+    two(s, "R_LMCU", "R470", x, 63.5, "LED_MCU", "LED_MCU_A")
+    two(s, "D_LMCU", "LED_R", x, 88.9, "LED_MCU_A", "GND", value="red MCU")
+    # one LED per heater channel at the MOSFET drain (design part 1 §4.3)
+    for i in range(8):
+        x = 50.8 + i * 22.86
+        two(s, f"R_LH{i}", "R10k", x, 152.4, "+24V_HEATER", f"LED_H{i}_A")
+        two(s, f"D_LH{i}", "LED_R", x, 177.8, f"LED_H{i}_A", f"HEATER_T{i}_N", value=f"red HEATER T{i}")
+    s.text("Rails: green 0805 (Basic). Heater channels and MCU: red 0603.\n"
+           "Channel LED from +24V_HEATER to the drain: lit = MOSFET really on.\n"
+           "Lit while Klipper has the channel off = MOSFET failed short (design part 1 §4.3).\n"
+           "All LEDs together along one visible board edge, each with a silkscreen label.",
+           (38.1, 215.9))
+
+
 def build():
     b = Board("toolboard", "Nexus Tools Board")
     b.power_nets = POWER_NETS
     # nets that will connect to sheets drawn later: keep them global now
-    b.force_global = {"HEATER_EN", "RAIL_SENSE"}
+    b.force_global = ({"HEATER_EN", "RAIL_SENSE", "LED_DATA"}
+                      | {f"THERM_T{i}" for i in range(8)}
+                      | {f"HEATER_T{i}_CTRL" for i in range(8)}
+                      | {f"HEATER_T{i}_N" for i in range(8)}
+                      | {f"FIL_{k}_T{i}" for k in ("RUNOUT", "MOTION") for i in range(8)})
     power_input(b)
     heater_cutoff(b)
     logic_power(b)
+    mcu(b)
+    usb_can(b)
+    diag_leds(b)
     return b

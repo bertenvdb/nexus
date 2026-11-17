@@ -34,6 +34,13 @@ Close an item with date and result. If the result changes a design document, upd
 | 16 | Trace widths and 1 oz or 2 oz copper (IPC-2152) | CLAUDE.md §6 | ✅ 2026-11-17: 1 oz, trunk 12 mm on L1+L3+L4 |
 | 17 | **Mechanics: dimensions, mounting holes, connector edges, height. Ask Berten.** | work plan F2 | ✅ 2026-11-17: concept A (rows per type), 1.0 mm overhang, straight JST-XH ([mechanical.md](mechanical.md) §7) |
 
+## F3 (schematic)
+
+| # | Item | Source | Status |
+|---|---|---|---|
+| 29 | CAN Micro-Fit pin numbering (1 = 24V NC, 2 = GND, 3 = CAN-H, 4 = CAN-L): check against BTT EBB/U2C cables before layout | design 11 §5, sheet `usb_can` | ⏳ before F5 |
+| 30 | STM32G0 option byte nBOOT_SEL: does the BOOT button select DFU on a fresh chip? (empty flash boots to DFU regardless) | sheet `mcu` | ⏳ F8, first board |
+
 ## F7 (ordering)
 
 | # | Item | Source |
