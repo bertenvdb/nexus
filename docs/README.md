@@ -8,7 +8,7 @@
 | Component selection Nexus Tools Board | ✅ Done (parts 1–3) |
 | Component selection Nexus Docks Board | ✅ Done |
 | Cost estimate | ✅ Estimate, no JLC quote yet |
-| KiCad implementation | ⏳ Not started yet, see [work plan](work-plan.md) |
+| KiCad implementation | 🔄 F0 done, F1 in review, see [work plan](work-plan.md) |
 
 ## Reading order
 
@@ -25,6 +25,7 @@
 11. [`tooling-setup.md`](tooling-setup.md): installing KiCad and the tools
 12. [`connectors.md`](connectors.md): all connectors, pinouts and solder jumpers
 13. [`product-description.md`](product-description.md): product-style description of both boards, for the README or a project page
+14. [`library-review.md`](library-review.md): F1 parts library review (sources, footprint checks, stock)
 
 ## One minute of context
 

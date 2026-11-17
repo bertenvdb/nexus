@@ -4,8 +4,8 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 
 | Phase | Content | Status |
 |---|---|---|
-| F0 | Repo and tooling | 🔍 Ready for review |
-| F1 | Parts library | ⏳ |
+| F0 | Repo and tooling | ✅ Approved 2026-11-17 |
+| F1 | Parts library | 🔍 Ready for review ([library-review.md](library-review.md)) |
 | F2 | Pinout and mechanical constraints | ⏳ |
 | F3 | Schematic Nexus Tools Board | ⏳ |
 | F4 | Schematic Nexus Docks Board | ⏳ |
@@ -49,7 +49,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 2. `scripts/import_parts.sh`: calls `easyeda2kicad --full --lcsc_id=<C> --output lib/nexus` for every C number in the CSV.
 3. For generic passives (0603 R/C) and standard connectors, use the **standard KiCad libraries** (`Resistor_SMD:R_0603_1608Metric`, `Connector_JST:JST_XH_B2B-XH-A_1x02_P2.50mm_Vertical`, …), with the LCSC field filled in.
 4. **Check every imported footprint** against the datasheet: pad dimensions, pin 1, exposed pad and thermal vias (SO8-PowerPAD of the TPS54360B, DFN3×3 of the WSD4070DN, SuperSO8 of the BSC016N06NS, WSON of the LM74502).
-5. Record the results in `bom-master.csv` (columns `lib_symbol`, `lib_footprint`, `verified`).
+5. Record the results in `bom-master.csv` (columns `lib_source`, `lib_symbol`, `lib_footprint`, `verified`).
 
 **Review F1:** list of parts with their status, plus deviations and doubtful cases.
 
