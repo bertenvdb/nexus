@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 1.0 (approved 2026-11-17; WEBENCH cross-check still open) |
+| **Version** | 1.1 (2026-11-17; loop-gain check §5 instead of WEBENCH) |
 | **Date** | 2026-11-17 |
 | **Script** | `scripts/calc_f2.py` (tables below are its output; re-run after changing inputs) |
 
@@ -118,3 +118,32 @@ Calculated values were rounded to JLC Basic/Preferred parts; an Extended resisto
 | Compensation 5 V | 6.8 k, 18 nF, 82 pF | **6.8 k, 22 nF, 100 pF** | zero 1.06 kHz (was 1.3 kHz), pole 234 kHz |
 | LM74502 VCAP | — | **100 nF** | datasheet typical/minimum |
 | Crystal load | 30 pF | **30 pF C0G** | |
+
+---
+
+## 5. Loop-gain check (instead of WEBENCH)
+
+WEBENCH could not be run (browser automation unavailable). Instead, `scripts/loop_f2.py` computes the loop gain with TI's own small-signal model (SNVSB93 §7.3.15–7.3.16: power stage gmps 12 A/V, error amplifier 350 µS with DC gain 10,000, type 2A compensation) plus the current-mode sampling double pole at fsw/2. The Q of that pole depends on TI's internal slope compensation (not published) and is swept from 0.5 to 1.5. Values are the schematic values (§4; fan rail: R4 12k, C5 8.2 nF, C8 47 pF).
+
+| Converter | Load | fc | PM (Q 0.5 / 1.0 / 1.5) | GM (Q 0.5 / 1.0 / 1.5) |
+|---|---|---|---|---|
+| Tool 5V | 0.15 A | 20.2 kHz | 75° / 79° / 80° | 23 dB / 22 dB / 20 dB |
+| Tool 5V | 1.5 A | 20.1 kHz | 79° / 82° / 84° | 23 dB / 22 dB / 20 dB |
+| Dock 5V | 0.1 A | 20.2 kHz | 75° / 79° / 80° | 23 dB / 22 dB / 20 dB |
+| Dock 5V | 1 A | 20.2 kHz | 77° / 81° / 82° | 23 dB / 22 dB / 20 dB |
+| Dock fan rail 12V | 0.1 A | 17.3 kHz | 75° / 78° / 79° | 24 dB / 23 dB / 21 dB |
+| Dock fan rail 12V | 3 A | 17.2 kHz | 79° / 82° / 83° | 24 dB / 23 dB / 21 dB |
+| Dock fan rail 5V | 0.1 A | 26.8 kHz | 72° / 77° / 78° | 21 dB / 19 dB / 18 dB |
+| Dock fan rail 5V | 3 A | 26.6 kHz | 76° / 81° / 83° | 21 dB / 19 dB / 18 dB |
+
+Worst phase margin: 72° (Dock fan rail 5V, 0.1 A).
+
+**Sensitivity to the real MLCC capacitance (DC bias):**
+
+| Effective Cout | Worst PM | Highest fc | Lowest GM |
+|---|---|---|---|
+| × 0.5 | 60° | 54 kHz | 11 dB |
+| × 1.0 | 72° | 27 kHz | 18 dB |
+| × 1.5 | 75° | 18 kHz | 21 dB |
+
+**Conclusion:** all four converters are stable over the full load range with margin (targets PM ≥ 45°, fc ≤ fsw/10 = 60 kHz, GM ≥ 6 dB), also when the capacitors deliver only half the assumed capacitance. Still to do on the prototype: a load step (e.g. 0.1 → 1 A) on each output with an oscilloscope; ringing of more than 2–3 periods means less phase margin than calculated.

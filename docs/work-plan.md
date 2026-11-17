@@ -7,8 +7,8 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F0 | Repo and tooling | ✅ Approved 2026-11-17 |
 | F1 | Parts library | ✅ Approved 2026-11-17 ([library-review.md](library-review.md)) |
 | F2 | Pinout and mechanical constraints | ✅ Approved 2026-11-17 |
-| F3 | Schematic Nexus Tools Board | 🔍 Ready for review (ERC 0, BOM = master) |
-| F4 | Schematic Nexus Docks Board | ⏳ |
+| F3 | Schematic Nexus Tools Board | ✅ Approved 2026-11-17 |
+| F4 | Schematic Nexus Docks Board | 🔄 In progress |
 | F5 | Layout Nexus Tools Board | ⏳ |
 | F6 | Layout Nexus Docks Board | ⏳ |
 | F7 | Production files and JLC quote | ⏳ |
@@ -89,7 +89,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | `logic_power` | ✅ review 1 (2026-11-17) |
 | `mcu`, `usb_can`, `diag_leds` | ✅ review 2 (2026-11-17) |
 | `heaters`, `thermistors` | ✅ review 3 (2026-11-17) |
-| `filament_inputs`, `led_port` | 🔍 final review |
+| `filament_inputs`, `led_port` | ✅ final review (2026-11-17) |
 
 **Goal:** a complete hierarchical schematic with ERC = 0 errors.
 
