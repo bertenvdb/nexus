@@ -80,6 +80,17 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 
 ## F3 — Schematic Nexus Tools Board
 
+**How the schematic is made (2026-11-17).** Every sheet is described in Python (`scripts/schgen/toolboard.py`, part catalogue `scripts/schgen/parts.py`) and generated with `scripts/build_schematic.py toolboard`. Each pin gets a short stub with a power symbol or a label. The build then exports KiCad's own netlist and compares it pin by pin with the description, runs ERC and exports the PDF. UUIDs are derived from stable part keys, so regenerating keeps the PCB links. **Consequence: do not edit the generated `.kicad_sch` files by hand**; change the description and rebuild.
+
+| Sheet | Status |
+|---|---|
+| `power_input` | 🔍 review 1 |
+| `heater_cutoff` | 🔍 review 1 |
+| `logic_power` | 🔍 review 1 |
+| `mcu`, `usb_can`, `diag_leds` | ⏳ |
+| `heaters`, `thermistors` | ⏳ |
+| `filament_inputs`, `led_port` | ⏳ |
+
 **Goal:** a complete hierarchical schematic with ERC = 0 errors.
 
 1. Sheets in this order: `power_input` → `heater_cutoff` → `logic_power` → `mcu` → `diag_leds` → `usb_can` → `heaters` → `thermistors` → `filament_inputs` → `led_port`.

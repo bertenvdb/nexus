@@ -2,15 +2,189 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "c5ae0d27-934d-426f-a59c-790190f7f6cf")
+	(uuid "8a492e96-74d8-5252-9590-c50d18db9797")
 	(paper "A4")
 	(title_block
 		(title "Nexus Tools Board")
 		(date "2026-11-17")
 		(rev "A")
-		(comment 1 "CERN-OHL-S-2.0")
+		(company "Nexus")
+		(comment 1 "Hierarchy")
+		(comment 2 "CERN-OHL-S-2.0")
+		(comment 3 "github.com/bertenvdb/nexus")
 	)
 	(lib_symbols)
+	(text "5V buck, 3V3 LDOs, VBUS diode-OR, VREF_A"
+		(exclude_from_sim no)
+		(at 210.82 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7903afa0-2aaa-5c6e-977e-693de215bb0f")
+	)
+	(text "24V input: XT60, main fuse, TVS"
+		(exclude_from_sim no)
+		(at 33.02 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8d5757ce-52f6-5a8f-a66b-89ed7d823b92")
+	)
+	(text "Heater cutoff (AD-10), rail sense (AD-13), heater rail bulk"
+		(exclude_from_sim no)
+		(at 121.92 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e8207c6d-d3f3-53b7-8d0d-8eecb80994cf")
+	)
+	(sheet
+		(at 119.38 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "5df5717f-2afc-57d9-bea2-63f95e0adc97")
+		(property "Sheetname" "heater_cutoff"
+			(at 119.38 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "heater_cutoff.kicad_sch"
+			(at 119.38 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "bbca04f6-82ab-555e-ac9a-4941c65cdd31")
+		(property "Sheetname" "power_input"
+			(at 30.48 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power_input.kicad_sch"
+			(at 30.48 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 208.28 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "cf5a602b-026f-5c57-9308-026d49c5a85f")
+		(property "Sheetname" "logic_power"
+			(at 208.28 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "logic_power.kicad_sch"
+			(at 208.28 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "4")
+				)
+			)
+		)
+	)
 	(sheet_instances
 		(path "/"
 			(page "1")
