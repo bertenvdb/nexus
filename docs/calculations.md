@@ -103,3 +103,18 @@ Fan rail and input: ≥ 1.6 mm, polygon preferred. Fan channels ≥ 0.8 mm (net 
 | 5 V / 3V3 / VBUS LEDs | 1 kΩ (5 V) / 470 Ω (3V3) → ≈ 2 mA | |
 | Crystal load capacitors | CL = 20 pF, Cstray ≈ 5 pF → C = 2 × (20 − 5) = **30 pF** (C0G) | ST AN2867 |
 | Bleeder (heater rail) | 4.7 kΩ 1206: τ = 4.7 kΩ × 20 µF ≈ 94 ms, < 2 V after ≈ 0.25 s | design 1 §5.1; recheck with real rail capacitance in F3 |
+
+---
+
+## 4. Values used in the schematic (F3, Basic parts)
+
+Calculated values were rounded to JLC Basic/Preferred parts; an Extended resistor costs the same $3 fee as an IC.
+
+| Item | Calculated | Schematic | Effect |
+|---|---|---|---|
+| RT | 162 k | **160 k** (Preferred) | fsw ≈ 604 kHz |
+| UVLO | 887 k / 59 k | **1 M / 68 k** | start 17.6 V, stop 14.3 V |
+| FB 5 V | 52.3 k / 10 k | **36 k / 6.8 k** | 5.04 V |
+| Compensation 5 V | 6.8 k, 18 nF, 82 pF | **6.8 k, 22 nF, 100 pF** | zero 1.06 kHz (was 1.3 kHz), pole 234 kHz |
+| LM74502 VCAP | — | **100 nF** | datasheet typical/minimum |
+| Crystal load | 30 pF | **30 pF C0G** | |

@@ -96,6 +96,18 @@ P = {
             "C158012", "B2B-XH-A(LF)(SN)", "SELF"),
     "SJ2": ("Jumper:SolderJumper_2_Open", "PT1000", "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
             "", "", "NONE"),
+    # F3 batch 4
+    "R330":  ("Device:R", "330R", R0603, "C23138", "0603WAF3300T5E", "JLC"),
+    "ESD5V": ("Device:D_TVS", "PESD5V0S1BA", "Diode_SMD:D_SOD-323", "C2827694", "PESD5V0S1BA", "JLC"),
+    "PPTC":  ("Device:Polyfuse", "0.75A", "Fuse:Fuse_1206_3216Metric", "C409806", "JK-nSMD075-16", "JLC"),
+    "AHCT125": ("74xGxx:74AHCT1G125", "SN74AHCT1G125", "Package_TO_SOT_SMD:SOT-23-5",
+                "C7484", "SN74AHCT1G125DBVR", "JLC"),
+    "XH4": ("Connector_Generic:Conn_01x04", "JST-XH 4", "Connector_JST:JST_XH_B4B-XH-A_1x04_P2.50mm_Vertical",
+            "C144395", "B4B-XH-A(LF)(SN)", "SELF"),
+    "XH3": ("Connector_Generic:Conn_01x03", "JST-XH 3", "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical",
+            "C144394", "B3B-XH-A(LF)(SN)", "SELF"),
+    "SJ3": ("Jumper:SolderJumper_3_Bridged12", "VCC_FIL 5V|3V3",
+            "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm", "", "", "NONE"),
 }
 
 
@@ -112,6 +124,8 @@ def place(sheet, key, cat, at, nets, rot=0, value=None, **kw):
         prefix = "NT"
     if lib_id.startswith("Connector_Generic") or lib_id.startswith("Connector:USB"):
         prefix = "J"
+    if lib_id == "Device:Polyfuse":
+        prefix = "F"
     if cat.startswith("C") and lib_id.startswith("Device:C"):
         prefix = "C"
     return sheet.part(key, lib_id, value or val, at, rot=rot, nets=nets, fp=fp,

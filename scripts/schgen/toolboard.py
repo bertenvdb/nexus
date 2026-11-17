@@ -295,6 +295,49 @@ def thermistors(b):
            (20.32, 266.7))
 
 
+def filament_inputs(b):
+    s = b.sheet("filament_inputs", "8 filament ports: runout + motion inputs, sensor supply")
+    # sensor supply: jumper default 1-2 = +5V; 3V3_AUX max 100 mA total
+    place(s, "JP_VFIL", "SJ3", (66.04, 38.1), {"1": "+5V", "2": "VCC_FIL_SEL", "3": "+3V3_AUX"})
+    place(s, "F_VFIL", "PPTC", (121.92, 38.1), {"1": "VCC_FIL_SEL", "2": "VCC_FIL"}, rot=90)
+    place(s, "D_VFIL", "ESD5V", (167.64, 38.1), {"1": "VCC_FIL", "2": "GND"})
+    place(s, "C_VFIL", "C10u50", (210.82, 38.1), {"1": "VCC_FIL", "2": "GND"}, rot=90)
+    for i in range(8):
+        y = 63.5 + i * 25.4
+        port = {"1": f"FIL_RUNOUT_T{i}_C", "2": "GND", "3": "VCC_FIL", "4": f"FIL_MOTION_T{i}_C"}
+        place(s, f"J_F{i}", "XH4", (40.64, y + 2.54), port, value=f"FIL T{i}", rot=180)
+        for j, kind in enumerate(("RUNOUT", "MOTION")):
+            c, n = f"FIL_{kind}_T{i}_C", f"FIL_{kind}_T{i}"
+            x0 = 83.82 + j * 172.72
+            place(s, f"D_F{kind[0]}{i}", "ESD5V", (x0, y), {"1": c, "2": "GND"})
+            place(s, f"R_FS{kind[0]}{i}", "R1k", (x0 + 40.64, y), {"1": c, "2": n}, rot=90)
+            place(s, f"R_FP{kind[0]}{i}", "R10k", (x0 + 83.82, y), {"1": "+3V3_MCU", "2": n}, rot=90)
+            place(s, f"C_F{kind[0]}{i}", "C100n", (x0 + 129.54, y), {"1": n, "2": "GND"}, rot=90)
+    s.text("Port: 1 RUNOUT, 2 GND, 3 VCC, 4 MOTION (silkscreen). D2F: pins 1 + 2.\n"
+           "Inputs: 1k + 100nF (tau 0.1 ms), 10k pull-up to 3V3 (unplugged = high),\n"
+           "FT pins (5V tolerant). VCC_FIL default 5 V (jumper 1-2); 3.3 V via 2-3: max 100 mA total.",
+           (20.32, 274.32))
+
+
+def led_port(b):
+    s = b.sheet("led_port", "WS2812 LED port: 5 V level shifter, polyfuse")
+    place(s, "U_LEDBUF", "AHCT125", (76.2, 88.9), {
+        "1": "GND", "2": "LED_DATA", "3": "GND", "4": "LED_DOUT", "5": "+5V"})
+    two(s, "C_LEDBUF", "C100n", 50.8, 132.08, "+5V", "GND")
+    two(s, "R_LEDPD", "R100k", 66.04, 132.08, "LED_DATA", "GND")
+    place(s, "R_LEDSER", "R330", (124.46, 88.9), {"1": "LED_DOUT", "2": "LED_DIN"}, rot=90)
+    place(s, "F_LED", "PPTC", (124.46, 58.42), {"1": "+5V", "2": "LED_5V"}, rot=90)
+    two(s, "C_LED", "C10u50", 157.48, 63.5, "LED_5V", "GND")
+    two(s, "D_LED5V", "ESD5V", 172.72, 63.5, "LED_5V", "GND")
+    two(s, "D_LEDDIN", "ESD5V", 172.72, 101.6, "LED_DIN", "GND")
+    place(s, "J_LED", "XH3", (215.9, 86.36), {"1": "LED_DIN", "2": "GND", "3": "LED_5V"},
+          value="LED", rot=180)
+    s.text("WS2812 needs V_IH >= 3.5 V at 5 V: 74AHCT1G125 shifts 3.3 V to 5 V.\n"
+           "100k pull-down: no random colours during reset. 330R damps the data line.\n"
+           "Polyfuse 0.75 A: 8 x WS2812 full white = 0.48 A. Port: 1 DIN, 2 GND, 3 5V.",
+           (38.1, 160.02))
+
+
 def build():
     b = Board("toolboard", "Nexus Tools Board")
     b.power_nets = POWER_NETS
@@ -312,4 +355,6 @@ def build():
     diag_leds(b)
     heaters(b)
     thermistors(b)
+    filament_inputs(b)
+    led_port(b)
     return b

@@ -36,6 +36,28 @@
 		)
 		(uuid "2ae5a3ba-5f74-57fc-9f51-9a0ad4920103")
 	)
+	(text "WS2812 LED port: 5 V level shifter, polyfuse"
+		(exclude_from_sim no)
+		(at 121.92 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "48af7f2f-15a9-514d-8f62-e1e0de0e9fae")
+	)
+	(text "8 filament ports: runout + motion inputs, sensor supply"
+		(exclude_from_sim no)
+		(at 33.02 154.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5c0378c8-87ef-5fba-b74f-93457f07c48c")
+	)
 	(text "5V buck, 3V3 LDOs, VBUS diode-OR, VREF_A"
 		(exclude_from_sim no)
 		(at 210.82 53.34 0)
@@ -190,6 +212,52 @@
 			(project "toolboard"
 				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
 					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 119.38 142.24)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "29566a9e-8194-5d2d-97f5-b34f41d02d5e")
+		(property "Sheetname" "led_port"
+			(at 119.38 141.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "led_port.kicad_sch"
+			(at 119.38 168.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "11")
 				)
 			)
 		)
@@ -466,6 +534,52 @@
 			(project "toolboard"
 				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
 					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 142.24)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e01a6a0a-52b2-5437-9cad-84ae84d00700")
+		(property "Sheetname" "filament_inputs"
+			(at 30.48 141.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "filament_inputs.kicad_sch"
+			(at 30.48 168.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797"
+					(page "10")
 				)
 			)
 		)

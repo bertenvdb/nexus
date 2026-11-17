@@ -7,7 +7,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F0 | Repo and tooling | ✅ Approved 2026-11-17 |
 | F1 | Parts library | ✅ Approved 2026-11-17 ([library-review.md](library-review.md)) |
 | F2 | Pinout and mechanical constraints | ✅ Approved 2026-11-17 |
-| F3 | Schematic Nexus Tools Board | 🔄 In progress |
+| F3 | Schematic Nexus Tools Board | 🔍 Ready for review (ERC 0, BOM = master) |
 | F4 | Schematic Nexus Docks Board | ⏳ |
 | F5 | Layout Nexus Tools Board | ⏳ |
 | F6 | Layout Nexus Docks Board | ⏳ |
@@ -88,8 +88,8 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | `heater_cutoff` | ✅ review 1 (2026-11-17) |
 | `logic_power` | ✅ review 1 (2026-11-17) |
 | `mcu`, `usb_can`, `diag_leds` | ✅ review 2 (2026-11-17) |
-| `heaters`, `thermistors` | 🔍 review 3 |
-| `filament_inputs`, `led_port` | ⏳ |
+| `heaters`, `thermistors` | ✅ review 3 (2026-11-17) |
+| `filament_inputs`, `led_port` | 🔍 final review |
 
 **Goal:** a complete hierarchical schematic with ERC = 0 errors.
 
@@ -100,7 +100,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 5. Test points (AD-14): +24V_IN, +24V_HEATER, +5V, +3V3_MCU, +3V3_AUX, VREF_A, RAIL_SENSE, GND, AGND, CAN-H/L, and the gate and drain of one heater channel.
 6. Title block of every sheet: title **Nexus Tools Board** (dock: **Nexus Docks Board**), revision and date.
 
-**Done when:** ERC 0 errors, every symbol has `LCSC`/`MPN`/`Assembly`, the KiCad BOM export matches `bom-master.csv`.
+**Done when:** ERC 0 errors, every symbol has `LCSC`/`MPN`/`Assembly`, the KiCad BOM export matches `bom-master.csv` (`scripts/check_bom.py toolboard`).
 
 **Review F3:** complete schematic PDF + BOM comparison.
 
