@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.1 (F2, for review) |
+| **Version** | 1.0 (approved 2026-11-17) |
 | **Date** | 2026-11-17 |
 | **Sources** | ST DS13560 Rev 3 (Figure 6, Table 12), Klipper `src/stm32/Kconfig` + `fdcan.c` + `stm32g0.c` (commit 29d4ec2, 2026-11-10) |
 

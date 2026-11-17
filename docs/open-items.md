@@ -31,8 +31,8 @@ Close an item with date and result. If the result changes a design document, upd
 | 13 | WSD4070DN: R_DS(on) at V_GS = 4.5 V and the SOA under PWM | part 1 §7 | ✅ 2026-11-17: 5.3 mΩ typ / 7.6 mΩ max at 4.5 V; ≈ 0.08 W per channel hot. 10 Hz PWM: switching losses negligible, SOA not a concern |
 | 14 | LM74502 in a single-FET configuration (dock board reverse polarity protection) | dock §9 | ✅ 2026-11-17: possible; FET source to the input, body diode conducts first, controller then turns it on; EN tied high, OV to GND (dock §4 updated) |
 | 15 | TPS54360B: component values for 5V/1.5 A and 12V/5V at 3 A (WEBENCH) | part 2 §9, dock §9 | 🟡 Calculated with TI's equations ([calculations.md](calculations.md)); cross-check with WEBENCH before F3 is closed. Catch diode was missing: SS56C added |
-| 16 | Trace widths and 1 oz or 2 oz copper (IPC-2152) | CLAUDE.md §6 | 🟡 Proposal: 1 oz, trunk 12 mm on L1+L3+L4 (meets the Littelfuse fuse rule). Waiting for Berten |
-| 17 | **Mechanics: dimensions, mounting holes, connector edges, height. Ask Berten.** | work plan F2 | 🟡 2026-11-17: requirements received ([mechanical.md](mechanical.md)); concept A/B and 1.0 mm overhang waiting for Berten |
+| 16 | Trace widths and 1 oz or 2 oz copper (IPC-2152) | CLAUDE.md §6 | ✅ 2026-11-17: 1 oz, trunk 12 mm on L1+L3+L4 |
+| 17 | **Mechanics: dimensions, mounting holes, connector edges, height. Ask Berten.** | work plan F2 | ✅ 2026-11-17: concept A (rows per type), 1.0 mm overhang, straight JST-XH ([mechanical.md](mechanical.md) §7) |
 
 ## F7 (ordering)
 

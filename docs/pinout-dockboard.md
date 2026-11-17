@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.1 (F2, for review) |
+| **Version** | 1.0 (approved 2026-11-17) |
 | **Date** | 2026-11-17 |
 | **Sources** | As [pinout-toolboard.md](pinout-toolboard.md) |
 

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.1 (F2, for review) |
+| **Version** | 1.0 (approved 2026-11-17; WEBENCH cross-check still open) |
 | **Date** | 2026-11-17 |
 | **Script** | `scripts/calc_f2.py` (tables below are its output; re-run after changing inputs) |
 

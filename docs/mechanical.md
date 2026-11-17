@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.1 (F2, for review) |
+| **Version** | 1.0 (approved 2026-11-17) |
 | **Date** | 2026-11-17 |
 
 ## 1. Requirements (Berten, 2026-11-17)
@@ -117,9 +117,12 @@ Connector widths (incl. 1 mm gap): screw terminal 5.08 mm 2-pole 10.2 mm, JST-XH
 - **Top edge:** 9 fan connectors in one row. **Right edge:** LED port and SWD.
 - Expected size **≈ 75 × 55 mm**, within 100 × 100 mm. 2 layers (unless panelled with the tool board, see design 20 §8).
 
-## 7. Open after review
+## 7. Decisions (Berten, 2026-11-17)
 
-- Choice between concept A and B.
-- Overhang 1.0 mm accepted?
-- JST-XH straight (vertical) versus right-angle: with no height restrictions, **straight** is cheaper and easier to plug from above. Right-angle only if the cables must leave parallel to the board.
-- Screw terminal: WJ500V-5.08-2P (C8465) has the screw on top and the wire entry at the board edge. Footprint created in F3 from the Kangnex drawing.
+| Item | Decision |
+|---|---|
+| Tool board layout | **Concept A: rows per type** |
+| Connector overhang | **1.0 mm** for USB-C, CAN and XT60/XT30 |
+| Copper | **1 oz** outer, power trunk 12 mm on L1 + L3 + L4 ([calculations.md](calculations.md) §2.1) |
+| JST-XH | **Straight (vertical)** |
+| Screw terminal | WJ500V-5.08-2P (C8465); footprint from the Kangnex drawing in F3 |
