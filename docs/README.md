@@ -8,7 +8,7 @@
 | Component selection Nexus Tools Board | ✅ Done (parts 1–3) |
 | Component selection Nexus Docks Board | ✅ Done |
 | Cost estimate | ✅ Estimate, no JLC quote yet |
-| KiCad implementation | 🔄 F0–F1 done, F2 in progress, see [work plan](work-plan.md) |
+| KiCad implementation | 🔄 F0–F1 done, F2 in review, see [work plan](work-plan.md) |
 
 ## Reading order
 
@@ -26,6 +26,9 @@
 12. [`connectors.md`](connectors.md): all connectors, pinouts and solder jumpers
 13. [`product-description.md`](product-description.md): product-style description of both boards, for the README or a project page
 14. [`library-review.md`](library-review.md): F1 parts library review (sources, footprint checks, stock)
+15. [`pinout-toolboard.md`](pinout-toolboard.md) / [`pinout-dockboard.md`](pinout-dockboard.md): STM32G0B1 pin assignment
+16. [`mechanical.md`](mechanical.md): mechanical constraints, layout concepts, connector overhang
+17. [`calculations.md`](calculations.md): buck converters, copper widths, LED resistors
 
 ## One minute of context
 
