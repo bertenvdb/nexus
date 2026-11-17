@@ -160,4 +160,4 @@ Same approach as F5, with **Nexus Docks Board** as the board name on the silkscr
 4. **Commissioning macro** (architecture §9.5): per tool, briefly turn on one heater and check that **only** the matching thermistor rises. Otherwise `M112`.
 5. **Cutoff startup self-test** (§9.6) via RAIL_SENSE.
 6. **`M104/M109 Tn` compatibility** (§9.7) and **staggered heat-up** (§9.8). Test with OrcaSlicer, PrusaSlicer and Cura G-code.
-7. Test plan for the first prototype: power-up without load, the voltage rails and their diagnostic LEDs, flashing, USB, CAN, one heater with cutoff test (incl. heater channel LED), all channels, filament runout + motion inputs, thermal test with 8 heaters cold.
+7. Test plan for the first prototype: power-up without load, the voltage rails and their diagnostic LEDs, flashing, USB, CAN, one heater with cutoff test (incl. heater channel LED), all channels, filament runout + motion inputs, thermal test with 8 heaters cold, including the **main fuse body temperature** at 14 A continuous and during a cold start of all 8 heaters (calculations.md §7; board outside the heated chamber).

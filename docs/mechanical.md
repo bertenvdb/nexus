@@ -14,6 +14,7 @@
 | M3 | No height restrictions. |
 | M4 | Tool connectors either **in a row per type**, or **grouped per tool**. Groups may be split over **two opposite edges**. |
 | M5 | USB-C, CAN and XT60 (dock: XT30) side by side on **one edge**, all overhanging the board edge by the **same** amount, as much as possible (ideal 3–4 mm). |
+| M6 | Both boards are mounted **outside the heated chamber** (Berten, 2026-11-17): room-temperature ambient. Basis for the fuse derating and the thermal checks (calculations.md §7). |
 
 ## 2. Derived rules
 

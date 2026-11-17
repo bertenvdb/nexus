@@ -17,7 +17,7 @@ Close an item with date and result. If the result changes a design document, upd
 | 8a | ESD diode for filament and LED lines (working voltage ≥ 5.5 V, Basic variant) | part 3, AD-14 | ✅ 2026-11-17: PESD5V0S1BA C2827694; requirement relaxed to Vrwm ≥ 5 V, Vbr ≥ 6 V (part 3 updated) |
 | 8b | Heater rail bleeder resistor (4.7 kΩ, ≥ 0.25 W): recalculate discharge time with the real rail capacitance | part 1 §5.1 | ⏳ Part chosen (C17936); calculation after the schematic |
 | 8c | Bulk electrolytic 100 µF 50 V: no Basic part; choose with the ripple-current calculation | F1 | ⏳ F2 |
-| 8d | Main fuse: Littelfuse asks ≥ 100 µm copper and ≥ 10 mm trace at 20–30 A; include in the trunk calculation | F1, datasheet 0456 | ⏳ F2, with item 16 |
+| 8d | Main fuse: Littelfuse asks ≥ 100 µm copper and ≥ 10 mm trace at 20–30 A; include in the trunk calculation | F1, datasheet 0456 | ✅ 2026-11-17: trunk on F.Cu/In2/B.Cu, ≈ 0.95 / 0.85 mm² at the fuse (calculations.md §6–7). Board outside the heated chamber. Fuse temperature measured on the prototype (F8) |
 
 ## F2 (pinout, mechanics, calculations)
 
