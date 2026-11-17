@@ -44,6 +44,18 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | Buck output cap | 22uF 25V X5R 1206 | CL31A226KAHNNNE | C12891 | 3 | 7 | JLC | Basic | 2642645 | 0.10 | stdlib | Tool 5V: 3. Dock 5V: 3, fan rail: 4 (25V needed for 12V). See calculations.md |
 | Power input tool | XT60 male right angle PCB | XT60PW-M | C98732 | 1 | 0 | SELF | Extended | 141599 | 0.55 | stdlib |  |
 | Power input dock | XT30 male right angle PCB | XT30PW-M30.G.Y | C431092 | 0 | 1 | SELF | Extended | 101327 | 0.34 | stdlib |  |
+| CAN connector | Micro-Fit 3.0 2x2 right angle | 43045-0400 | C122413 | 2 | 1 | SELF | Extended | 49412 | 0.37 | stdlib | Pads 1 GND / 2 24V(NC) / 3 CANL / 4 CANH = EBB layout (bottom row 24V GND, top row CANH CANL) |
+| Heater connector | Screw terminal 2-pole 5.08mm | WJ500V-5.08-2P | C8465 | 8 | 0 | SELF | Extended | 280498 | 0.14 | 2026-11-17 | Phoenix MKDS 1,5 clone: footprint checked against the Kangnex drawing (F3). Alt KF128-5.08-2P C474952 |
+| Thermistor connector | JST-XH 2-pin vertical | B2B-XH-A(LF)(SN) | C158012 | 8 | 0 | SELF | Extended | 480587 | 0.04 | stdlib | Right-angle S2B-XH-A C157931 if F2 requires |
+| Filament connector | JST-XH 4-pin vertical | B4B-XH-A(LF)(SN) | C144395 | 8 | 0 | SELF | Extended | 523031 | 0.05 | stdlib | Pin1 RUNOUT 2 GND 3 VCC 4 MOTION. Right-angle S4B-XH-A C157925 |
+| LED connector | JST-XH 3-pin vertical | B3B-XH-A(LF)(SN) | C144394 | 1 | 1 | SELF | Extended | 82785 | 0.05 | stdlib | Pin1 DIN 2 GND 3 5V |
+| Fan connector | JST-XH 2-pin vertical | B2B-XH-A(LF)(SN) | C158012 | 0 | 9 | SELF | Extended | 480587 | 0.04 | stdlib | Pin1 FAN- 2 V+ |
+| CAN termination | 2-pin header + jumper cap + 120R | PZ254V-11-02P, jumper cap | C492401 | 1 | 1 | SELF | Extended | 743995 | 0.02 | stdlib | Jumper cap C100114. 120R C22787 Basic (JLC) |
+| SWD header | 1x4 2.54mm | HX PZ2.54-1x4P ZZ | C32713270 | 1 | 1 | SELF | Extended | 113702 | 0.03 | stdlib | Optional populate |
+| Buttons | Tactile switch SMD 5.1x5.1 (BOOT + RESET) | TS-1187A-B-A-B | C318884 | 2 | 2 | JLC | Basic | 785115 | 0.02 | stdlib |  |
+| LED red | 0603 LED red (diagnostics, AD-17) | KT-0603R | C2286 | 9 | 1 | JLC | Basic | 5511325 | 0.01 | stdlib | Red for heater channels and MCU (decided 2026-11-17). Tool: 8 heater-drain + MCU. Dock: MCU |
+| LED green | 0805 LED green (diagnostics, AD-17) | KT-0805G | C2297 | 5 | 5 | JLC | Basic | 3158185 | 0.02 | stdlib | Green for rails (decided 2026-11-17). No Basic green 0603 in stock. Rails: 24V IN / HEATER RAIL or FAN RAIL / 5V / 3V3 / VBUS |
+| Passives | 0603 R/C generic | various | Basic | ~160 | ~85 | JLC | Basic |  | 0.005 | stdlib | Basic: 10k C25804, 100k C25803, 1k C21190, 5.1k C23186, 22R C23345, 330R C23138, 120R C22787, 1M C22935, 100nF C14663, 4.7nF C53987 |
 
 **Unique Extended parts placed by JLC: 19** (≈ $58 fee per order): AR03BTCX4121, BAT54S, BSC016N06NS, CD74HCT541M96, JK-nSMD075-16, LM74502DDFR, ME6211C33M5G-N, MWSA0603S-100MT, PESD2CAN, PESD5V0S1BA, SN74AHCT1G125DBVR, SS56C, STM32G0B1RBT6, TD03G4701BT, TJA1051T/3/1J, TPS54360BDDAR, TYPE-C-31-M-12, USBLC6-2SC6, WSD4070DN33.
 
