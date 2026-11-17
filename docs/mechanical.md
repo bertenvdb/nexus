@@ -139,3 +139,7 @@ The tool board is **140 × 90 mm**, not the ≈ 130 × 85 mm estimated in §4. W
 | Filament input networks under the top row, thermistor networks along the right edge, without overlap | ≈ 10 mm extra width |
 
 Area +14 % (12,600 vs 11,050 mm²). Cost effect: to be checked with the JLC quote in F7; expected a few dollars on 5 boards.
+
+## 9. Dock board size after placement (F6 step 1, brought forward, 2026-11-17)
+
+The dock board is **100 × 70 mm**, not the ≈ 75 × 55 mm of §6. The parts need ≈ 3,170 mm² of courtyard; on 75 × 55 mm that is 77 % fill, which cannot be routed on 2 layers. 100 × 70 mm gives ≈ 45 %. The 9 fan ports (JST-XH 2, 6.8 mm along the edge) sit at a 7.2 mm pitch along the top. Still within 100 × 100 mm (cheapest JLC size class). 2 layers for now; the layer count is decided in F6 step 2 together with the routing.

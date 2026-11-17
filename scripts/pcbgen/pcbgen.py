@@ -16,6 +16,7 @@ import pcbnew
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 FPDIRS = {"nexus": ROOT / "lib" / "nexus.pretty"}
 mm = pcbnew.FromMM
+MIN_GAP = float(__import__("os").environ.get("PACK_MIN_GAP", "0"))  # extra routing room between parts
 
 
 def fp_dir(lib):
@@ -54,10 +55,10 @@ def read_netlist(board):
 
 # ----------------------------------------------------------------- board --
 class Pcb:
-    def __init__(self, board, template, origin=(40.0, 40.0)):
+    def __init__(self, board, template, origin=(40.0, 40.0), layers=4):
         self.name = board
         self.board = pcbnew.LoadBoard(str(template))
-        self.board.SetCopperLayerCount(4)
+        self.board.SetCopperLayerCount(layers)
         self.ox, self.oy = origin
         self.comps, self.nets = read_netlist(board)
         self.fps = {}
@@ -187,6 +188,7 @@ class Pcb:
         turned by 90 degrees before a new row is started.
         """
         x0, y0, x1, y1 = region
+        gap = max(gap, MIN_GAP)
         x, y, row_h = x0, y0, 0.0
         if sort:
             def area(ref):
@@ -280,6 +282,10 @@ def write_netclasses(board, classes, patterns):
                  priority=2147483647 if name == "Default" else prio)
         out.append(e)
     d["net_settings"]["classes"] = out
+    # JLCPCB 4-layer capabilities (with margin): track/space 0.09 mm, via 0.45/0.2
+    rules = d["board"]["design_settings"]["rules"]
+    rules.update(min_track_width=0.12, min_clearance=0.12, min_via_diameter=0.5,
+                 min_through_hole_diameter=0.3, min_copper_edge_clearance=0.5)
     d["net_settings"]["netclass_patterns"] = [
         {"netclass": n, "pattern": p} for n, p in patterns]
     f.write_text(json.dumps(d, indent=2))

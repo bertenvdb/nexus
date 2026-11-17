@@ -28,9 +28,10 @@ BAND = (24.0, 58.8, 110.0, 65.2)  # +24V_HEATER rail band (x0, y0, x1, y1)
 # (IPC-2221 external: 0.1 mm) and needed for the 0.65 mm pitch TSOT-23-8.
 NETCLASSES = {
     "Default": dict(track=0.2),
-    "POWER_25A": dict(track=2.0, via=0.8, drill=0.4),
+    "POWER_25A": dict(track=0.8, via=0.8, drill=0.4),   # 25 A runs in zones
     "HEATER_CH": dict(track=2.0, via=0.8, drill=0.4),
     "POWER_LOGIC": dict(track=0.5),
+    "SUPPLY_3V3": dict(track=0.3),
     "ANALOG": dict(track=0.25),
     "USB": dict(track=0.2, dp_w=0.2, dp_g=0.15),
     "CAN": dict(track=0.2, dp_w=0.2, dp_g=0.2),
@@ -39,7 +40,7 @@ NETCLASS_PATTERNS = [
     ("POWER_25A", "+24V_IN"), ("POWER_25A", "+24V_HEATER"),
     ("POWER_25A", "/power_input/VIN_RAW"), ("POWER_25A", "/heater_cutoff/CUTOFF_SRC"),
     ("HEATER_CH", "HEATER_T*_N"), ("HEATER_CH", "/heaters/HEATER_T*_P"),
-    ("POWER_LOGIC", "+5V"), ("POWER_LOGIC", "+3V3_*"), ("POWER_LOGIC", "/logic_power/*"),
+    ("POWER_LOGIC", "+5V"), ("SUPPLY_3V3", "+3V3_*"), ("POWER_LOGIC", "/logic_power/*"),
     ("ANALOG", "THERM_*"), ("ANALOG", "/thermistors/*"), ("ANALOG", "VREF_A"),
     ("ANALOG", "RAIL_SENSE"), ("USB", "USB_D*"), ("CAN", "CAN*"),
 ]
@@ -65,11 +66,23 @@ def zones(pcb):
     """
     import pcbnew
     F, I1, I2, B = pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu
+    # In1 is the GND/AGND plane: no tracks (Freerouting gets a wire keepout and
+    # reaches it with vias). In2 carries the power zones (also wire keepouts in
+    # the router export) and signals elsewhere.
+    pcb.board.SetLayerType(I1, pcbnew.LT_POWER)   # GND plane only
+    pcb.board.SetLayerType(I2, pcbnew.LT_SIGNAL)  # power zones + signals
     # ground plane and AGND island
-    pcb.zone("GND", I1, rect(0, 0, W, H), priority=0, name="GND plane")
-    pcb.zone("AGND", I1, [(59.0, 39.0), (105.5, 39.0), (105.5, 23.5), (W, 23.5),
-                          (W, 81.0), (105.5, 81.0), (105.5, 42.5), (59.0, 42.5)],
-             priority=1, name="AGND island")
+    # AGND island (thermistor networks + neck to the star point at the MCU);
+    # the GND plane leaves a 0.5 mm gap around it, so the two never overlap
+    # (Freerouting does not know zone priorities).
+    island = [(59.0, 39.0), (105.5, 39.0), (105.5, 23.5), (W, 23.5),
+              (W, 81.0), (105.5, 81.0), (105.5, 42.5), (59.0, 42.5)]
+    g = 0.5
+    gnd = [(0, 0), (W, 0), (W, 23.5 - g), (105.5 - g, 23.5 - g), (105.5 - g, 39.0 - g),
+           (59.0 - g, 39.0 - g), (59.0 - g, 42.5 + g), (105.5 - g, 42.5 + g),
+           (105.5 - g, 81.0 + g), (W, 81.0 + g), (W, H), (0, H)]
+    pcb.zone("GND", I1, gnd, priority=0, name="GND plane")
+    pcb.zone("AGND", I1, island, priority=1, name="AGND island")
     # trunk: VIN_RAW (XT60 + -> fuse pad 1)
     for L in (F, I2, B):
         pcb.zone("/power_input/VIN_RAW", L, rect(12.5, 59.6, 23.4, 65.2), priority=2)
