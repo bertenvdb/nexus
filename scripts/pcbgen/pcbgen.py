@@ -214,6 +214,41 @@ class Pcb:
             if not done:
                 raise RuntimeError(f"region {region} full at {ref} (part {w:.1f} x {h:.1f})")
 
+    def zone(self, net, layer, pts, priority=0, clearance=0.3, min_width=0.25,
+             full=True, name=None):
+        """Copper zone; pts in board mm. full=True: solid pad connections."""
+        z = pcbnew.ZONE(self.board)
+        z.SetNet(self.netinfo[net] if net in self.netinfo else self.board.FindNet(net))
+        z.SetLayer(layer)
+        z.SetAssignedPriority(priority)
+        z.SetLocalClearance(mm(clearance))
+        z.SetMinThickness(mm(min_width))
+        z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL if full
+                           else pcbnew.ZONE_CONNECTION_THERMAL)
+        z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
+        if name:
+            z.SetZoneName(name)
+        ol = z.Outline()
+        ol.NewOutline()
+        for x, y in pts:
+            ol.Append(mm(self.ox + x), mm(self.oy + y))
+        self.board.Add(z)
+        return z
+
+    def via(self, net, x, y, size=0.6, drill=0.3):
+        v = pcbnew.PCB_VIA(self.board)
+        v.SetPosition(self.P(x, y))
+        v.SetWidth(mm(size))
+        v.SetDrill(mm(drill))
+        v.SetNet(self.netinfo[net])
+        self.board.Add(v)
+        return v
+
+    def fill_zones(self):
+        self.board.BuildConnectivity()   # else island removal drops everything
+        filler = pcbnew.ZONE_FILLER(self.board)
+        filler.Fill(self.board.Zones())
+
     def unplaced(self):
         return sorted(set(self.comps) - self.placed)
 

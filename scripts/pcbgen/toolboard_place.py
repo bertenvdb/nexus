@@ -20,6 +20,8 @@ from pcbgen import Pcb  # noqa: E402
 W, H = 140.0, 90.0
 HOLE = 6.1           # hole centre from both edges (mechanical.md §2)
 OVERHANG = 1.0       # connector front past the edge (M5)
+CH_X0, CH_PITCH = 26.0, 11.22   # heater terminal pin 1 positions
+BAND = (24.0, 58.8, 110.0, 65.2)  # +24V_HEATER rail band (x0, y0, x1, y1)
 
 
 # CLAUDE.md §6 net classes. Clearance 0.15 mm everywhere: enough for 24 V
@@ -49,6 +51,60 @@ def refs_by_key():
     return {p.key: p.ref for s in b.sheets for p in s.parts}
 
 
+def rect(x0, y0, x1, y1):
+    return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+
+
+def zones(pcb):
+    """F5 step 2: power and ground copper (docs/calculations.md §2.1).
+
+    In1 = GND plane with an AGND island (thermistor networks + neck to the
+    star point). Heater rail band on F.Cu + In2 (B.Cu stays free so the gate
+    signals can cross). Trunk XT60 -> fuse -> Q1 -> Q2 -> feed on F.Cu, In2
+    and B.Cu.
+    """
+    import pcbnew
+    F, I1, I2, B = pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu
+    # ground plane and AGND island
+    pcb.zone("GND", I1, rect(0, 0, W, H), priority=0, name="GND plane")
+    pcb.zone("AGND", I1, [(59.0, 39.0), (105.5, 39.0), (105.5, 23.5), (W, 23.5),
+                          (W, 81.0), (105.5, 81.0), (105.5, 42.5), (59.0, 42.5)],
+             priority=1, name="AGND island")
+    # trunk: VIN_RAW (XT60 + -> fuse pad 1)
+    for L in (F, I2, B):
+        pcb.zone("/power_input/VIN_RAW", L, rect(12.5, 59.6, 23.4, 65.2), priority=2)
+    for x, y in [(18.6, 61.0), (18.6, 63.6), (20.0, 64.65), (21.3, 64.65), (22.6, 64.65)]:
+        pcb.via("/power_input/VIN_RAW", x, y, 0.8, 0.4)
+    # +24V_IN: fuse pad 2 -> Q1 drain (and > 4 cm2 of copper for Q1)
+    pcb.zone("+24V_IN", F, rect(19.4, 49.6, 28.9, 55.9), priority=2)
+    for L in (I2, B):
+        pcb.zone("+24V_IN", L, rect(19.0, 36.0, 28.9, 55.9), priority=2)
+    for x in (20.0, 21.5, 23.0, 24.5, 26.0, 27.5):
+        for y in (49.95, 55.45):
+            pcb.via("+24V_IN", x, y, 0.8, 0.4)
+    # CUTOFF_SRC between the two FETs (short, F.Cu only)
+    pcb.zone("/heater_cutoff/CUTOFF_SRC", F,
+             [(29.0, 51.45), (31.2, 51.45), (31.2, 50.2), (32.95, 50.2), (32.95, 53.95),
+              (30.9, 53.95), (30.9, 55.2), (29.0, 55.2)], priority=2)
+    # +24V_HEATER: Q2 drain -> feed region (C_BULK1) -> rail band
+    x0, y0, x1, y1 = BAND
+    feed = [(33.25, 49.6), (50.3, 49.6), (50.3, y0), (x1, y0), (x1, y1),
+            (x0, y1), (x0, y0), (33.25, y0)]
+    pcb.zone("+24V_HEATER", F, feed, priority=2, name="heater rail band")
+    pcb.zone("+24V_HEATER", I2, [(33.25, 49.6), (50.3, 49.6), (50.3, 57.6), (x1, 57.6),
+                                 (x1, 67.0), (x0, 67.0), (x0, 57.6), (33.25, 57.6)],
+             priority=2, name="heater rail band In2")
+    pcb.zone("+24V_HEATER", B, rect(33.25, 49.6, 50.3, y0), priority=2)
+    for x in (39.0, 40.2):
+        for y in (50.2, 51.5, 52.8, 54.1, 55.4):
+            pcb.via("+24V_HEATER", x, y, 0.8, 0.4)
+    rail_caps = (54.0, 70.0, 86.0, 101.0)
+    for i in range(int((x1 - x0 - 2) / 3.0) + 1):
+        x = x0 + 1.0 + i * 3.0
+        if x <= 104.0 and all(abs(x - c) > 2.0 for c in rail_caps):
+            pcb.via("+24V_HEATER", x, y0 + 0.6, 0.8, 0.4)
+
+
 def main():
     K = refs_by_key()
     r = lambda *keys: [K[k] for k in keys]
@@ -63,12 +119,19 @@ def main():
     pcb.edge(K["J_CAN_OUT"], "left", 44.5, OVERHANG, rot=90)
     pcb.edge(K["J_XT60"], "left", 62.5, OVERHANG, rot=90)
 
-    # ---- bottom edge: heater terminals, channel parts in a column above each
+    # ---- bottom edge: heater terminals; per channel fixed positions:
+    #      fuse under the heater rail band (pad 1 up), MOSFET above the
+    #      HEATER- pin (drain down), gate R above it, LED + R right of the fuse.
     for i in range(8):
-        x = 24.0 + i * 11.25
+        x = CH_X0 + i * CH_PITCH
+        xq = x - 5.08
         pcb.edge(K[f"J_H{i}"], "bottom", x, 0.0, rot=180)
-        pcb.pack(r(f"Q_H{i}", f"F_H{i}", f"R_G{i}", f"R_GPD{i}", f"R_IN{i}",
-                   f"R_LH{i}", f"D_LH{i}"), (max(x - 6.1, 19.2), 64.2, x + 5.0, 78.6), gap=0.4)
+        pcb.place(K[f"F_H{i}"], x, 66.5, rot=270)
+        pcb.place(K[f"Q_H{i}"], xq, 72.0, rot=180)
+        pcb.place(K[f"R_G{i}"], xq, 67.0, rot=0)
+        pcb.place(K[f"R_GPD{i}"], xq, 68.9, rot=0)
+        pcb.place(K[f"R_LH{i}"], x + 2.7, 70.5, rot=90)
+        pcb.place(K[f"D_LH{i}"], x + 2.7, 74.6, rot=90)
 
     # ---- top edge: filament ports (pitch 14 > 13.5 courtyard), networks below
     for i in range(8):
@@ -89,14 +152,20 @@ def main():
                    f"C_TIN{i}", f"R_TS{i}", f"C_TADC{i}", f"D_TCL{i}"),
                  (108.6, y - 3.4, 130.3, y + 3.45), gap=0.25)
 
-    # ---- power trunk: XT60 -> fuse -> cutoff FETs -> heater rail (left)
-    pcb.pack(r("F_MAIN", "Q_CUT1", "Q_CUT2", "D_TVS", "U_CUTOFF", "C_IN1", "C_IN2",
-               "C_VCAP", "C_VS", "R_EN_PD", "C_RAIL1", "C_RAIL2", "C_RAIL3", "C_RAIL4",
-               "R_BLEED", "TP_24VIN", "TP_GND1", "TP_GATE", "TP_24VH"),
-             (21.0, 46.8, 52.3, 63.8), gap=0.4)
-    pcb.pack(r("C_BULK1"), (9.0, 71.6, 18.0, 80.3))
-    pcb.pack(r("C_BULK2", "R_RS_TOP", "R_RS_BOT", "R_RS_SER", "C_RS", "D_RS",
-               "TP_RS", "TP_GATE0", "TP_DRAIN0"), (91.5, 46.8, 108.0, 63.8), gap=0.3)
+    # ---- power trunk (CLAUDE.md §6.1): XT60 + -> 25 A fuse (vertical) ->
+    #      Q1 (drain left) -> Q2 (drain right) -> down into the heater rail band
+    pcb.place(K["F_MAIN"], 21.3, 57.4, rot=90)
+    pcb.place(K["Q_CUT1"], 27.1, 52.7, rot=180)
+    pcb.place(K["Q_CUT2"], 35.0, 52.7, rot=0)
+    pcb.pack(r("C_BULK1"), (40.5, 49.8, 50.0, 58.6))
+    pcb.pack(r("U_CUTOFF", "C_VCAP", "C_VS", "R_EN_PD", "TP_GATE", "D_TVS", "C_IN1",
+               "C_IN2", "TP_24VIN", "TP_GND1", "TP_24VH", "R_BLEED"),
+             (22.8, 39.0, 56.0, 49.4), gap=0.4)
+    for i, x in enumerate([54.0, 70.0, 86.0, 101.0]):     # in the band
+        pcb.place(K[f"C_RAIL{i + 1}"], x, 61.6, rot=270)
+    pcb.pack(r("C_BULK2", "R_RS_TOP", "R_RS_BOT", "R_RS_SER", "C_RS", "D_RS", "TP_RS"),
+             (91.5, 46.8, 108.0, 58.4), gap=0.3)
+    pcb.pack(r("TP_GATE0", "TP_DRAIN0"), (9.5, 74.0, 17.5, 78.0), gap=0.6)
 
     # ---- logic power (5 V buck), LDOs + VREF, below the filament band
     pcb.pack(r("U_BUCK", "L_BUCK", "D_CATCH", "D_REV", "C_BIN1", "C_BIN2", "C_BIN3",
@@ -120,16 +189,20 @@ def main():
                "NT_AGND", "C_NRST", "R_BOOT"), (56.5, 32.6, 67.1, 46.6), gap=0.3)
     pcb.pack(r("SW_RESET", "SW_BOOT", "J_SWD", "JP_VFIL", "F_VFIL", "D_VFIL", "C_VFIL"),
              (81.2, 32.6, 108.4, 46.6), gap=0.4)
-    pcb.pack(r("U_GATEBUF", "C_GATEBUF"), (52.8, 46.8, 91.0, 63.8), rot=90)
+    pcb.pack(r("U_GATEBUF", "C_GATEBUF") + [K[f"R_IN{i}"] for i in range(8)],
+             (52.5, 46.7, 91.0, 58.75), rot=270, gap=0.4)
 
     # ---- diagnostic LEDs for the rails: bottom-right, next to the channel LEDs
     pcb.pack(r("R_L24VIN", "D_L24VIN", "R_LRAIL", "D_LRAIL", "R_L5V", "D_L5V",
                "R_L3V3", "D_L3V3", "R_LVBUS", "D_LVBUS", "R_LMCU", "D_LMCU"),
              (108.6, 87.5 - 6.0, 129.0, 89.4), gap=0.3)
 
+    zones(pcb)
+
     left = [x for x in pcb.unplaced()]
     if left:
         print("UNPLACED:", left)
+    pcb.fill_zones()
     out = pcb.save(NETCLASSES, NETCLASS_PATTERNS)
     print(f"saved {out.relative_to(ROOT)}: {len(pcb.placed)} footprints")
 

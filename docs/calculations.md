@@ -147,3 +147,18 @@ Worst phase margin: 72° (Dock fan rail 5V, 0.1 A).
 | × 1.5 | 75° | 18 kHz | 21 dB |
 
 **Conclusion:** all four converters are stable over the full load range with margin (targets PM ≥ 45°, fc ≤ fsw/10 = 60 kHz, GM ≥ 6 dB), also when the capacitors deliver only half the assumed capacitance. Still to do on the prototype: a load step (e.g. 0.1 → 1 A) on each output with an oscilloscope; ringing of more than 2–3 periods means less phase margin than calculated.
+
+---
+
+## 6. Power copper as laid out (F5 step 2)
+
+| Item | Layout | Check |
+|---|---|---|
+| Layers | F.Cu: parts, trunk, heater rail band. In1: GND plane + AGND island. In2: trunk + heater rail band (10 mm). B.Cu: trunk only; free in the band so the 8 gate signals can cross | |
+| Trunk | XT60 + → 25 A fuse (vertical) → Q1 → Q2 → feed region ≈ 34 mm | ≤ 40 mm ✔ (CLAUDE.md §6.1) |
+| Copper at the fuse | VIN_RAW side 10.9 mm × (35 + 17.5 + 35) µm = 0.95 mm²; +24V_IN side ≈ 0.85 mm² | Littelfuse ≈ 1.0 mm²: just below on the output side; check the fuse temperature on the prototype at full load |
+| Heater rail band | F.Cu 6.4 mm + In2 10 mm. IPC-2221 at ΔT 20 K: ≈ 12.6 A + 5.4 A ≈ 18 A | Worst case right of the feed point 6 × 2.9 = 17.5 A ✔ (transient, all heaters cold) |
+| Q1 (+24V_IN) copper | F.Cu 60 + In2 + B.Cu ≈ 2 × 197 mm² ≈ 4.5 cm² | ≥ 4 cm² ✔ |
+| Q2 (+24V_HEATER) copper | > 15 cm² (feed region + band) | ✔ |
+| CUTOFF_SRC | F.Cu only, ≈ 14 mm², ≈ 2.5 mm between the source pins | Short; carried mainly by the package leads |
+| AGND | Island on In1 under the thermistor networks + 3.5 mm neck to the net tie at the MCU | Heater return currents (bottom-left, MOSFET sources → XT60) do not cross it ✔ |
