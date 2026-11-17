@@ -27,7 +27,7 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | USB ESD | USB ESD SOT-23-6 | USBLC6-2SC6 | C7519 | 1 | 1 | JLC | Extended | 39686 | 0.16 | stdlib | Extended (not Basic as assumed). No Basic equivalent found |
 | USB connector | USB-C 16-pin USB2.0 SMD | TYPE-C-31-M-12 | C165948 | 1 | 1 | JLC | Extended | 514955 | 0.19 | stdlib | No Basic USB-C found. CC1/CC2 5.1k to GND |
 | Input TVS | TVS 30V bidirectional SMB | SMBJ30CA | C2925441 | 1 | 1 | JLC | Preferred | 139589 | 0.05 | stdlib | Preferred Extended (no fee with Economic PCBA) |
-| Logic Schottky | Schottky 60V 3A SMA | SS36 | C16015 | 1 | 0 | JLC | Extended | 332763 | 0.04 | stdlib | No Basic 60V/3A Schottky found. Tool: reverse polarity logic path |
+| Schottky 60V 5A | Schottky 60V 5A SMC (buck catch diode + logic reverse polarity) | SS56C | C24138 | 2 | 2 | JLC | Extended | 90070 | 0.10 | stdlib | Added in F2: TPS54360B is non-synchronous and needs a catch diode (was missing). Replaces SS36. Tool: catch + logic path. Dock: 2 catch. Up to 1.8 W: >= 3 cm2 copper |
 | Fan flyback | Schottky 40V 1A SOD-123 | B5819W SL | C8598 | 0 | 9 | JLC | Basic | 720194 | 0.03 | stdlib | Dock only. 40V > 24V fan rail |
 | Analog clamp | Dual Schottky SOT-23 | BAT54S | C408389 | 9 | 0 | JLC | Extended | 641231 | 0.02 | stdlib | No Basic found. 8 thermistor + 1 RAIL_SENSE |
 | Thermistor ESD | TVS 30V bidirectional SOD-123FL | SMF30CA | C19077519 | 8 | 0 | JLC | Preferred | 575614 | 0.03 | stdlib | Preferred Extended. Must not conduct at 24V |
@@ -39,8 +39,9 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | Channel fuse | Fuse 1206 5A 32V fast | 0466005.NRHF | C57525 | 8 | 1 | SELF | Extended | 23580 | 0.10 | stdlib | Replaces C311004 (only 39 left). Dock: input fuse (same part) |
 | Main fuse | Fuse 25A 125V SMD very fast | 0456025.ER | C315877 | 1 | 0 | SELF | Extended | 2264 | 0.79 | 2026-11-17 | Pads match Littelfuse recommended layout (3.25x3.43 gap 6.10) within 0.05 mm. Littelfuse: >=100um copper and >=10mm trace at 20-30A (F2) |
 | PPTC | PPTC 1206 0.75A hold 1.5A trip 16V | JK-nSMD075-16 | C409806 | 2 | 1 | JLC | Extended | 62329 | 0.03 | stdlib | Replaces JK-NSMD075 C692900 (out of stock). Tool: VCC_FIL + LED. Dock: LED |
-| Bulk electrolytic | 100uF 50V SMD | TBD | TBD | 2 | 1 | JLC | Extended |  | 0.10 | F2 | No Basic found. Choose with ripple-current calculation in F2. Candidates C3445238 (6.3x7.7) / C46550427 polymer THT |
+| Bulk electrolytic | 100uF 63V THT low impedance 8x16mm | 63ZLH100MEFC8X16 | C88747 | 2 | 1 | SELF | Extended | 29445 | 0.14 | stdlib | Rubycon ZLH. Hand-soldered: no JLC fee. 63V gives margin over the 48.4V TVS clamp (a 50V part would not) |
 | Bulk ceramic | 10uF 50V X5R 1206 | CL31A106KBHNNNE | C13585 | 4 | 2 | JLC | Basic | 4379572 | 0.12 | stdlib | X5R (Basic); X7R C89632 is Extended. Note DC-bias derating at 24V |
+| Buck output cap | 22uF 25V X5R 1206 | CL31A226KAHNNNE | C12891 | 3 | 7 | JLC | Basic | 2642645 | 0.10 | stdlib | Tool 5V: 3. Dock 5V: 3, fan rail: 4 (25V needed for 12V). See calculations.md |
 | Power input tool | XT60 male right angle PCB | XT60PW-M | C98732 | 1 | 0 | SELF | Extended | 141599 | 0.55 | stdlib |  |
 | Power input dock | XT30 male right angle PCB | XT30PW-M30.G.Y | C431092 | 0 | 1 | SELF | Extended | 101327 | 0.34 | stdlib |  |
 | CAN connector | Micro-Fit 3.0 2x2 right angle | 43045-0400 | C122413 | 2 | 1 | SELF | Extended | 49412 | 0.37 | stdlib | Pinout 24V(NC)-GND-CANH-CANL |
@@ -56,7 +57,7 @@ Rows marked **DECISION** in the notes wait for Berten's choice.
 | LED green | 0805 LED green (diagnostics, AD-17) | KT-0805G | C2297 | 5 | 5 | JLC | Basic | 3158185 | 0.02 | stdlib | Green for rails (decided 2026-11-17). No Basic green 0603 in stock. Rails: 24V IN / HEATER RAIL or FAN RAIL / 5V / 3V3 / VBUS |
 | Passives | 0603 R/C generic | various | Basic | ~160 | ~85 | JLC | Basic |  | 0.005 | stdlib | Basic: 10k C25804, 100k C25803, 1k C21190, 5.1k C23186, 22R C23345, 330R C23138, 120R C22787, 1M C22935, 100nF C14663, 4.7nF C53987 |
 
-**Unique Extended parts placed by JLC: 20** (≈ $61 fee per order): AR03BTCX4121, BAT54S, BSC016N06NS, CD74HCT541M96, JK-nSMD075-16, LM74502DDFR, ME6211C33M5G-N, MWSA0603S-100MT, PESD2CAN, PESD5V0S1BA, SN74AHCT1G125DBVR, SS36, STM32G0B1RBT6, TBD, TD03G4701BT, TJA1051T/3/1J, TPS54360BDDAR, TYPE-C-31-M-12, USBLC6-2SC6, WSD4070DN33.
+**Unique Extended parts placed by JLC: 19** (≈ $58 fee per order): AR03BTCX4121, BAT54S, BSC016N06NS, CD74HCT541M96, JK-nSMD075-16, LM74502DDFR, ME6211C33M5G-N, MWSA0603S-100MT, PESD2CAN, PESD5V0S1BA, SN74AHCT1G125DBVR, SS56C, STM32G0B1RBT6, TD03G4701BT, TJA1051T/3/1J, TPS54360BDDAR, TYPE-C-31-M-12, USBLC6-2SC6, WSD4070DN33.
 
 <!-- BOM:END -->
 

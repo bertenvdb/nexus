@@ -115,7 +115,7 @@ Unchanged from v0.1.
 XT60 ─► main fuse 25 A ─► TVS SMBJ30CA (bidir.) ─┬─► [Q1]──[Q2] ─► HEATER RAIL ─► 8× fuse ─► screw terminals
                                                  │    ▲ back-to-back N-FET
                                                  │    └─ LM74502 (EN ◄─ MCU GPIO, 100 kΩ pull-down)
-                                                 └─► SS36 ─► 5V buck ─► 3.3V
+                                                 └─► SS56C ─► 5V buck ─► 3.3V
 ```
 
 | Parameter | Value | OK |

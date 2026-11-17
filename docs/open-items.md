@@ -21,18 +21,18 @@ Close an item with date and result. If the result changes a design document, upd
 
 ## F2 (pinout, mechanics, calculations)
 
-| # | Item | Source |
-|---|---|---|
-| 9 | STM32G0B1RBT6: does the LQFP-64 have a separate VREF+ pin? | part 1 §3, §6.3 |
-| 10 | FDCAN/USB pin choice according to Klipper support (source code) | part 2 §5 |
-| 11 | Klipper build for the 128KB variant (flash offset with Katapult) | part 1 §3 |
-| 12 | 9 ADC pins (FT_a; 8 thermistor + RAIL_SENSE) and **16** filament pins (FT, without analog function) | part 3 §4 |
-| 12a | Compare the pinout of common runout/motion sensors (e.g. BTT SFS v2) with the board pinout 1 RUNOUT / 2 GND / 3 VCC / 4 MOTION | part 3 §2.1 |
-| 13 | WSD4070DN: R_DS(on) at V_GS = 4.5 V and the SOA under PWM | part 1 §7 |
-| 14 | LM74502 in a single-FET configuration (dock board reverse polarity protection) | dock §9 |
-| 15 | TPS54360B: component values for 5V/1.5 A and 12V/5V at 3 A (WEBENCH) | part 2 §9, dock §9 |
-| 16 | Trace widths and 1 oz or 2 oz copper (IPC-2152) | CLAUDE.md §6 |
-| 17 | **Mechanics: dimensions, mounting holes, connector edges, height. Ask Berten.** | work plan F2 |
+| # | Item | Source | Status |
+|---|---|---|---|
+| 9 | STM32G0B1RBT6: does the LQFP-64 have a separate VREF+ pin? | part 1 §3, §6.3 | ✅ 2026-11-17: yes, pin 7 ([pinout-toolboard.md](pinout-toolboard.md)) |
+| 10 | FDCAN/USB pin choice according to Klipper support (source code) | part 2 §5 | ✅ 2026-11-17: USB PA11/PA12, CAN PB0/PB1 (FDCAN2), also as USB-CAN bridge |
+| 11 | Klipper build for the 128KB variant (flash offset with Katapult) | part 1 §3 | ✅ 2026-11-17: Klipper assumes 128 KiB (`FLASH_SIZE` 0x20000) for every STM32G0; Katapult 8 KiB offset. Confirm by building in F8 |
+| 12 | 9 ADC pins (FT_a; 8 thermistor + RAIL_SENSE) and **16** filament pins (FT, without analog function) | part 3 §4 | ✅ 2026-11-17: PA0–PA7 + PC4; 16 filament pins without `_a` |
+| 12a | Compare the pinout of common runout/motion sensors (e.g. BTT SFS v2) with the board pinout 1 RUNOUT / 2 GND / 3 VCC / 4 MOTION | part 3 §2.1 | ⏳ Before F3 sheet `filament_inputs` |
+| 13 | WSD4070DN: R_DS(on) at V_GS = 4.5 V and the SOA under PWM | part 1 §7 | ✅ 2026-11-17: 5.3 mΩ typ / 7.6 mΩ max at 4.5 V; ≈ 0.08 W per channel hot. 10 Hz PWM: switching losses negligible, SOA not a concern |
+| 14 | LM74502 in a single-FET configuration (dock board reverse polarity protection) | dock §9 | ✅ 2026-11-17: possible; FET source to the input, body diode conducts first, controller then turns it on; EN tied high, OV to GND (dock §4 updated) |
+| 15 | TPS54360B: component values for 5V/1.5 A and 12V/5V at 3 A (WEBENCH) | part 2 §9, dock §9 | 🟡 Calculated with TI's equations ([calculations.md](calculations.md)); cross-check with WEBENCH before F3 is closed. Catch diode was missing: SS56C added |
+| 16 | Trace widths and 1 oz or 2 oz copper (IPC-2152) | CLAUDE.md §6 | 🟡 Proposal: 1 oz, trunk 12 mm on L1+L3+L4 (meets the Littelfuse fuse rule). Waiting for Berten |
+| 17 | **Mechanics: dimensions, mounting holes, connector edges, height. Ask Berten.** | work plan F2 | 🟡 2026-11-17: requirements received ([mechanical.md](mechanical.md)); concept A/B and 1.0 mm overhang waiting for Berten |
 
 ## F7 (ordering)
 

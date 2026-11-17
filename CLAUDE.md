@@ -103,7 +103,7 @@ kicad-cli pcb drc  --severity-all --exit-code-violations -o out/drc.rpt toolboar
 - **Hierarchical schematics**, one sheet per functional block, with the same structure as the design documents:
   - `power_input` (XT60, fuse, TVS, bulk)
   - `heater_cutoff` (LM74502 + FETs)
-  - `logic_power` (SS36, TPS54360B, ME6211 ×2, USB VBUS diode-OR)
+  - `logic_power` (SS56C, TPS54360B + SS56C catch diode, ME6211 ×2, USB VBUS diode-OR)
   - `mcu` (STM32, crystal, BOOT/RESET, SWD, MCU LED)
   - `diag_leds` (rail, VBUS and channel LEDs; AD-17)
   - `usb_can`

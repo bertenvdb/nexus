@@ -44,13 +44,13 @@ The G0B1 is $1.40 more per board, but you save 3 × $3 fee per order and keep a 
 | Input fuse | 1206, 5 A / 32 V | same as tool board | ✔ | 1 |
 | TVS | SMBJ30CA | Basic | ✔ | 1 |
 | Reverse polarity protection | LM74502 + 1× BSC016N06NS (ideal diode, EN tied high) | C3236215 / C454269 | ✔ | 1 + 1 |
-| 5V logic | TPS54360B + 10µH inductor | C524806 | ✔ | 1 |
-| Fan rail buck 12V/5V | TPS54360B + 10µH inductor (the same) | C524806 | ✔ | 1 |
+| 5V logic | TPS54360B + 10µH inductor + SS56C catch diode *(F2)* | C524806 | ✔ | 1 |
+| Fan rail buck 12V/5V | TPS54360B + 10µH inductor + SS56C catch diode (the same) | C524806 | ✔ | 1 |
 | 3.3V | ME6211C33 | C82942 | ✔ | 1 |
 | Fan MOSFET | WSD4070DN | C719095 | ✔ | 9 |
 | Gate buffer | CD74HCT541M96 (fans 1–8) | C6560 | ✔ | 1 |
 | Gate buffer fan 9 + LED shifter | SN74AHCT1G125DBVR | C7484 | ✔ | 2 |
-| Flyback per fan | SS36 (or Basic Schottky ≥ 40 V) | — | ✔ | 9 |
+| Flyback per fan | B5819W (40 V 1 A, Basic) *(F1)* | C8598 | ✘ | 9 |
 | LED polyfuse | JK-NSMD075 | C692900 | ✔ | 1 |
 | USB | USB-C 16-pin + USBLC6-2SC6 | — / C7519 | ✔ | 1 + 1 |
 | Fan connectors | JST-XH 2-pin | hand-soldered | ✔ (family) | 9 |
@@ -77,8 +77,9 @@ XT30 ─► fuse 5 A ─► SMBJ30CA ─► LM74502 + Q1 (reverse polarity prote
 | Choice | Rationale |
 |---|---|
 | **LM74502 + 1 FET as ideal diode** | A Schottky loses ≈ 1.5 W at 3 A. LM74502 and BSC016N06NS are already in the tool board BOM. EN tied high: no cutoff needed for fans. |
+| **Single-FET orientation** *(F2)* | The FET's **source faces the input** (VS and SRC on the XT30 side, drain to 24V_INT). On power-up the body diode conducts until the charge pump turns the FET on; on reverse polarity the body diode blocks and the controller holds GATE at SRC. Back-to-back FETs are only needed for load disconnect, which the dock does not use. OV pin to GND. |
 | **Second TPS54360B for the fan rail** | The same part. Output 12V or 5V via a solder jumper that selects one of two FB resistors. Design current 3 A (the IC can do 3.5 A). |
-| **Same 10µH inductor for both bucks** | Ripple current at 600 kHz: ≈ 1.0 A (24→12V) and ≈ 0.7 A (24→5V). Inductor ≥ 4.5 A saturation. Exact via WEBENCH. |
+| **Same 10µH inductor for both bucks** | Ripple current at 600 kHz: ≈ 1.0 A (24→12V) and ≈ 0.7 A (24→5V). MWSA0603S-100MT: Isat 5.5 A. Values: [calculations.md](../calculations.md) §1. |
 | **Fan rail solder jumper: 24V direct or buck** | One choice for all fans (FR-D02). Not soldered by default, so the board cannot simply put 24V on 5V fans. **Choose deliberately at build time.** Without a jumper there is no fan voltage, so the fans do not run. State this prominently on the silkscreen. |
 | **Buck #2 EN tied to the jumper** | With 24V direct, buck #2 is off (no unnecessary losses). |
 | **5 A input fuse** | Worst case 3 A fans (at 24V) + ≈ 0.3 A logic + LED. XT30 can handle 15 A. |
@@ -89,7 +90,7 @@ XT30 ─► fuse 5 A ─► SMBJ30CA ─► LM74502 + Q1 (reverse polarity prote
 
 ```
 FAN_RAIL ──────┬────────────► JST-XH pin 2 (V+)
-             SS36 (cathode to FAN_RAIL)
+             B5819W (cathode to FAN_RAIL)
                │
                ├────────────► JST-XH pin 1 (fan−)
              drain WSD4070DN

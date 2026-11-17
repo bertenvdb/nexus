@@ -30,7 +30,8 @@ Same sourcing rule as part 1: everything in stock at LCSC/JLCPCB, passives from 
 | 24V input | **Amass XT60PW-M** (male, right-angle, PCB) | C98732 | 12,120 | $0.46 | 1 | Extended |
 | Main fuse | **Littelfuse 0456025.ER** (25 A, 125 V, SMD) | C315877 | 2,574 | $1.07 | 1 | Extended |
 | Input TVS | SMBJ30CA (bidirectional) | Basic | — | $0.04 | 1 | Basic |
-| Logic reverse polarity protection | SS36 (60 V, 3 A, SMA) | *pick Basic variant* | plenty | — | 1 | Basic/Ext. |
+| Logic reverse polarity protection | **SS56C** (60 V, 5 A, SMC) *(F2: was SS36)* | C24138 | 90,070 | $0.10 | 1 | Extended |
+| Buck catch diode *(added in F2)* | **SS56C**, SW → GND | C24138 | — | — | 1 | same part |
 | 5V buck | **TI TPS54360BDDAR** (4.5–60 V, 3.5 A) | C524806 | 58,193 | $0.63 | 1 | Extended |
 | 3.3V LDO | **ME6211C33M5G-N** (500 mA) | C82942 | 334,460 | $0.04 | 2 | *likely Basic* |
 | CAN transceiver | **NXP TJA1051T/3/1J** (5 V, VIO 3.3 V) | C38695 | 149,768 | $0.32 | 1 | Extended |
@@ -53,7 +54,7 @@ Same sourcing rule as part 1: everything in stock at LCSC/JLCPCB, passives from 
 ```
 XT60PW-M ─► 0456025.ER (25 A) ─► SMBJ30CA ─► bulk C ─┬─► cutoff (part 1) ─► heater rail
                                                       │
-                                                      └─► SS36 ─► TPS54360B ─► 5V rail
+                                                      └─► SS56C ─► TPS54360B ─► 5V rail
 ```
 
 | Part | Choice | Explanation |
@@ -61,7 +62,7 @@ XT60PW-M ─► 0456025.ER (25 A) ─► SMBJ30CA ─► bulk C ─┬─► cut
 | Connector | XT60PW-M, **male on the board** | The PSU cable gets the female plug. That way there are no exposed live pins on the cable. 30 A continuous. |
 | Main fuse | 0456025.ER, 25 A, very fast, 500 A breaking capacity | Average scenario 12–14 A (≈ 55 %). Worst case 23.6 A (≈ 95 %) only lasts seconds. By standard a fuse only opens well above 100 %, so this is acceptable. |
 | TVS | SMBJ30CA, bidirectional | Working voltage 30 V, clamp 48.4 V. Stays below the 60 V of the buck and the LM74502. Does not conduct on reverse polarity. |
-| Bulk | 2× 100 µF / 50 V electrolytic + 4× 10 µF / 50 V X7R 1206, distributed along the heater rail near the channel fuses and MOSFETs | Absorbs the current steps of the heater PWM (up to 8 × 2.9 A). Electrolytics from the Basic library if available. |
+| Bulk | 2× 100 µF / **63 V** THT electrolytic (Rubycon ZLH, hand-soldered; F2: 50 V was too close to the 48.4 V TVS clamp) + 4× 10 µF / 50 V X7R 1206, distributed along the heater rail near the channel fuses and MOSFETs | Absorbs the current steps of the heater PWM (up to 8 × 2.9 A). Electrolytics from the Basic library if available. |
 
 **Deliberate trade-off:** the main fuse is an SMD part and therefore not user-replaceable. That is acceptable, because it is only the last safety net. Normal faults are caught earlier by the channel fuses, the hardware cutoff and Klipper. If the main fuse blows, something is seriously wrong and the board must be inspected anyway.
 
@@ -72,7 +73,7 @@ XT60PW-M ─► 0456025.ER (25 A) ─► SMBJ30CA ─► bulk C ─┬─► cut
 ### 4.1 Structure
 
 ```
-24V ─► SS36 ─► TPS54360B ─► 5V_RAIL ──┬─► LED port (part 3, own limiting)
+24V ─► SS56C ─► TPS54360B ─► 5V_RAIL ──┬─► LED port (part 3, own limiting)
                                       ├─► filament sensors 5V option (part 3)
                                       ├─► TJA1051 VCC
                                       ├─► ME6211 #2 ─► 3V3_AUX (sensors 3.3V option, status LEDs)
@@ -89,7 +90,8 @@ USB VBUS ───────────────────────�
 | 5V rail design current: **1.5 A** | See §4.3. The TPS54360B can do 3.5 A, so there is plenty of margin. Switching frequency ≈ 600 kHz. Inductor ≈ 10 µH / ≥ 2.5 A. Exact values with TI WEBENCH at the schematic stage. |
 | **Two ME6211s** instead of one | A SOT-23-5 dissipates (4.7 − 3.3) × I. With MCU and active 3.3V sensors together (≈ 130 mA, 0.18 W), a single LDO gets too hot. Using the same part twice costs no extra Extended fee. It also keeps sensor noise away from the MCU and ADC rail. |
 | **USB VBUS diode-OR to 3V3_MCU** | The MCU runs on USB alone. That lets you flash and configure without 24V. VBUS powers nothing else, so no LEDs or sensors. The host port is never overloaded. The 5V rail cannot back-feed into the host. |
-| **SS36 before the buck** | Reverse polarity protection of the logic path (part 1, §5: the heater path is protected by the back-to-back cutoff FETs). 60 V reverse voltage, well above the TVS clamp. |
+| **Catch diode SS56C** *(added in F2)* | The TPS54360B is non-synchronous: an external Schottky from SW to GND is mandatory (datasheet §8.2.2.5). Loss ≈ 0.9 W at 1.5 A: SMC with copper. Values for RT, L, Cout, compensation and UVLO: see [calculations.md](../calculations.md). |
+| **SS56C before the buck** *(F2: was SS36)* | Reverse polarity protection of the logic path (part 1, §5: the heater path is protected by the back-to-back cutoff FETs). 60 V reverse voltage, well above the TVS clamp. |
 
 ### 4.3 5V rail current budget
 
