@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4 (draft) |
+| **Version** | 0.5 (F4 schematic) |
 | **Date** | 2026-11-17 |
 | **Basis** | Architecture v1.6, tool board detailed design parts 1–3 |
 | **Status** | Component selection, before schematic entry |
@@ -78,10 +78,10 @@ XT30 ─► fuse 5 A ─► SMBJ30CA ─► LM74502 + Q1 (reverse polarity prote
 |---|---|
 | **LM74502 + 1 FET as ideal diode** | A Schottky loses ≈ 1.5 W at 3 A. LM74502 and BSC016N06NS are already in the tool board BOM. EN tied high: no cutoff needed for fans. |
 | **Single-FET orientation** *(F2)* | The FET's **source faces the input** (VS and SRC on the XT30 side, drain to 24V_INT). On power-up the body diode conducts until the charge pump turns the FET on; on reverse polarity the body diode blocks and the controller holds GATE at SRC. Back-to-back FETs are only needed for load disconnect, which the dock does not use. OV pin to GND. |
-| **Second TPS54360B for the fan rail** | The same part. Output 12V or 5V via a solder jumper that selects one of two FB resistors. Design current 3 A (the IC can do 3.5 A). |
+| **Second TPS54360B for the fan rail** | The same part. Output 5V or 12V: FB = 7.5k to GND, 39k + 68k to the output; a bridged solder jumper shorts the 68k. **Bridged (default) = 4.96 V, cut = 12.2 V** *(F4)*. The safe value is the default. Design current 3 A (the IC can do 3.5 A). |
 | **Same 10µH inductor for both bucks** | Ripple current at 600 kHz: ≈ 1.0 A (24→12V) and ≈ 0.7 A (24→5V). MWSA0603S-100MT: Isat 5.5 A. Values: [calculations.md](../calculations.md) §1. |
 | **Fan rail solder jumper: 24V direct or buck** | One choice for all fans (FR-D02). Not soldered by default, so the board cannot simply put 24V on 5V fans. **Choose deliberately at build time.** Without a jumper there is no fan voltage, so the fans do not run. State this prominently on the silkscreen. |
-| **Buck #2 EN tied to the jumper** | With 24V direct, buck #2 is off (no unnecessary losses). |
+| **Buck #2 always enabled** *(F4, was: EN tied to the jumper)* | With 24V direct, buck #2 runs unloaded (pulse skipping, a few mA ≈ 0.1 W). Coupling EN to the 3-pad rail jumper would need a second jumper or a jumper with 4 pads; not worth it for 0.1 W. |
 | **5 A input fuse** | Worst case 3 A fans (at 24V) + ≈ 0.3 A logic + LED. XT30 can handle 15 A. |
 
 ---
@@ -186,6 +186,16 @@ Identical to the tool board (part 2):
 5. FAN RAIL LED resistor: sized for 5 V, check power rating at 24 V (≥ 0.25 W).
 
 ---
+
+## 10. Changes in the F4 schematic
+
+| Item | Before | Schematic | Why |
+|---|---|---|---|
+| FB selection fan buck | "one of two FB resistors" | 7.5k / 39k + 68k, bridged jumper shorts the 68k (default 5 V) | Basic resistor values; lower voltage is the safe default |
+| Buck #2 enable | Tied to the rail jumper | Always on (UVLO 17.6 V) | See §4 |
+| FAN RAIL LED | Resistor for 5 V, check ≥ 0.25 W | 4.7k 1206 (same part as the tool board bleeder): 0.6 mA at 5 V, 4.7 mA / 0.1 W at 24 V | Basic part, safe at 24 V |
+| VREF+ | — | 10R + 1 µF + 100 nF from +3V3 (net VREF_D) | ADC unused; ST requires VREF+ supplied |
+| 3V3 | 1 LDO | 1 ME6211 from the diode-OR of +5V and VBUS (net `+3V3`) | As the tool board's 3V3_MCU |
 
 ## Sources
 

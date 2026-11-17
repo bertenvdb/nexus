@@ -2,15 +2,474 @@
 	(version 20260306)
 	(generator "eeschema")
 	(generator_version "10.0")
-	(uuid "b8f52e4c-e95b-4e55-bb76-6b9291544720")
+	(uuid "fe2c2859-29c9-5f53-b840-2faf918bce43")
 	(paper "A4")
 	(title_block
 		(title "Nexus Docks Board")
 		(date "2026-11-17")
 		(rev "A")
-		(comment 1 "CERN-OHL-S-2.0")
+		(company "Nexus")
+		(comment 1 "Hierarchy")
+		(comment 2 "CERN-OHL-S-2.0")
+		(comment 3 "github.com/bertenvdb/nexus")
 	)
 	(lib_symbols)
+	(text "USB-C (USB 2.0 device), CAN transceiver, CAN connectors"
+		(exclude_from_sim no)
+		(at 33.02 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "07355104-0f52-524d-8480-547abb248942")
+	)
+	(text "9 fan outputs: gate buffer, low-side MOSFET, flyback diode"
+		(exclude_from_sim no)
+		(at 210.82 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "082595c9-c7d4-51a4-9a6e-73cad38319fd")
+	)
+	(text "24V input: XT30, 5 A fuse, TVS, reverse polarity (LM74502 + 1 FET)"
+		(exclude_from_sim no)
+		(at 33.02 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "32da10a3-a5b5-5ce9-9bc9-944f5fcb848b")
+	)
+	(text "Diagnostic LEDs (AD-17)"
+		(exclude_from_sim no)
+		(at 121.92 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "41293daf-d2f6-5009-8cc9-5a0e5c778131")
+	)
+	(text "Fan rail: second buck (12 V / 5 V) and rail selection jumper"
+		(exclude_from_sim no)
+		(at 210.82 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5225a36e-814a-55e2-8d27-12ba53df4746")
+	)
+	(text "WS2812 LED port: 5 V level shifter, polyfuse"
+		(exclude_from_sim no)
+		(at 299.72 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a69e1876-fb55-5ef9-9983-104fa6b30098")
+	)
+	(text "STM32G0B1RBT6, crystal, reset/boot, SWD, VREF+ filter"
+		(exclude_from_sim no)
+		(at 299.72 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b905f9f5-9ef6-5bff-8378-7ab20ab4e9e1")
+	)
+	(text "5V buck, 3V3 LDO, VBUS diode-OR"
+		(exclude_from_sim no)
+		(at 121.92 53.34 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "c1f13e8b-65de-5415-ab9e-98a0c32544bc")
+	)
+	(sheet
+		(at 297.18 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "22c0135e-082d-5194-8672-137adee94745")
+		(property "Sheetname" "led_port"
+			(at 297.18 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "led_port.kicad_sch"
+			(at 297.18 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "9")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "5c4211d5-e9f0-5b67-896d-684cc22b081b")
+		(property "Sheetname" "power_input"
+			(at 30.48 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power_input.kicad_sch"
+			(at 30.48 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 30.48 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "648cc7cd-fba3-5973-a4da-bec99ab3816b")
+		(property "Sheetname" "usb_can"
+			(at 30.48 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "usb_can.kicad_sch"
+			(at 30.48 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "6")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 119.38 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "6caa1f47-27e5-59bf-9292-1c1414a9fc92")
+		(property "Sheetname" "diag_leds"
+			(at 119.38 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "diag_leds.kicad_sch"
+			(at 119.38 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 297.18 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "d50e17af-043e-5711-a185-943662c0033d")
+		(property "Sheetname" "mcu"
+			(at 297.18 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "mcu.kicad_sch"
+			(at 297.18 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 208.28 91.44)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "e6e820c5-3d22-5390-9de2-62863bdf879f")
+		(property "Sheetname" "fans"
+			(at 208.28 90.74 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "fans.kicad_sch"
+			(at 208.28 117.44 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 119.38 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "ebc70114-c229-5a8a-b382-f0bec4741fba")
+		(property "Sheetname" "logic_power"
+			(at 119.38 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "logic_power.kicad_sch"
+			(at 119.38 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 208.28 40.64)
+		(size 63.5 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0)
+		)
+		(uuid "f341ffcc-90e1-5bd2-bd04-855bb1b5845d")
+		(property "Sheetname" "fan_rail"
+			(at 208.28 39.94 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "fan_rail.kicad_sch"
+			(at 208.28 66.64 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43"
+					(page "4")
+				)
+			)
+		)
+	)
 	(sheet_instances
 		(path "/"
 			(page "1")

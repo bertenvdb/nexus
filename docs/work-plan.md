@@ -8,7 +8,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F1 | Parts library | ✅ Approved 2026-11-17 ([library-review.md](library-review.md)) |
 | F2 | Pinout and mechanical constraints | ✅ Approved 2026-11-17 |
 | F3 | Schematic Nexus Tools Board | ✅ Approved 2026-11-17 |
-| F4 | Schematic Nexus Docks Board | 🔄 In progress |
+| F4 | Schematic Nexus Docks Board | 🔍 Ready for review (ERC 0, BOM = master) |
 | F5 | Layout Nexus Tools Board | ⏳ |
 | F6 | Layout Nexus Docks Board | ⏳ |
 | F7 | Production files and JLC quote | ⏳ |
@@ -107,6 +107,13 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 ---
 
 ## F4 — Schematic Nexus Docks Board
+
+Generated with `scripts/build_schematic.py dockboard` (`scripts/schgen/dockboard.py`). The sheets `mcu`, `usb_can` and `led_port` are the **same Python functions** as on the tool board, with parameters (3V3 net name, no AGND star point, one CAN connector). Regenerating the tool board after that refactoring gave byte-identical files.
+
+| Sheet | Status |
+|---|---|
+| `power_input`, `logic_power`, `fan_rail` | 🔍 review |
+| `mcu`, `usb_can`, `diag_leds`, `fans`, `led_port` | 🔍 review |
 
 Same approach as F3. Reuse the shared sheets (CLAUDE.md §6). Extra sheets: `power_input_dock` (XT30, fuse, TVS, LM74502 with 1 FET), `fan_rail` (buck #2 + solder jumpers), `fans` (9 channels).
 

@@ -8,7 +8,7 @@
 | Component selection Nexus Tools Board | ✅ Done (parts 1–3) |
 | Component selection Nexus Docks Board | ✅ Done |
 | Cost estimate | ✅ Estimate, no JLC quote yet |
-| KiCad implementation | 🔄 F0–F2 done, F3 (tool board schematic) in review, see [work plan](work-plan.md) |
+| KiCad implementation | 🔄 F0–F3 done, F4 (dock board schematic) in review, see [work plan](work-plan.md) |
 
 ## Reading order
 

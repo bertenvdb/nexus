@@ -108,6 +108,18 @@ P = {
             "C144394", "B3B-XH-A(LF)(SN)", "SELF"),
     "SJ3": ("Jumper:SolderJumper_3_Bridged12", "VCC_FIL 5V|3V3",
             "Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm", "", "", "NONE"),
+    # F4 dock board
+    "R7k5":  ("Device:R", "7.5k", R0603, "C23234", "0603WAF7501T5E", "JLC"),
+    "R12k":  ("Device:R", "12k", R0603, "C22790", "0603WAF1202T5E", "JLC"),
+    "R39k":  ("Device:R", "39k", R0603, "C23153", "0603WAF3902T5E", "JLC"),
+    "C8n2":  ("Device:C", "8.2nF", C0603, "C1322360", "0603B822K500NT", "JLC"),
+    "C47p":  ("Device:C", "47pF C0G", C0603, "C1671", "CL10C470JB8NNNC", "JLC"),
+    "XT30": ("Connector_Generic:Conn_01x02", "XT30PW-M",
+             "Connector_AMASS:AMASS_XT30PW-M_1x02_P2.50mm_Horizontal", "C431092", "XT30PW-M30.G.Y", "SELF"),
+    "SJ2B": ("Jumper:SolderJumper_2_Bridged", "5V (cut = 12V)",
+             "Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm", "", "", "NONE"),
+    "SJ3O": ("Jumper:SolderJumper_3_Open", "FAN RAIL 24V|BUCK",
+             "Jumper:SolderJumper-3_P1.3mm_Open_RoundedPad1.0x1.5mm", "", "", "NONE"),
 }
 
 

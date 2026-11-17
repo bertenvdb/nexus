@@ -153,16 +153,26 @@ MCU_PINS = {
 }
 
 
-def mcu(b):
-    s = b.sheet("mcu", "STM32G0B1RBT6, crystal, reset/boot, SWD, AGND star point")
-    place(s, "U_MCU", "STM32", (203.2, 127.0), MCU_PINS)
+def mcu(b, pins=None, v33="+3V3_MCU", star=True, spare=13, pinout_doc="pinout-toolboard.md"):
+    """MCU sheet, shared by both boards (dock: v33 "+3V3", star=False)."""
+    title = ("STM32G0B1RBT6, crystal, reset/boot, SWD, AGND star point" if star
+             else "STM32G0B1RBT6, crystal, reset/boot, SWD, VREF+ filter")
+    s = b.sheet("mcu", title)
+    place(s, "U_MCU", "STM32", (203.2, 127.0), pins or MCU_PINS)
     # supply decoupling, next to pins 6/8 in the layout
-    two(s, "C_VDD1", "C4u7", 63.5, 63.5, "+3V3_MCU", "GND")
-    two(s, "C_VDD2", "C100n", 78.74, 63.5, "+3V3_MCU", "GND")
-    two(s, "C_VBAT", "C100n", 93.98, 63.5, "+3V3_MCU", "GND")
-    two(s, "C_VREF3", "C100n", 109.22, 63.5, "VREF_A", "AGND")
-    # AGND-GND star point at pin 9 (CLAUDE.md §7.4)
-    place(s, "NT_AGND", "NETTIE", (134.62, 58.42), {"1": "AGND", "2": "GND"}, rot=0)
+    two(s, "C_VDD1", "C4u7", 63.5, 63.5, v33, "GND")
+    two(s, "C_VDD2", "C100n", 78.74, 63.5, v33, "GND")
+    two(s, "C_VBAT", "C100n", 93.98, 63.5, v33, "GND")
+    if star:
+        two(s, "C_VREF3", "C100n", 109.22, 63.5, "VREF_A", "AGND")
+        # AGND-GND star point at pin 9 (CLAUDE.md §7.4)
+        place(s, "NT_AGND", "NETTIE", (134.62, 58.42), {"1": "AGND", "2": "GND"}, rot=0)
+    else:
+        # ADC unused: VREF+ from 3V3 through 10R + 1uF + 100nF
+        two(s, "R_VREF", "R10", 124.46, 63.5, v33, "VREF_D")
+        two(s, "C_VREF1", "C1u", 139.7, 63.5, "VREF_D", "GND")
+        two(s, "C_VREF3", "C100n", 154.94, 63.5, "VREF_D", "GND")
+        place(s, "FLG_VREFD", "FLAG", (170.18, 55.88), {"1": "VREF_D"})
     # 8 MHz crystal, CL 20 pF -> 2 x 30 pF (AN2867)
     place(s, "Y_MCU", "XTAL8", (76.2, 116.84), {"1": "OSC_IN", "2": "OSC_OUT"}, rot=0)
     two(s, "C_X1", "C30p", 63.5, 134.62, "OSC_IN", "GND")
@@ -170,18 +180,19 @@ def mcu(b):
     # reset and boot
     two(s, "C_NRST", "C100n", 63.5, 175.26, "NRST", "GND")
     place(s, "SW_RESET", "BTN", (81.28, 175.26), {"1": "NRST", "2": "GND"}, rot=90)
-    place(s, "SW_BOOT", "BTN", (106.68, 175.26), {"1": "+3V3_MCU", "2": "SWCLK"}, rot=90)
+    place(s, "SW_BOOT", "BTN", (106.68, 175.26), {"1": v33, "2": "SWCLK"}, rot=90)
     two(s, "R_BOOT", "R10k", 124.46, 175.26, "SWCLK", "GND")
     # SWD header 3V3 - SWDIO - SWCLK - GND
-    place(s, "J_SWD", "SWD", (342.9, 101.6), {"1": "+3V3_MCU", "2": "SWDIO", "3": "SWCLK", "4": "GND"})
+    place(s, "J_SWD", "SWD", (342.9, 101.6), {"1": v33, "2": "SWDIO", "3": "SWCLK", "4": "GND"})
     s.text("PA14 = SWCLK / BOOT0. BOOT button pulls it to 3V3; 10k pull-down keeps SWD usable.\n"
            "DFU: hold BOOT, press RESET. An empty flash boots into the ROM bootloader anyway.\n"
            "Check option byte nBOOT_SEL on the first board if the button has no effect (F8).\n"
-           "Unused GPIO: no-connect (13 spare, docs/pinout-toolboard.md).",
+           f"Unused GPIO: no-connect ({spare} spare, docs/{pinout_doc}).",
            (38.1, 215.9))
 
 
-def usb_can(b):
+def usb_can(b, v33="+3V3_MCU", can_out=True):
+    """USB + CAN sheet, shared by both boards (dock: v33 "+3V3", can_out=False)."""
     s = b.sheet("usb_can", "USB-C (USB 2.0 device), CAN transceiver, CAN connectors")
     place(s, "J_USB", "USBC", (63.5, 101.6), {
         "A1": "GND", "A12": "GND", "B1": "GND", "B12": "GND",
@@ -200,25 +211,27 @@ def usb_can(b):
     # CAN
     place(s, "U_CAN", "TJA1051", (101.6, 205.74), {
         "1": "CAN_TX", "2": "GND", "3": "+5V", "4": "CAN_RX",
-        "5": "+3V3_MCU", "6": "CANL", "7": "CANH", "8": "GND"})
+        "5": v33, "6": "CANL", "7": "CANH", "8": "GND"})
     two(s, "C_CANVCC", "C100n", 50.8, 238.76, "+5V", "GND")
-    two(s, "C_CANVIO", "C100n", 66.04, 238.76, "+3V3_MCU", "GND")
+    two(s, "C_CANVIO", "C100n", 66.04, 238.76, v33, "GND")
     place(s, "D_CANESD", "PESD2CAN", (152.4, 200.66), {"1": "CANH", "2": "CANL", "3": "GND"})
     place(s, "J_CAN_IN", "MICROFIT", (213.36, 195.58),
           {"1": "GND", "2": "NC", "3": "CANL", "4": "CANH"}, value="CAN IN")
-    place(s, "J_CAN_OUT", "MICROFIT", (256.54, 195.58),
-          {"1": "GND", "2": "NC", "3": "CANL", "4": "CANH"}, value="CAN OUT")
+    if can_out:
+        place(s, "J_CAN_OUT", "MICROFIT", (256.54, 195.58),
+              {"1": "GND", "2": "NC", "3": "CANL", "4": "CANH"}, value="CAN OUT")
     place(s, "R_TERM", "R120", (299.72, 195.58), {"1": "CANH", "2": "CAN_TERM"}, rot=90)
     place(s, "J_TERM", "HDR2", (342.9, 195.58), {"1": "CAN_TERM", "2": "CANL"})
     place(s, "TP_CANH", "TP", (370.84, 187.96), {"1": "CANH"})
     place(s, "TP_CANL", "TP", (386.08, 187.96), {"1": "CANL"})
-    s.text("USB: device, CC1/CC2 5.1k (Rd). VBUS only feeds the 3V3_MCU diode-OR.\n"
+    s.text(f"USB: device, CC1/CC2 5.1k (Rd). VBUS only feeds the {v33[1:]} diode-OR.\n"
            "Shield to GND via 1M // 4.7nF (no hard ground loop over the cable shield).",
            (38.1, 160.02))
     s.text("CAN connectors, seen into the mating face (PCB below), as on BTT EBB boards:\n"
            "  top row:    CAN-H (pad 4) | CAN-L (pad 3)\n"
            "  bottom row: 24V (pad 2, NOT CONNECTED, AD-07) | GND (pad 1)\n"
-           "Termination 120R: fit the jumper only at the end of the bus.\n"
+           + ("Termination 120R: fit the jumper only at the end of the bus.\n" if can_out else
+              "Termination 120R: the dock board is normally the end of the bus: jumper fitted.\n") +
            "TJA1051T/3: VCC 5 V, VIO 3.3 V, S to GND (normal mode).",
            (38.1, 254.0))
 
