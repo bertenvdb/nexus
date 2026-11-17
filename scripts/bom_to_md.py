@@ -19,6 +19,11 @@ HEAD = ["Group", "Description", "MPN", "LCSC", "Tool", "Dock", "Assembly",
 
 
 def main():
+    raw = list(csv.reader(CSV.open()))
+    bad = [i + 1 for i, r in enumerate(raw) if len(r) != len(raw[0])]
+    if bad:
+        raise SystemExit(f"{CSV.name}: wrong number of fields on line(s) {bad} "
+                         "(unquoted comma?)")
     rows = list(csv.DictReader(CSV.open()))
     lines = ["| " + " | ".join(HEAD) + " |",
              "|" + "---|" * len(HEAD)]
