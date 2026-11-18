@@ -43,8 +43,11 @@ def main():
             for p in fp.Pads():
                 if p.GetNetCode() != netcode:
                     out.append(p)
+        # zones on the inner layers refill around a new via; only outer-layer
+        # zones (trunk, heater band) block
         for z in b.Zones():
-            if z.GetNetCode() != netcode and not z.GetIsRuleArea():
+            if (z.GetNetCode() != netcode and not z.GetIsRuleArea()
+                    and (z.IsOnLayer(pcbnew.F_Cu) or z.IsOnLayer(pcbnew.B_Cu))):
                 out.append(z)
         return out
 
@@ -54,6 +57,8 @@ def main():
                 if not o.IsOnLayer(L):
                     continue
                 if o.GetClass() == "ZONE":
+                    if L not in (pcbnew.F_Cu, pcbnew.B_Cu):
+                        continue
                     fill = o.GetFilledPolysList(L)
                     if fill.Collide(shape, mm(CLEAR)):
                         return True

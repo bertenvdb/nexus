@@ -7,6 +7,7 @@ heater terminals at the bottom, filament ports at the top, thermistors on
 the right. Functional blocks are packed into regions; fine placement is
 done in KiCad afterwards.
 """
+import os
 import pathlib
 import sys
 
@@ -23,6 +24,16 @@ OVERHANG = 1.0       # connector front past the edge (M5)
 CH_X0, CH_PITCH = 26.0, 11.22   # heater terminal pin 1 positions
 BAND = (24.0, 58.8, 110.0, 65.2)  # +24V_HEATER rail band (x0, y0, x1, y1)
 
+
+# Logic-area layout variants (F5 step 3 re-placement, 2026-11-18). Regions are
+# (x0, y0, x1, y1) in board mm; "mcu" is (x, y, rotation).
+VARIANTS = {
+    # F5 step 1 placement (approved 2026-11-17)
+    "orig": dict(buck=(24.0, 19.2, 56.0, 38.5), ldo=(56.5, 19.2, 92.0, 32.3),
+                 mcu=(74.0, 39.6, 0), xtal=(56.5, 32.6, 67.1, 46.6),
+                 swd=(81.2, 32.6, 108.4, 46.6), gatebuf=(52.5, 46.7, 91.0, 58.75)),
+}
+DEFAULT_VARIANT = "orig"
 
 # CLAUDE.md §6 net classes. Clearance 0.15 mm everywhere: enough for 24 V
 # (IPC-2221 external: 0.1 mm) and needed for the 0.65 mm pitch TSOT-23-8.
@@ -180,15 +191,21 @@ def main():
              (91.5, 46.8, 108.0, 58.4), gap=0.3)
     pcb.pack(r("TP_GATE0", "TP_DRAIN0"), (9.5, 74.0, 17.5, 78.0), gap=0.6)
 
-    # ---- logic power (5 V buck), LDOs + VREF, below the filament band
+    # ---- logic area: 5 V buck, LDOs + VREF, MCU with support, gate buffer.
+    #      Regions per layout variant (VARIANTS, env TB_VARIANT).
+    if "TB_VARIANT_JSON" in os.environ:          # placement trials
+        import json
+        V = json.loads(os.environ["TB_VARIANT_JSON"])
+    else:
+        V = VARIANTS[os.environ.get("TB_VARIANT", DEFAULT_VARIANT)]
     pcb.pack(r("U_BUCK", "L_BUCK", "D_CATCH", "D_REV", "C_BIN1", "C_BIN2", "C_BIN3",
                "C_BOUT1", "C_BOUT2", "C_BOUT3", "R_UV1", "R_UV2", "R_RT", "R_COMP",
                "C_COMP", "C_COMP2", "C_BOOT", "R_FB1", "R_FB2", "TP_5V"),
-             (24.0, 19.2, 56.0, 38.5), gap=0.4)
+             V["buck"], gap=0.4)
     pcb.pack(r("D_OR_5V", "D_OR_VBUS", "C_L1IN", "U_LDO_MCU", "C_L1OUT", "C_L1OUT2",
                "TP_3V3M", "C_L2IN", "U_LDO_AUX", "C_L2OUT", "TP_3V3A",
                "R_VREF", "C_VREF1", "C_VREF2", "TP_VREF", "TP_AGND", "TP_VBUS"),
-             (56.5, 19.2, 92.0, 32.3), gap=0.3)
+             V["ldo"], gap=0.3)
 
     # ---- USB and CAN support next to their connectors
     pcb.pack(r("U_USBESD", "R_CC1", "R_CC2", "R_SHIELD", "C_SHIELD"),
@@ -196,14 +213,14 @@ def main():
     pcb.pack(r("U_CAN", "D_CANESD", "C_CANVCC", "C_CANVIO", "R_TERM", "J_TERM",
                "TP_CANH", "TP_CANL"), (14.8, 25.9, 22.4, 50.3), gap=0.4)
 
-    # ---- MCU in the middle, support around it
-    pcb.place(K["U_MCU"], 74.0, 39.6, rot=0)
+    # ---- MCU with its support
+    pcb.place(K["U_MCU"], *V["mcu"])
     pcb.pack(r("Y_MCU", "C_X1", "C_X2", "C_VDD1", "C_VDD2", "C_VBAT", "C_VREF3",
-               "NT_AGND", "C_NRST", "R_BOOT"), (56.5, 32.6, 67.1, 46.6), gap=0.3)
+               "NT_AGND", "C_NRST", "R_BOOT"), V["xtal"], gap=0.3)
     pcb.pack(r("SW_RESET", "SW_BOOT", "J_SWD", "JP_VFIL", "F_VFIL", "D_VFIL", "C_VFIL"),
-             (81.2, 32.6, 108.4, 46.6), gap=0.4)
+             V["swd"], gap=0.4)
     pcb.pack(r("U_GATEBUF", "C_GATEBUF") + [K[f"R_IN{i}"] for i in range(8)],
-             (52.5, 46.7, 91.0, 58.75), rot=270, gap=0.4)
+             V["gatebuf"], rot=V.get("gatebuf_rot", 270), gap=0.4)
 
     # ---- diagnostic LEDs for the rails: bottom-right, next to the channel LEDs
     pcb.pack(r("R_L24VIN", "D_L24VIN", "R_LRAIL", "D_LRAIL", "R_L5V", "D_L5V",

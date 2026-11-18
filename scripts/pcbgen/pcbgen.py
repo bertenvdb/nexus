@@ -399,9 +399,10 @@ class Pcb:
         return sorted(set(self.comps) - self.placed)
 
     def save(self, netclasses=None, patterns=None):
-        out = ROOT / self.name / f"{self.name}.kicad_pcb"
+        alt = __import__("os").environ.get("PCB_OUT")   # placement trials
+        out = pathlib.Path(alt) if alt else ROOT / self.name / f"{self.name}.kicad_pcb"
         pcbnew.SaveBoard(str(out), self.board)
-        if netclasses:
+        if netclasses and not alt:
             write_netclasses(self.name, netclasses, patterns or [])
         return out
 
