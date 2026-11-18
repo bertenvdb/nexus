@@ -14,7 +14,11 @@ import sys
 import pcbnew
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-IN1_FREE_ABOVE_MM = 46.0   # In1 below this (heater return area) stays plane only
+import os
+# In1 below this stays plane only; 0 = all of In1 (default: the 2026-11-18 run
+# showed long slots under USB and the MCU when the top part was free)
+IN1_FREE_ABOVE_MM = float(os.environ.get("IN1_FREE_ABOVE_MM", "0"))
+EDGE_KEEP_MM = 0.6         # Freerouting ignores the 0.5 mm copper-to-edge rule
 
 
 def patch_planes(b, dsn):
@@ -22,9 +26,10 @@ def patch_planes(b, dsn):
 
     Power-type layers make Freerouting ignore the planes and plain signal
     layers make it cut them. So every layer is exported as a signal layer and
-    gets a wire keepout where copper must stay whole: all of In1 (GND/AGND
-    plane) and every zone on In2 (trunk, heater rail). Vias stay allowed, so
-    Freerouting connects to the planes with vias.
+    gets a wire keepout where copper must stay whole: In1 (GND/AGND plane)
+    and every zone on the other layers (trunk, heater rail band). Vias stay
+    allowed, so Freerouting connects to the planes with vias. A strip along
+    the board edge is kept free on every layer.
     """
     text = dsn.read_text()
     to_dsn = lambda x, y: f"{pcbnew.ToMM(x) * 1000:.0f} {-pcbnew.ToMM(y) * 1000:.0f}"
@@ -44,11 +49,18 @@ def patch_planes(b, dsn):
             ol = z.Outline().Outline(0)
             pts = "  ".join(to_dsn(ol.CPoint(k).x, ol.CPoint(k).y) for k in range(ol.PointCount()))
             keep += f'    (wire_keepout "" (polygon In1.Cu 0  {pts}))\n'
-        if z.GetLayer() != pcbnew.In2_Cu:
+        if z.GetLayer() == pcbnew.In1_Cu:
             continue
         ol = z.Outline().Outline(0)
         pts = "  ".join(to_dsn(ol.CPoint(k).x, ol.CPoint(k).y) for k in range(ol.PointCount()))
-        keep += f'    (wire_keepout "" (polygon In2.Cu 0  {pts}))\n'
+        keep += f'    (wire_keepout "" (polygon {z.GetLayerName()} 0  {pts}))\n'
+    e = pcbnew.FromMM(EDGE_KEEP_MM)
+    L, T, R, Bo = bb.GetLeft(), bb.GetTop(), bb.GetRight(), bb.GetBottom()
+    strips = [(L, T, R, T + e), (L, Bo - e, R, Bo), (L, T, L + e, Bo), (R - e, T, R, Bo)]
+    for layer in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+        for x0, y0, x1, y1 in strips:
+            pts = "  ".join(to_dsn(x, y) for x, y in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
+            keep += f'    (wire_keepout "" (polygon {layer} 0  {pts}))\n'
     text = text.replace("(layer In1.Cu\n      (type power)", "(layer In1.Cu\n      (type signal)")
     i = text.index("    (plane ")
     dsn.write_text(text[:i] + keep + text[i:])

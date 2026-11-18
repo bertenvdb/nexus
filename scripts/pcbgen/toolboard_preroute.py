@@ -12,7 +12,8 @@ no tracks) and writes toolboard/toolboard.kicad_pcb. Per heater channel:
       continues to the buffer)
   LED R_LH turned so +24V is on top (short to the band); LED cathode via
       B.Cu to the N track
-plus GND vias for the rail capacitors in the band. The rest is routed by
+plus GND vias for the rail capacitors in the band and two placement
+fixes (rail capacitors 2/4, SWD header). The rest is routed by
 Freerouting (scripts/pcbgen/route.py).
 """
 import pathlib
@@ -113,6 +114,10 @@ def main():
     for key, x in (("C_RAIL2", 65.3), ("C_RAIL4", 99.0)):
         fp = brd.FindFootprintByReference(K[key])
         fp.SetPosition(P(x, pcbnew.ToMM(fp.GetPosition().y) - O))
+    # SWD header sat across the In1 AGND finger (island -> MCU VREF): its THT
+    # pads cut the 3.5 mm finger, so the part towards the MCU was not filled
+    j2 = brd.FindFootprintByReference(K["J_SWD"])
+    j2.SetPosition(j2.GetPosition() + pcbnew.VECTOR2I(0, mm(-6.0)))
     for i in range(4):   # rail capacitors in the band: GND via below pad 2
         x, y, _ = pad(f"C_RAIL{i + 1}", "2")
         track("GND", F, [(x, y), (x, y + 1.4)], 0.5)
