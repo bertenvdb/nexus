@@ -18,7 +18,15 @@ import os
 # In1 below this stays plane only; 0 = all of In1 (default: the 2026-11-18 run
 # showed long slots under USB and the MCU when the top part was free)
 IN1_FREE_ABOVE_MM = float(os.environ.get("IN1_FREE_ABOVE_MM", "0"))
-EDGE_KEEP_MM = 0.6         # Freerouting ignores the 0.5 mm copper-to-edge rule
+# extra In1 wire keepouts "x0,y0,x1,y1;..." in board mm (connector area,
+# MCU/crystal/USB pins): In1 stays solid under the fast and sensitive nets
+IN1_KEEP = [tuple(map(float, r.split(","))) for r in
+            os.environ.get("IN1_KEEP", "").split(";") if r]
+# Freerouting ignores the 0.5 mm copper-to-edge rule; an edge strip (and a
+# keepout over outer-layer zones) also covers pads, which the router then
+# leaves unrouted (2026-11-18: 161 instead of 61 open). Off by default.
+EDGE_KEEP_MM = float(os.environ.get("EDGE_KEEP_MM", "0"))
+OUTER_ZONE_KEEP = os.environ.get("OUTER_ZONE_KEEP", "0") == "1"
 
 
 def patch_planes(b, dsn):
@@ -44,6 +52,11 @@ def patch_planes(b, dsn):
            (bb.GetRight(), bb.GetBottom()), (bb.GetLeft(), bb.GetBottom())]
     keep += ('    (wire_keepout "" (polygon In1.Cu 0  '
              + "  ".join(to_dsn(x, y) for x, y in ret) + "))\n")
+    for x0, y0, x1, y1 in IN1_KEEP:
+        X0, Y0 = bb.GetLeft() + pcbnew.FromMM(x0), bb.GetTop() + pcbnew.FromMM(y0)
+        X1, Y1 = bb.GetLeft() + pcbnew.FromMM(x1), bb.GetTop() + pcbnew.FromMM(y1)
+        keep += ('    (wire_keepout "" (polygon In1.Cu 0  '
+                 + "  ".join(to_dsn(x, y) for x, y in [(X0, Y0), (X1, Y0), (X1, Y1), (X0, Y1)]) + "))\n")
     for z in b.Zones():
         if z.GetLayer() == pcbnew.In1_Cu and z.GetNetname() == "AGND":
             ol = z.Outline().Outline(0)
@@ -51,13 +64,15 @@ def patch_planes(b, dsn):
             keep += f'    (wire_keepout "" (polygon In1.Cu 0  {pts}))\n'
         if z.GetLayer() == pcbnew.In1_Cu:
             continue
+        if z.GetLayer() != pcbnew.In2_Cu and not OUTER_ZONE_KEEP:
+            continue
         ol = z.Outline().Outline(0)
         pts = "  ".join(to_dsn(ol.CPoint(k).x, ol.CPoint(k).y) for k in range(ol.PointCount()))
         keep += f'    (wire_keepout "" (polygon {z.GetLayerName()} 0  {pts}))\n'
     e = pcbnew.FromMM(EDGE_KEEP_MM)
     L, T, R, Bo = bb.GetLeft(), bb.GetTop(), bb.GetRight(), bb.GetBottom()
     strips = [(L, T, R, T + e), (L, Bo - e, R, Bo), (L, T, L + e, Bo), (R - e, T, R, Bo)]
-    for layer in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu"):
+    for layer in ("F.Cu", "In1.Cu", "In2.Cu", "B.Cu") if EDGE_KEEP_MM else ():
         for x0, y0, x1, y1 in strips:
             pts = "  ".join(to_dsn(x, y) for x, y in [(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
             keep += f'    (wire_keepout "" (polygon {layer} 0  {pts}))\n'
