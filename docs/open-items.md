@@ -25,7 +25,7 @@ Close an item with date and result. If the result changes a design document, upd
 |---|---|---|---|
 | 9 | STM32G0B1RBT6: does the LQFP-64 have a separate VREF+ pin? | part 1 §3, §6.3 | ✅ 2026-11-17: yes, pin 7 ([pinout-toolboard.md](pinout-toolboard.md)) |
 | 10 | FDCAN/USB pin choice according to Klipper support (source code) | part 2 §5 | ✅ 2026-11-17: USB PA11/PA12, CAN PB0/PB1 (FDCAN2), also as USB-CAN bridge |
-| 11 | Klipper build for the 128KB variant (flash offset with Katapult) | part 1 §3 | ✅ 2026-11-17: Klipper assumes 128 KiB (`FLASH_SIZE` 0x20000) for every STM32G0; Katapult 8 KiB offset. Confirm by building in F8 |
+| 11 | Klipper build for the 128KB variant (flash offset with Katapult) | part 1 §3 | ✅ 2026-11-17: Klipper assumes 128 KiB (`FLASH_SIZE` 0x20000) for every STM32G0; Katapult 8 KiB offset. 2026-11-17: Klipper 29d4ec2 builds for STM32G0B1 (8 MHz, 8 KiB bootloader, CAN PB0/PB1); flash on the first board |
 | 12 | 9 ADC pins (FT_a; 8 thermistor + RAIL_SENSE) and **16** filament pins (FT, without analog function) | part 3 §4 | ✅ 2026-11-17: PA0–PA7 + PC4; 16 filament pins without `_a` |
 | 12a | Compare the pinout of common runout/motion sensors (e.g. BTT SFS v2) with the board pinout 1 RUNOUT / 2 GND / 3 VCC / 4 MOTION | part 3 §2.1 | ⏳ Before F3 sheet `filament_inputs` |
 | 13 | WSD4070DN: R_DS(on) at V_GS = 4.5 V and the SOA under PWM | part 1 §7 | ✅ 2026-11-17: 5.3 mΩ typ / 7.6 mΩ max at 4.5 V; ≈ 0.08 W per channel hot. 10 Hz PWM: switching losses negligible, SOA not a concern |
@@ -50,14 +50,14 @@ Close an item with date and result. If the result changes a design document, upd
 
 ## Outside the boards (later)
 
-| # | Item | Source |
-|---|---|---|
-| 20 | Heater choice. Then measure the R(T) curve (cold and ~250 °C) and recalculate the PSU | architecture §7, §11 |
-| 21 | Power needed to keep a parked hotend warm: measure on the prototype | architecture §11 |
-| 22 | Panel connector per tool (keyed, ≥ 4 pins, ≥ 3 A/pin) | architecture §10 |
-| 23 | Klipper macros: tool change, dock fans per parked tool, commissioning macro | architecture §9.5 |
-| 24 | Reading RAIL_SENSE in Klipper (temperature_sensor + adc_temperature table or QUERY_ADC); no shutdown at 0 V | architecture §9.6 |
-| 25 | `M104/M109 Tn` → hotends: macro override with `[heater_generic]` or hotends as `[extruder<n>]`. Also what Mainsail/Fluidd/KlipperScreen display | architecture §9.7 |
-| 26 | Staggered heat-up: max. 3 heaters cold at once, in the macro layer, with and without `is_extruder_used` | architecture §9.8 |
-| 27 | OSHW logo on the silkscreen only if OSHWA certification is applied for/met | CLAUDE.md §7.9 |
-| 28 | Motion sensors in Klipper: link to the physical extruder and enable only the active tool's sensor (`SET_FILAMENT_SENSOR`) in the tool change macro | part 3 §2.3 |
+| # | Item | Source | Status |
+|---|---|---|---|
+| 20 | Heater choice. Then measure the R(T) curve (cold and ~250 °C) and recalculate the PSU | architecture §7, §11 | ⏳ |
+| 21 | Power needed to keep a parked hotend warm: measure on the prototype | architecture §11 | ⏳ |
+| 22 | Panel connector per tool (keyed, ≥ 4 pins, ≥ 3 A/pin) | architecture §10 | ⏳ |
+| 23 | Klipper macros: tool change, dock fans per parked tool, commissioning macro | architecture §9.5 | ✅ 2026-11-17: `klipper/` (tool change with configurable YUDX move lists, dock fans as `heater_fan`, `NEXUS_COMMISSION`). Tested in Klipper batch mode; hardware test in F8 |
+| 24 | Reading RAIL_SENSE in Klipper (temperature_sensor + adc_temperature table or QUERY_ADC); no shutdown at 0 V | architecture §9.6 | ✅ 2026-11-17: linear `adc_temperature` table, "temperature" = volts, limits −10/40 (architecture §9.6). Wait time to confirm with 8b |
+| 25 | `M104/M109 Tn` → hotends: macro override with `[heater_generic]` or hotends as `[extruder<n>]`. Also what Mainsail/Fluidd/KlipperScreen display | architecture §9.7 | ✅ 2026-11-17: stepperless `[extruderN]` + `[extruder_stepper nexus_extruder]` (architecture §9.7). UI display to check on the prototype |
+| 26 | Staggered heat-up: max. 3 heaters cold at once, in the macro layer, with and without `is_extruder_used` | architecture §9.8 | ✅ 2026-11-17: `M104`/`M109` override with queue, `max_cold_heaters` configurable (default 3). Independent of `is_extruder_used` |
+| 27 | OSHW logo on the silkscreen only if OSHWA certification is applied for/met | CLAUDE.md §7.9 | ⏳ |
+| 28 | Motion sensors in Klipper: link to the physical extruder and enable only the active tool's sensor (`SET_FILAMENT_SENSOR`) in the tool change macro | part 3 §2.3 | ✅ 2026-11-17: `extruder: extruder_stepper nexus_extruder` (a stepperless extruder reports position 0); only the mounted tool's sensor is enabled |

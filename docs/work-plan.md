@@ -12,7 +12,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F5 | Layout Nexus Tools Board | 🔄 Step 2 (power + ground) in review |
 | F6 | Layout Nexus Docks Board | 🔍 Step 1 (outline + placement) brought forward, in review |
 | F7 | Production files and JLC quote | ⏳ |
-| F8 | Firmware and Klipper configuration | ⏳ |
+| F8 | Firmware and Klipper configuration | 🔍 Klipper config + macros (`klipper/`) in review; firmware settings, hardware tests open |
 
 ---
 

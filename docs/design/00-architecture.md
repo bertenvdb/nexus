@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 1.6 (draft) |
+| **Version** | 1.7 (draft) |
 | **Date** | 2026-11-17 |
 | **Author** | Berten |
 | **Status** | Concept fixed, ready for review before detailed design (schematic/PCB) |
@@ -345,28 +345,25 @@ Additionally:
 
 ## 9. Klipper integration
 
+Implemented in [`klipper/`](../../klipper/README.md) (F8). This section records the decisions; the README is the user documentation.
+
 ### 9.1 MCU definition
 
 ```ini
-[mcu toolboard]
+[mcu nexus_tools]
 canbus_uuid: ...        # or serial: /dev/serial/by-id/...
 
-[mcu dock]
+[mcu nexus_docks]
 canbus_uuid: ...        # or serial: /dev/serial/by-id/...
 ```
+
+*(Changed in v1.7: was `toolboard` / `dock`. A YUDX toolhead often already has a CAN toolhead board called `toolboard`.)*
 
 ### 9.2 Enabling and disabling tools
 
-One include file per tool (heater, thermistor, filament sensor):
+One block per tool in `klipper/nexus.cfg`: an include with the fixed pins (`nexus/tools/tN.cfg`) plus the user settings (dock position, offsets, thermistor, PID, filament sensors).
 
-```ini
-[include tools/t0.cfg]
-[include tools/t1.cfg]
-#[include tools/t2.cfg]   # tool defective / not present
-...
-```
-
-Deactivating a tool = comment out the include + `FIRMWARE_RESTART`.
+Deactivating a tool = comment out its block + `FIRMWARE_RESTART` (AD-09). **Klipper limitation (found in F8):** Klipper loads `extruder`, `extruder1`, … up to the first missing number. A disabled tool in the middle therefore gets a placeholder (`nexus/tools/tN_disabled.cfg`): the heater drives a spare MCU pin, the "thermistor" is the MCU temperature, and the macros refuse to heat or select it. Tools at the end can simply be left out.
 
 ### 9.3 Behaviour with a disconnected tool
 
@@ -375,32 +372,37 @@ A **configured** tool whose thermistor drops out leads to a Klipper shutdown (de
 ### 9.4 Cutoff
 
 ```ini
-[output_pin heater_enable]
-pin: toolboard:PXX
-value: 1
+[output_pin nexus_heater_enable]
+pin: nexus_tools:PB12
+value: 0
 shutdown_value: 0
 ```
 
+*(Changed in v1.7: `value: 0`, was 1.)* The rail stays off after boot; only a passed self-test (§9.6) switches it on. The macros refuse `M104`/`M109` while the self-test has not passed.
+
 ### 9.5 Commissioning macro
 
-After wiring, per active tool: all heaters off, turn one heater on briefly (e.g. 30 s at limited PWM), check that **only** the matching thermistor rises by ≥ 5 °C. If this fails, `M112` and report which tool. To be implemented as a Klipper macro in the config phase.
+`NEXUS_COMMISSION [TOOL=n]`: all heaters off and below 60 °C, then per active tool the heater is set to start + 40 °C for 20 s. The tool's own thermistor must rise ≥ 5 °C and no other thermistor ≥ 2 °C. Otherwise emergency stop with the tool and the measured rises. Klipper has no runtime PWM limit, so the heater runs under normal PID control; `verify_heater` covers a heater that heats another tool.
 
 ### 9.6 Cutoff startup self-test (AD-13)
 
-On Klipper startup (`[delayed_gcode]`) and optionally in `PRINT_START`:
-1. `heater_enable` = 0, wait until the rail voltage < 2 V (the discharge time depends on the rail capacitance; see detailed design part 1).
-2. `heater_enable` = 1, check that the rail voltage is between 20 and 28 V.
-3. If a step fails: message + `M112`.
+At every Klipper start (`[delayed_gcode]`) and on demand (`NEXUS_SELFTEST`):
+1. `nexus_heater_enable` = 0, wait 1.5 s, the rail voltage must be < 2 V.
+2. `nexus_heater_enable` = 1, wait 1.5 s, the rail voltage must be between 20 and 28 V.
+3. If a step fails: cutoff off, message, emergency stop.
 
-How Klipper reads the voltage (for example as a `[temperature_sensor]` with a custom `[adc_temperature]` table voltage → "temperature", or via `QUERY_ADC`) will be investigated in F8. `min_temp` must not cause a shutdown at 0 V.
+RAIL_SENSE is read as a `[temperature_sensor]` with a linear `[adc_temperature]` table (0 V → 0, 3.3 V → 36.3, `adc_voltage: 3.3`), so its "temperature" is the rail voltage. `min_temp: -10` / `max_temp: 40`: a 0 V rail never causes a shutdown. Thresholds and wait time are settings in `nexus.cfg` (discharge time: open item 8b).
 
 ### 9.7 Slicer compatibility: `M104/M109 Tn`
 
-Slicers send `M104 S<temp> T<n>` and `M109`. Klipper maps `T<n>` to `[extruder<n>]`. If the hotends are defined as `[heater_generic]` (no extruder stepper of their own), **custom `M104`/`M109` macros** are needed that translate `T<n>` to `SET_HEATER_TEMPERATURE HEATER=t<n>` / `TEMPERATURE_WAIT`. Alternative: define hotends as `[extruder<n>]`. Evaluate both options in F8 (what does Klipper allow without a stepper per tool, and what do Mainsail/Fluidd/KlipperScreen display?).
+**Decided in v1.7:** the hotends are `[extruder]` … `[extruder7]` **without a stepper**; the physical drive on the toolhead is `[extruder_stepper nexus_extruder]`, synced (`SYNC_EXTRUDER_MOTION`) to the tool that is mounted. Klipper's own `M104/M109 Tn` then work, `min_extrude_temp` protects the active tool, and Mainsail/Fluidd/KlipperScreen show 8 extruders. Consequences, handled in the macros:
+
+- `SET_PRESSURE_ADVANCE` without `EXTRUDER=` has no handler when `[extruder]` has no stepper; a macro routes it to `nexus_extruder`.
+- A `[filament_motion_sensor]` must reference `extruder_stepper nexus_extruder`: a stepperless extruder always reports position 0.
 
 ### 9.8 Staggered heat-up (current rule)
 
-The macro layer enforces the usage scenario, regardless of the slicer: **at most 3 heaters at once below ≈ 150 °C with a target > 0.** An extra heater waits (`TEMPERATURE_WAIT … MINIMUM=150` on one of the active ones) or is queued. `PRINT_START` heats the used tools in groups of 3 while the bed heats up. Works with `is_extruder_used` (Orca/PrusaSlicer) and without (all tools on standby if the list is missing).
+The macro layer (`M104`/`M109` override) enforces the usage scenario, regardless of the slicer: **at most `max_cold_heaters` (default 3) hotends heating from cold at once.** A hotend counts as cold below min(150 °C, target − 10 °C). `M104` that does not fit is queued and started as soon as a slot is free; `M109` waits for enough other hotends to warm up. `SET_HEATER_TEMPERATURE` bypasses the rule.
 
 ---
 
@@ -463,3 +465,4 @@ The macro layer enforces the usage scenario, regardless of the slicer: **at most
 | 1.4 | 2026-11-17 | AD-17: no LED per fan on the dock board. |
 | 1.5 | 2026-11-17 | Board names fixed: Nexus Tools Board and Nexus Docks Board. AD-14: full board name on the silkscreen. |
 | 1.6 | 2026-11-17 | Consistency pass: PT1000 pull-up 2195 Ω (§6.1.3), filament input without clamp on FT pins (§6.1.4), LED port pinout + protection (§6.1.5), pin budget 44 incl. crystal (§6.1.8), 2× LDO (§6.1.1), §12 decided items removed. |
+| 1.7 | 2026-11-17 | §9 implemented in `klipper/` (F8 software): MCU names `nexus_tools`/`nexus_docks`, placeholder for a disabled tool in the middle (Klipper extruder numbering), cutoff `value: 0` until the self-test passes, hotends as stepperless extruders (§9.7 decided), staggered heat-up with queue. |

@@ -97,7 +97,7 @@ The STM32G0B1**RBT6** is the "GP" LQFP64 variant (`_RxT`): pin 40/41 are PD8/PD9
 | 63 | PB9 | FT_f | Filament T1 MOTION | `FIL_MOTION_T1` | |
 | 64 | PC10 | FT | Filament T1 RUNOUT | `FIL_RUNOUT_T1` | |
 
-**Used:** 44 of 64 pins (16 filament, 8 heater, 9 ADC, cutoff, LED, status, USB 2, CAN 2, SWD 2, crystal 2, NRST, VREF+, VDD, VSS, VBAT). **Spare:** 13 GPIO (PC0–PC3, PC5, PB2, PB6, PB7, PB10, PB11, PA9, PA10, PC13). Two of them (PB6, PB7) could go to test pads for debugging; no connector is planned.
+**Used:** 44 of 64 pins (16 filament, 8 heater, 9 ADC, cutoff, LED, status, USB 2, CAN 2, SWD 2, crystal 2, NRST, VREF+, VDD, VSS, VBAT). **Spare:** 13 GPIO (PC0–PC3, PC5, PB2, PB6, PB7, PB10, PB11, PA9, PA10, PC13). Two of them (PB6, PB7) could go to test pads for debugging; no connector is planned. **PC0, PC1, PC2, PC3, PC5, PB2, PB10 and PB11 must stay unconnected:** the Klipper placeholder for a disabled tool T0–T7 drives its dummy heater on one of them (`klipper/nexus/tools/tN_disabled.cfg`, architecture §9.2). Moving them requires `scripts/gen_klipper_tools.py`.
 
 ---
 
@@ -105,11 +105,11 @@ The STM32G0B1**RBT6** is the "GP" LQFP64 variant (`_RxT`): pin 40/41 are PD8/PD9
 
 | Function | Klipper pin |
 |---|---|
-| Heater T0–T7 | `toolboard:PB13`, `PB14`, `PB15`, `PA8`, `PC6`, `PC7`, `PD8`, `PD9` |
-| Thermistor T0–T7 | `toolboard:PA0` … `PA7` |
-| Rail sense | `toolboard:PC4` |
-| Cutoff | `toolboard:PB12` |
+| Heater T0–T7 | `nexus_tools:PB13`, `PB14`, `PB15`, `PA8`, `PC6`, `PC7`, `PD8`, `PD9` |
+| Thermistor T0–T7 | `nexus_tools:PA0` … `PA7` |
+| Rail sense | `nexus_tools:PC4` |
+| Cutoff | `nexus_tools:PB12` |
 | Filament T*n* runout / motion | see table (external pull-up, so no `^`) |
-| LED chain | `toolboard:PB3` |
-| Status LED | `toolboard:PB4` |
+| LED chain | `nexus_tools:PB3` |
+| Status LED | `nexus_tools:PB4` |
 | `make menuconfig` | STM32G0B1, 8 MHz crystal, 8 KiB bootloader (Katapult), USB on PA11/PA12 **or** CAN on PB0/PB1 **or** USB-to-CAN bridge (USB PA11/PA12, CAN PB0/PB1), 1 Mbit/s |

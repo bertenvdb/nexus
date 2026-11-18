@@ -113,7 +113,7 @@ MCU ─► 74HCT541 / 74AHCT1G125 (5 V) ─[22 Ω]─► gate     source ─► 
 
 ```ini
 [fan_generic dock_fan_t0]
-pin: dock:PXX
+pin: nexus_docks:PXX
 cycle_time: 0.010        # 100 Hz, standard for fans
 kick_start_time: 0.5
 off_below: 0.15

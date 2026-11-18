@@ -37,7 +37,7 @@ Fans are numbered 0–8 (net `FAN0_N` … `FAN8_N`, CLAUDE.md §6), connectors s
 
 | Function | Klipper pin |
 |---|---|
-| Fan 0–8 | `dock:PB13`, `PB14`, `PB15`, `PA8`, `PC6`, `PC7`, `PD8`, `PD9`, `PB12` |
-| LED chain | `dock:PB3` |
-| Status LED | `dock:PB4` |
+| Fan 0–8 | `nexus_docks:PB13`, `PB14`, `PB15`, `PA8`, `PC6`, `PC7`, `PD8`, `PD9`, `PB12` |
+| LED chain | `nexus_docks:PB3` |
+| Status LED | `nexus_docks:PB4` |
 | `make menuconfig` | Identical to the tool board |

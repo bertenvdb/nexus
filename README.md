@@ -7,7 +7,7 @@
 
 Both boards: STM32G0B1RBT6, Klipper + Katapult, designed in KiCad 10 for JLCPCB assembly.
 
-Status and documentation: [`docs/README.md`](docs/README.md). Working agreements for Claude Code: [`CLAUDE.md`](CLAUDE.md).
+Status and documentation: [`docs/README.md`](docs/README.md). Klipper configuration and macros (YUDX toolchanger): [`klipper/`](klipper/README.md). Working agreements for Claude Code: [`CLAUDE.md`](CLAUDE.md).
 
 ---
 
@@ -22,8 +22,8 @@ This board drives heaters. A mistake in the design, assembly, wiring or configur
 
 **Mandatory**
 1. Klipper's `verify_heater` active, with sensible `max_temp` values.
-2. Keep the **cutoff startup self-test** enabled. Do not print if it fails.
-3. Run the **commissioning macro** after every (re)wiring. It checks that each heater heats the correct thermistor.
+2. Keep the **cutoff startup self-test** enabled (runs at every Klipper start, `NEXUS_SELFTEST`). Do not print if it fails; call `NEXUS_PRINT_START` in your `PRINT_START` so a print cannot start without it.
+3. Run the **commissioning macro** `NEXUS_COMMISSION` after every (re)wiring. It checks that each heater heats the correct thermistor.
 4. **Never print unattended** until the whole setup has proven itself over multiple prints.
 5. One PSU, or PSUs with a common negative.
 

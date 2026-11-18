@@ -73,12 +73,12 @@ Per tool in the include file: one or both sections, depending on the sensor.
 ```ini
 # Switch (D2F: COM → GND, NO → RUNOUT): low = filament present
 [filament_switch_sensor t0_runout]
-switch_pin: !toolboard:PXX      # external pull-up, so no ^
+switch_pin: !nexus_tools:PXX      # external pull-up, so no ^
 pause_on_runout: True
 
 # Motion sensor: clog / slipping extruder
 [filament_motion_sensor t0_motion]
-switch_pin: toolboard:PYY
+switch_pin: nexus_tools:PYY
 detection_length: 10            # mm of extrusion without a pulse → runout_gcode
 extruder: extruder              # the physical extruder that pushes the filament
 pause_on_runout: True
@@ -122,7 +122,7 @@ GND ─────────────────────────�
 
 ```ini
 [neopixel toolboard_leds]
-pin: toolboard:PXX
+pin: nexus_tools:PXX
 chain_count: 8
 color_order: GRB
 ```

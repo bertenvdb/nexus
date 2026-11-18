@@ -4,11 +4,12 @@
 
 | Item | Status |
 |---|---|
-| Concept architecture | ✅ Done (v1.6) |
+| Concept architecture | ✅ Done (v1.7) |
 | Component selection Nexus Tools Board | ✅ Done (parts 1–3) |
 | Component selection Nexus Docks Board | ✅ Done |
 | Cost estimate | ✅ Estimate, no JLC quote yet |
 | KiCad implementation | 🔄 F0–F4 done, F5 step 1 (tool board placement) in review, see [work plan](work-plan.md) |
+| Klipper configuration (YUDX) | 🔍 [`../klipper/`](../klipper/README.md) in review, tested in Klipper batch mode, not on hardware |
 
 ## Reading order
 
@@ -29,6 +30,7 @@
 15. [`pinout-toolboard.md`](pinout-toolboard.md) / [`pinout-dockboard.md`](pinout-dockboard.md): STM32G0B1 pin assignment
 16. [`mechanical.md`](mechanical.md): mechanical constraints, layout concepts, connector overhang
 17. [`calculations.md`](calculations.md): buck converters, copper widths, LED resistors
+18. [`../klipper/README.md`](../klipper/README.md): Klipper configuration and macros for the YUDX toolchanger
 
 ## One minute of context
 
@@ -36,4 +38,4 @@
 - **Why this architecture:** Klipper supports multiple MCUs natively, so each board is its own MCU (no custom protocol). The heaters switch low-side, as on standard boards. Because a short from heater− to ground bypasses the MOSFET, there is a hardware cutoff on the positive side. Klipper turns it off on every shutdown.
 - **Why these parts:** everything is in stock at LCSC. As many parts as possible are shared between both boards, to limit JLC's Extended fee (≈ $3 per unique part per order).
 - **Open source (AD-15):** CERN-OHL-S-2.0 / GPL-3.0-or-later / CC-BY-SA-4.0. Not for sale. Safety section in the root README.
-- **History:** the concept started with three boards and USB-C ports as heater connectors. That was abandoned. The reasoning is in the architecture's change history (v0.1 → v1.6). Do not propose it again without new arguments.
+- **History:** the concept started with three boards and USB-C ports as heater connectors. That was abandoned. The reasoning is in the architecture's change history (v0.1 → v1.7). Do not propose it again without new arguments.
