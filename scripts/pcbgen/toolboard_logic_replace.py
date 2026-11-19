@@ -5,7 +5,7 @@
 The routing showed that the MCU had about 1 mm between its pins and the
 neighbouring blocks: no room to fan out 50 pins (2026-11-19). This takes the
 approved placement (toolboard.placed.kicad_pcb) and moves only the logic
-parts (5 V buck, LDOs, MCU, crystal group, SWD/buttons group, gate buffer) to
+parts (LDOs, MCU, crystal group, SWD/buttons group, gate buffer) to
 the positions of layout variant "fan" in toolboard_place.py, which keeps a
 >= 3.5 mm ring around the MCU. Every other block stays where it was approved.
 
@@ -23,10 +23,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "pcbgen"))
 import toolboard_place as tp  # noqa: E402
 
-LOGIC = ["U_BUCK", "L_BUCK", "D_CATCH", "D_REV", "C_BIN1", "C_BIN2", "C_BIN3",
-         "C_BOUT1", "C_BOUT2", "C_BOUT3", "R_UV1", "R_UV2", "R_RT", "R_COMP",
-         "C_COMP", "C_COMP2", "C_BOOT", "R_FB1", "R_FB2", "TP_5V",
-         "D_OR_5V", "D_OR_VBUS", "C_L1IN", "U_LDO_MCU", "C_L1OUT", "C_L1OUT2",
+# the 5 V buck keeps its approved layout (hot loop); its region did not change
+LOGIC = ["D_OR_5V", "D_OR_VBUS", "C_L1IN", "U_LDO_MCU", "C_L1OUT", "C_L1OUT2",
          "TP_3V3M", "C_L2IN", "U_LDO_AUX", "C_L2OUT", "TP_3V3A",
          "R_VREF", "C_VREF1", "C_VREF2", "TP_VREF", "TP_AGND", "TP_VBUS",
          "U_MCU", "Y_MCU", "C_X1", "C_X2", "C_VDD1", "C_VDD2", "C_VBAT", "C_VREF3",
