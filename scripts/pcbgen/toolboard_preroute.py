@@ -13,8 +13,8 @@ no tracks) and writes toolboard/toolboard.kicad_pcb. Per heater channel:
   LED R_LH turned so +24V is on top (short to the band); LED cathode via
       B.Cu to the N track
 plus GND vias for the rail capacitors in the band and two placement
-fixes (rail capacitors 2/4, SWD header), plus In2 supply strips for
-VCC_FIL, +3V3_MCU and VREF_A. The rest is routed by
+fixes (rail capacitors 2/4). The SWD header move of 2026-11-18 is
+replaced by the logic re-placement (toolboard_logic_replace.py). The rest is routed by
 Freerouting (scripts/pcbgen/route.py).
 """
 import pathlib
@@ -71,26 +71,6 @@ def main():
             for x, y in [(34.6, 49.6), (41.5, 49.6), (41.5, 58.8), (34.6, 58.8)]:
                 ol.Append(mm(O + x), mm(O + y))
 
-    # In2 supply strips (2026-11-18): the longest ratsnest trees were supply
-    # nets; as strips on In2 they leave the router (643 -> ~470 crossings)
-    # while the middle of In2 stays free for signals
-    def zone(net, layer, pts, name):
-        z = pcbnew.ZONE(brd)
-        z.SetNet(brd.FindNet(net)); z.SetLayer(layer); z.SetAssignedPriority(2)
-        z.SetLocalClearance(mm(0.3)); z.SetMinThickness(mm(0.25))
-        z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
-        z.SetIslandRemovalMode(pcbnew.ISLAND_REMOVAL_MODE_ALWAYS)
-        z.SetZoneName(name)
-        ol = z.Outline(); ol.NewOutline()
-        for x, y in pts:
-            ol.Append(mm(O + x), mm(O + y))
-        brd.Add(z)
-    rect = lambda x0, y0, x1, y1: [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
-    I2 = pcbnew.In2_Cu
-    zone("/filament_inputs/VCC_FIL", I2, rect(10.5, 0.6, 129.5, 6.4), "VCC_FIL strip")
-    zone("+3V3_MCU", I2, rect(10.5, 6.9, 129.5, 13.8), "3V3 strip")
-    zone("VREF_A", I2, rect(110.6, 23.5, 132.0, 79.0), "VREF_A strip")
-
     for i in range(8):
         # orientation fixes (see docstring)
         brd.FindFootprintByReference(K[f"R_G{i}"]).SetOrientationDegrees(180)
@@ -135,10 +115,6 @@ def main():
     for key, x in (("C_RAIL2", 65.3), ("C_RAIL4", 99.0)):
         fp = brd.FindFootprintByReference(K[key])
         fp.SetPosition(P(x, pcbnew.ToMM(fp.GetPosition().y) - O))
-    # SWD header sat across the In1 AGND finger (island -> MCU VREF): its THT
-    # pads cut the 3.5 mm finger, so the part towards the MCU was not filled
-    j2 = brd.FindFootprintByReference(K["J_SWD"])
-    j2.SetPosition(j2.GetPosition() + pcbnew.VECTOR2I(0, mm(-6.0)))
     for i in range(4):   # rail capacitors in the band: GND via below pad 2
         x, y, _ = pad(f"C_RAIL{i + 1}", "2")
         track("GND", F, [(x, y), (x, y + 1.4)], 0.5)

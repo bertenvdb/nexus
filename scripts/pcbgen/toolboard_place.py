@@ -32,6 +32,11 @@ VARIANTS = {
     "orig": dict(buck=(24.0, 19.2, 56.0, 38.5), ldo=(56.5, 19.2, 92.0, 32.3),
                  mcu=(74.0, 39.6, 0), xtal=(56.5, 32.6, 67.1, 46.6),
                  swd=(81.2, 32.6, 108.4, 46.6), gatebuf=(52.5, 46.7, 91.0, 58.75)),
+    # fan-out ring >= 3.5 mm around the MCU (routing, 2026-11-19); applied to
+    # the approved placement by toolboard_logic_replace.py
+    "fan": dict(buck=(24.0, 19.2, 56.0, 38.5), ldo=(56.5, 19.2, 92.0, 25.6),
+                mcu=(74.0, 36.0, 0), xtal=(56.5, 26.0, 63.6, 46.0),
+                swd=(84.4, 25.8, 108.4, 38.5), gatebuf=(52.5, 46.4, 91.0, 58.6)),
 }
 DEFAULT_VARIANT = "orig"
 
