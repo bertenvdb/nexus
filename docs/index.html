@@ -180,6 +180,7 @@
       <li><a href="#features">Features</a></li>
       <li><a href="#safety">Safety</a></li>
       <li><a href="#specs">Specs</a></li>
+      <li><a href="#order">Order</a></li>
       <li><a href="#license">License</a></li>
     </ul>
   </div>
@@ -483,7 +484,36 @@
   </div>
 </section>
 
-<section id="license" class="alt">
+<section id="order" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Build your own</div>
+    <h2>Ordering</h2>
+    <p class="sub">Rev A is <strong>not tested yet</strong>. Wait for the prototype results before you order, unless you want to help test.</p>
+
+    <h3 style="margin:32px 0 12px">What it costs</h3>
+    <table>
+      <tr><th style="text-align:left">JLCPCB, 5 boards, PCB + assembly</th><th style="text-align:right">Per order (5)</th><th style="text-align:right">Per board</th></tr>
+      <tr><td>Nexus Tools Board</td><td style="text-align:right">€177.63</td><td style="text-align:right">≈ €35.50</td></tr>
+      <tr><td>Nexus Docks Board</td><td style="text-align:right">€138.84</td><td style="text-align:right">≈ €27.80</td></tr>
+      <tr><td><strong>Both boards</strong></td><td style="text-align:right"><strong>€316.47</strong></td><td style="text-align:right"><strong>≈ €63.30 per set</strong></td></tr>
+      <tr><td>Hand-soldered parts from LCSC (connectors, fuses, bulk capacitors)</td><td style="text-align:right"></td><td style="text-align:right">≈ $5 Tools · ≈ $1.40 Docks</td></tr>
+    </table>
+    <p class="note" style="margin-top:14px">JLCPCB quote of <strong>2026-11-20</strong>: 4 layers, 1 oz, lead-free HASL, vias plugged, Economic assembly on the top side. <strong>Not included:</strong> shipping (DHL ≈ €20–40), import VAT, the LCSC parts and their shipping. About a third of each order is JLC's fee for "Extended" parts, which is fixed per order: ordering 10 boards lowers the price per board noticeably. Prices change; your own quote counts.</p>
+
+    <h3 style="margin:40px 0 12px">How to order</h3>
+    <p>JLCPCB has no link that opens a ready-made project for someone else, so ordering takes a few uploads. Everything is prepared in <a href="https://github.com/bertenvdb/nexus/tree/main/fab/rev-A">fab/rev-A</a>, with the exact settings in its <a href="https://github.com/bertenvdb/nexus/blob/main/fab/rev-A/README.md">README</a>.</p>
+    <ol>
+      <li>On <a href="https://jlcpcb.com/">jlcpcb.com</a>, upload <code>&lt;board&gt;-gerbers.zip</code>. Choose 4 layers, stackup JLC04161H-7628, 1 oz outer copper.</li>
+      <li>Turn on PCB assembly, top side, and upload <code>&lt;board&gt;-bom-jlc.csv</code> and <code>&lt;board&gt;-cpl-jlc.csv</code>. All parts should be found and ticked.</li>
+      <li>In the placement preview, check pin 1 of the ICs, diodes and the USB-C connector against the <a href="https://github.com/bertenvdb/nexus/blob/main/fab/rev-A/README.md">checklist</a>.</li>
+      <li>Order the parts in <code>&lt;board&gt;-handsolder.csv</code> from <a href="https://www.lcsc.com/">LCSC</a> and solder them yourself (XT60/XT30, screw terminals, JST-XH, Micro-Fit, pin headers, fuses, bulk capacitors).</li>
+      <li>Read the <a href="#safety">safety section</a> before the first power-up, and check the polarity of your power cable.</li>
+    </ol>
+    <p class="note">Nobody earns anything on your order: this project is not sold, has no affiliate links and no shared-project commission (see the licenses).</p>
+  </div>
+</section>
+
+<section id="license">
   <div class="wrap">
     <div class="eyebrow">Open source</div>
     <h2>Licenses</h2>
