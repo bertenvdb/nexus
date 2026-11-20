@@ -20,6 +20,7 @@ import heapq
 import math
 import os
 import pathlib
+import re
 import sys
 
 import numpy as np
@@ -259,6 +260,28 @@ def blocked_for(g, k, net):
     return bl
 
 
+# analog nets keep MAZE_AVOID_MM (edge to edge) from switching nets on the same layer
+ANALOG = re.compile(r"^(THERM_T\d|/thermistors/THERM_T\d_.*|VREF_A|RAIL_SENSE)$")
+AGGR = re.compile(r"^(/logic_power/BUCK_(SW|BOOT)|HEATER_T\d_(N|CTRL)|/heaters/GATE_T\d(_B)?|/heater_cutoff/CUTOFF_GATE)$")
+
+
+def avoid_map(g, b, rad):
+    """g.avoid: near switching copper (for analog nets); g.avoid_an: near
+    analog copper (for switching nets). Same layer only."""
+    g.avoid = np.zeros(g.isl.shape, bool)
+    g.avoid_an = np.zeros(g.isl.shape, bool)
+    items = list(b.GetTracks()) + [p for fp in b.GetFootprints() for p in fp.Pads()]
+    for it in items:
+        n = it.GetNetname()
+        tgt = g.avoid if AGGR.match(n) else g.avoid_an if ANALOG.match(n) else None
+        if tgt is None:
+            continue
+        for li, L in enumerate(LAYERS):
+            if it.IsOnLayer(L):
+                for r0, c0, m in g.mask(item_poly(it, L, rad)):
+                    tgt[li, r0:r0 + m.shape[0], c0:c0 + m.shape[1]] |= m
+
+
 def route_net(g, net, w, log):
     """Join the islands of one net. Returns (joins, fails, paths)."""
     ids = [i for i, n in g.net_of.items() if n == net and (g.isl == i).any()]
@@ -270,6 +293,10 @@ def route_net(g, net, w, log):
     vb = blocked_for(g, ("v",), code).any(axis=0)
     own = np.isin(g.isl, ids)
     vb |= dilate(own[0] | own[-1], disk(VIA / 2 / G + 1))      # no via in own pads
+    if getattr(g, "avoid", None) is not None and ANALOG.match(net):
+        blocked = blocked | (g.avoid & ~own)
+    if getattr(g, "avoid", None) is not None and AGGR.match(net):
+        blocked = blocked | (g.avoid_an & ~own)
     layers_ok = [0] if net in FONLY else list(range(len(LAYERS)))
     joins = fails = 0
     paths = []
@@ -448,6 +475,9 @@ def main():
     padnets = {p.GetNetname() for fp in b.GetFootprints() for p in fp.Pads() if p.GetNetname()}
     widths = sorted({w(n) for n in padnets} | {MIN_W})
     g = build(b, widths)
+    avoid_mm = float(os.environ.get("MAZE_AVOID_MM", "0"))
+    if avoid_mm:
+        avoid_map(g, b, avoid_mm + max(widths) / 2)
     esc = [r for r in os.environ.get("MAZE_ESCAPE", "").split(",") if r]
     if esc:
         escape(g, b, esc)

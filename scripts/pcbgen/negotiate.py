@@ -6,6 +6,8 @@
   env NEG_ITER=40        maximum number of negotiation rounds
   env NEG_PRES=0.5       starting present-congestion factor (x NEG_PRES_GROW per round)
   env NEG_HIST=0.4       history cost added per round to a conflicting cell
+  env NEG_AVOID_MM=1.0   analog nets and switching nets pay NEG_AVOID_COST (default 3)
+                         per grid step when closer than this on the same layer
   env MAZE_ESCAPE="U5"   escape lanes (see maze.escape)
   env MAZE_FIRST / MAZE_NETS as in maze.py
 
@@ -82,12 +84,19 @@ class Router:
         self.dp = np.array([{None: 0, "h": 1, "v": 2}[d] for d in M.DIR], np.int32)
         z = np.zeros((self.NY, self.NX), np.uint8)
         self.penh = u8(getattr(g, "pen_h", z)); self.penv = u8(getattr(g, "pen_v", z))
+        # analog <-> switching nets: soft cost for running close on the same layer
+        self.av = float(os.environ.get("NEG_AVOID_MM", "0"))
+        self.avc = float(os.environ.get("NEG_AVOID_COST", "3"))
+        if self.av:
+            M.avoid_map(g, b, self.av + 0.15)
+            self.occA = np.zeros(shape, np.int16)
+            self.occG = np.zeros(shape, np.int16)
 
     # -- occupancy -------------------------------------------------------
-    def entries(self, net, k):
+    def entries(self, net, k, rad=None):
         w = self.w(net)
         plane = self.NY * self.NX
-        rad = self.g.radii[k]
+        rad = self.g.radii[k] if rad is None else rad
         li, rr, cc, ra = [], [], [], []
         for p in self.routes.get(net, []):
             idx = np.asarray(p)
@@ -121,6 +130,14 @@ class Router:
             li, rr, cc, ra = e
             self.lib.paint(self.L, self.NY, self.NX, ptr(self.occ[k]), ptr(self.mark), self.stamp,
                            len(li), ptr(li), ptr(rr), ptr(cc), ptr(ra), delta)
+        if self.av:
+            occ = self.occA if M.ANALOG.match(net) else self.occG if M.AGGR.match(net) else None
+            e = self.entries(net, None, self.av + 0.15) if occ is not None else None
+            if e is not None:
+                self.stamp += 1
+                li, rr, cc, ra = e
+                self.lib.paint(self.L, self.NY, self.NX, ptr(occ), ptr(self.mark), self.stamp,
+                               len(li), ptr(li), ptr(rr), ptr(cc), ptr(ra), delta)
 
     # -- routing ---------------------------------------------------------
     def route(self, net, pres):
@@ -138,7 +155,12 @@ class Router:
         vb = u8(vb)
         lab = np.where(own, self.isl0, 0).astype(np.int32)
         mult = np.ascontiguousarray(1.0 + self.hist, np.float32)
-        add = np.ascontiguousarray(pres * self.occ[("t", w)], np.float32)
+        add = pres * self.occ[("t", w)].astype(np.float32)
+        if self.av and M.ANALOG.match(net):
+            add += self.avc * ((self.occG > 0) | (g.avoid & ~own))
+        elif self.av and M.AGGR.match(net):
+            add += self.avc * ((self.occA > 0) | (g.avoid_an & ~own))
+        add = np.ascontiguousarray(add, np.float32)
         vcost = np.ascontiguousarray(M.VIA_COST * (1.0 + self.histv)
                                      + pres * M.VIA_COST / 5 * self.occ[("v",)].max(axis=0), np.float32)
         mask = 1 if net in M.FONLY else (1 << self.L) - 1
