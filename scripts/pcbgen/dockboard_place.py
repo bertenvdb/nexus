@@ -32,7 +32,7 @@ MCU_KEEP = float(os.environ.get("DOCK_KEEP", "3.6"))   # free ring around the MC
 
 NETCLASSES = {
     "Default": dict(track=0.2),
-    "POWER_IN": dict(track=1.5, via=0.8, drill=0.4),
+    "POWER_IN": dict(track=1.6, via=0.8, drill=0.4),   # calculations.md §2.2
     "FAN_CH": dict(track=0.8),
     "POWER_LOGIC": dict(track=0.5),
     "SUPPLY_3V3": dict(track=0.3),
@@ -56,7 +56,7 @@ def refs_by_key():
 
 # targets (board mm): MCU centre + rotation, block centres; override with
 # DOCK_NEAR='{"mcu": [x, y, rot], "can": [x, y], ...}'
-TARGETS = dict(mcu=(30, 22, 0), swd=(46, 12), gatebuf=(48, 26), can=(16, 30), canesd=(12, 24))
+TARGETS = dict(mcu=(30, 22, 0), swd=(62, 6), gatebuf=(48, 26), can=(40, 6), canesd=(12, 24))
 
 
 def main():
@@ -119,8 +119,10 @@ def main():
     ox = sum(pcbnew.ToMM(p.GetPosition().x) for p in osc) / len(osc) - pcb.ox
     oy = sum(pcbnew.ToMM(p.GetPosition().y) for p in osc) / len(osc) - pcb.oy
     D = T.get("xtal_depth", 7.0)
+    dy = T.get("xtal_dy", -3.0)       # shifted up: room for the CAN ESD diode next to J4
     if abs(ox - mx) > abs(oy - my):
-        reg = (keep[2], oy - 7, keep[2] + D, oy + 7) if ox > mx else (keep[0] - D, oy - 7, keep[0], oy + 7)
+        reg = ((keep[2], oy - 7 + dy, keep[2] + D, oy + 7 + dy) if ox > mx
+               else (keep[0] - D, oy - 7 + dy, keep[0], oy + 7 + dy))
     else:
         reg = (ox - 7, keep[3], ox + 7, keep[3] + D) if oy > my else (ox - 7, keep[1] - D, ox + 7, keep[1])
     xtal = r("Y_MCU", "C_X1", "C_X2", "C_VDD1", "C_VDD2", "C_VBAT", "C_VREF1", "C_VREF3", "R_VREF",
@@ -186,9 +188,11 @@ def main():
         near(B(r("U_CAN", "C_CANVCC", "C_CANVIO", "R_TERM", "J_TERM", "TP_CANH",
                  "TP_CANL")), *T["can"]),
         # CAN ESD right behind the CAN connector, not at the transceiver
-        near(B(r("D_CANESD")), *T["canesd"]),
-        near(B(r("F_IN", "D_TVS", "U_RPP", "Q_RPP", "C_BULK", "C_VCAP", "C_VS", "C_INT1",
-                 "C_INT2", "TP_24VINT", "TP_GND")), 20, 46),
+        dict(near(B(r("D_CANESD")), *T["canesd"]), prio=1),
+        # power input first, right next to the XT30: the unfused VIN_RAW
+        # stays short and does not run under the 5 V buck
+        dict(near(B(r("F_IN", "D_TVS", "U_RPP", "Q_RPP", "C_BULK", "C_VCAP", "C_VS", "C_INT1",
+                 "C_INT2", "TP_24VINT", "TP_GND")), 20, 46), prio=1),
         near(B(r("U_BUCK", "L_BUCK", "D_CATCH", "C_BIN1", "C_BIN2", "C_BIN3", "C_BOUT1",
                  "C_BOUT2", "C_BOUT3", "R_UV1", "R_UV2", "R_RT", "R_COMP", "C_COMP", "C_COMP2",
                  "C_BOOT", "R_FB1", "R_FB2", "D_OR_5V", "D_OR_VBUS", "C_L1IN", "U_LDO",

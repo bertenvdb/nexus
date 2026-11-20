@@ -298,7 +298,7 @@ class Pcb:
         """MaxRects placement of whole blocks inside region around obstacles.
 
         Several block orders and fit rules are tried; the first complete
-        placement wins.
+        placement wins. Blocks with a higher "prio" are placed first.
         """
         x0, y0, x1, y1 = region
         base = [(x0, y0, x1 + gap, y1 + gap)]
@@ -308,7 +308,8 @@ class Pcb:
         rules = ["bssf", "blsf", "baf", "bl"]
         for order in orders:
             for rule in rules:
-                ordered = sorted(blocks, key=lambda b_: (b_.get("near") is None, order(b_)))
+                ordered = sorted(blocks, key=lambda b_: (-b_.get("prio", 0), b_.get("near") is None,
+                                                         order(b_)))
                 plan = self._try_blocks(ordered, base, gap, rule)
                 if plan:
                     for blk, px, py in plan:
