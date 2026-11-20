@@ -26,6 +26,7 @@ This board drives heaters. A mistake in the design, assembly, wiring or configur
 3. Run the **commissioning macro** `NEXUS_COMMISSION` after every (re)wiring. It checks that each heater heats the correct thermistor.
 4. **Never print unattended** until the whole setup has proven itself over multiple prints.
 5. One PSU, or PSUs with a common negative.
+6. Check the **power cable polarity** before you plug in: on the board connector (XT60 on the Tools Board, XT30 on the Docks Board) **+ is pin 2**, marked **+** on the silkscreen. Wire your plug to match.
 
 **Optional**
 - Extra passive protection at the hotend: a PTC heater (self-limiting) and/or a thermal fuse (TCO) on the heatsink or tool holder. A TCO on the heater block itself does not work: they go up to ±240 °C, at or below print temperature.
