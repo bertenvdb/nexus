@@ -148,8 +148,9 @@ Result: **88 × 62 mm**, 4 layers (first attempt 100 × 70 mm with the fans in o
 
 | Measure | Effect |
 |---|---|
-| Fans in a 3 × 3 group of 11 × 12 mm cells (connector + MOSFET + flyback + gate resistors), not one row | Removes the ≥ 82 mm top-edge constraint |
+| Fans in a regular 3 × 3 grid of identical 8.5 × 11.9 mm cells against the right edge (connector on top, MOSFET under pin 1, gate pull-down, flyback diode under pin 2), FAN 0–8 in reading order, all connectors the same way round; the 22R gate series resistors sit at the gate buffer | Removes the ≥ 82 mm top-edge constraint |
 | Smaller BOOT/RESET buttons TS-1088 (C720477, Basic) and 1.0 mm test pads on the dock-only sheets | ≈ 70 mm² less |
+| MCU alone with a 3.6 mm free ring (tool board routing lesson), crystal and decoupling right outside it on the OSC side; diagnostic LEDs in one row along the top edge (AD-17); CAN ESD diode next to the CAN connector (revision 2026-11-20) | |
 | Two-level packing: each block packed compactly, blocks placed on the board around the edge connectors and hole keep-outs, near their connector or neighbour | |
 
 Limits: the parts need ≈ 3,200 mm² of courtyard; 88 × 62 = 5,456 mm² (≈ 59 %, of which the left-edge connectors and four hole keep-outs take ≈ 750 mm²). 84 × 62 also fits but puts the USB and CAN parts far from their connectors. Smaller would need parts on the bottom side, or smaller parts (SMA instead of SMC catch diodes, SMD bulk capacitor, no SWD header).

@@ -243,9 +243,12 @@ class Pcb:
         """Arrange refs compactly at the origin; return the tightest block.
 
         `first`: a ref placed at the top-left before the rest (e.g. the MCU).
-        Returns dict(refs, w, h, pos={ref: (x, y, rot)}).
+        Returns dict(refs, w, h, pos={ref: (x, y, rot)}, alts=[...]): `alts`
+        holds the other arrangements (distinct shapes, best first), which
+        place_blocks() tries when the best one does not fit.
         """
         best = None
+        alts = []
         for w in widths:
             try:
                 if first:
@@ -262,17 +265,25 @@ class Pcb:
             bw = max(b_[2] for b_ in boxes) - min(b_[0] for b_ in boxes)
             bh = max(b_[3] for b_ in boxes) - min(b_[1] for b_ in boxes)
             score = bw * bh + 0.5 * abs(bw - bh)   # small, not too elongated
+            x0 = min(b_[0] for b_ in boxes); y0 = min(b_[1] for b_ in boxes)
+            pos = {}
+            for r_ in refs:
+                fp = self.fps[r_]
+                pos[r_] = (pcbnew.ToMM(fp.GetPosition().x) - self.ox - x0,
+                           pcbnew.ToMM(fp.GetPosition().y) - self.oy - y0,
+                           fp.GetOrientationDegrees())
+            alts.append((score, dict(refs=refs, w=bw, h=bh, pos=pos)))
             if best is None or score < best[0]:
-                x0 = min(b_[0] for b_ in boxes); y0 = min(b_[1] for b_ in boxes)
-                pos = {}
-                for r_ in refs:
-                    fp = self.fps[r_]
-                    pos[r_] = (pcbnew.ToMM(fp.GetPosition().x) - self.ox - x0,
-                               pcbnew.ToMM(fp.GetPosition().y) - self.oy - y0,
-                               fp.GetOrientationDegrees())
-                best = (score, dict(refs=refs, w=bw, h=bh, pos=pos))
+                best = alts[-1]
         if best is None:
             raise RuntimeError(f"no block arrangement for {refs[:3]}...")
+        shapes, uniq = set(), []
+        for _, a in sorted(alts, key=lambda t: t[0]):
+            key = (round(a["w"], 1), round(a["h"], 1))
+            if key not in shapes and a["w"] * a["h"] <= 1.3 * best[1]["w"] * best[1]["h"]:
+                shapes.add(key)
+                uniq.append(a)
+        best[1]["alts"] = uniq
         return best[1]
 
     def _pack_obstacles(self, refs, region, obstacles, gap):
@@ -301,42 +312,45 @@ class Pcb:
                 plan = self._try_blocks(ordered, base, gap, rule)
                 if plan:
                     for blk, px, py in plan:
-                        for r_, (x, y, rr) in blk["pos"].items():
+                        for r_, (x, y, rr) in blk["pos"].items():   # the variant used
                             self.place(r_, px + x, py + y, rr)
                     return
         raise RuntimeError("board full: no block placement found")
 
     def _try_blocks(self, blocks, free, gap, rule):
         plan = []
-        for blk in blocks:
-            W_, H_ = blk["w"] + gap, blk["h"] + gap
+        for blk0 in blocks:
             best = None
-            near = blk.get("near")
-            for f in free:
-                fw, fh = f[2] - f[0], f[3] - f[1]
-                if W_ <= fw + 1e-6 and H_ <= fh + 1e-6:
-                    lw, lh = fw - W_, fh - H_
-                    if near:
-                        # the four corners of f keep the packing tight; take
-                        # the one whose block centre is closest to the target
-                        cands = []
-                        for cx in (f[0], f[2] - W_):
-                            for cy in (f[1], f[3] - H_):
-                                d = ((cx + W_ / 2 - near[0]) ** 2 + (cy + H_ / 2 - near[1]) ** 2) ** 0.5
-                                cands.append(((d, min(lw, lh)), cx, cy))
-                    else:
-                        cands = [({"bssf": (min(lw, lh), max(lw, lh)),
-                                   "blsf": (max(lw, lh), min(lw, lh)),
-                                   "baf": (fw * fh - W_ * H_, min(lw, lh)),
-                                   "bl": (f[1], f[0])}[rule], f[0], f[1])]
-                    for score, cx, cy in cands:
-                        if best is None or score < best[0]:
-                            best = (score, cx, cy)
+            near = blk0.get("near")
+            for blk in blk0.get("alts") or [blk0]:
+                W_, H_ = blk["w"] + gap, blk["h"] + gap
+                for f in free:
+                    fw, fh = f[2] - f[0], f[3] - f[1]
+                    if W_ <= fw + 1e-6 and H_ <= fh + 1e-6:
+                        lw, lh = fw - W_, fh - H_
+                        if near:
+                            # the four corners of f keep the packing tight; take
+                            # the one whose block centre is closest to the target
+                            cands = []
+                            for cx in (f[0], f[2] - W_):
+                                for cy in (f[1], f[3] - H_):
+                                    d = ((cx + W_ / 2 - near[0]) ** 2 + (cy + H_ / 2 - near[1]) ** 2) ** 0.5
+                                    cands.append(((d, min(lw, lh)), cx, cy))
+                        else:
+                            cands = [({"bssf": (min(lw, lh), max(lw, lh)),
+                                       "blsf": (max(lw, lh), min(lw, lh)),
+                                       "baf": (fw * fh - W_ * H_, min(lw, lh)),
+                                       "bl": (f[1], f[0])}[rule], f[0], f[1])]
+                        for score, cx, cy in cands:
+                            if best is None or score < best[0]:
+                                best = (score, cx, cy, blk)
+                if best is not None and blk is blk0:
+                    break                     # the preferred shape fits: keep it
             if best is None:
                 return None
-            _, px, py = best
-            plan.append((blk, px, py))
-            free = self._cut(free, [(px, py, px + W_, py + H_)])
+            _, px, py, blk = best
+            plan.append((dict(blk0, **{k: blk[k] for k in ("w", "h", "pos")}), px, py))
+            free = self._cut(free, [(px, py, px + blk["w"] + gap, py + blk["h"] + gap)])
         return plan
 
     @staticmethod
