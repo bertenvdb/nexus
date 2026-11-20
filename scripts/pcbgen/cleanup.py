@@ -5,7 +5,7 @@
   scripts/pcbgen/cleanup.py <board> [--no-in1]
 
 --no-in1  delete every track on In1 (In1 is the GND/AGND plane)
-Then repeat until stable: run KiCad's DRC and delete the vias and tracks it
+Vias of one net closer than 0.5 mm are merged. Then repeat until stable: run KiCad's DRC and delete the vias and tracks it
 reports as dangling (KiCad's own definition, not a home-made one). Tracks
 whose net is listed in KEEP_DANGLING are left alone.
 """
@@ -46,6 +46,28 @@ def main():
         for t in [t for t in b.GetTracks() if t.GetClass() == "PCB_TRACK" and t.GetLayer() == pcbnew.In1_Cu]:
             b.Delete(t)
             n_in1 += 1
+    # vias of one net closer than 0.5 mm (router via on top of a stitching
+    # via: hole_to_hole): keep the first, move the track ends to it
+    vias = [v for v in b.GetTracks() if v.GetClass() == "PCB_VIA"]
+    gone_v, dup = set(), 0
+    for i, v in enumerate(vias):
+        if id(v) in gone_v:
+            continue
+        for w in vias[i + 1:]:
+            if (id(w) in gone_v or w.GetNetCode() != v.GetNetCode()
+                    or (w.GetPosition() - v.GetPosition()).EuclideanNorm() >= pcbnew.FromMM(0.5)):
+                continue
+            wp, vp = w.GetPosition(), v.GetPosition()
+            for t in b.GetTracks():
+                if t.GetClass() != "PCB_TRACK" or t.GetNetCode() != v.GetNetCode():
+                    continue
+                if (t.GetStart() - wp).EuclideanNorm() < 1000:
+                    t.SetStart(vp)
+                if (t.GetEnd() - wp).EuclideanNorm() < 1000:
+                    t.SetEnd(vp)
+            gone_v.add(id(w))
+            b.Delete(w)
+            dup += 1
     pcbnew.SaveBoard(str(pcb), b)
     removed = 0
     for _ in range(30):
@@ -76,7 +98,7 @@ def main():
     pcbnew.ZONE_FILLER(b).Fill(b.Zones())
     pcbnew.SaveBoard(str(pcb), b)
     pro.write_text(keep)
-    print(f"cleanup: {n_in1} In1 tracks, {removed} dangling items removed")
+    print(f"cleanup: {n_in1} In1 tracks, {dup} duplicate vias, {removed} dangling items removed")
 
 
 if __name__ == "__main__":

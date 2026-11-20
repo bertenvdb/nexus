@@ -47,18 +47,25 @@ DIR_PENALTY = float(os.environ.get("MAZE_DIR_PENALTY", "2.0"))
 FIRST = ["USB_DP", "USB_DM", "/usb_can/CANH", "/usb_can/CANL", "CAN_TX", "CAN_RX",
          "/mcu/OSC_IN", "/mcu/OSC_OUT"]
 FONLY = {n for n in os.environ.get("MAZE_FONLY", "USB_DP,USB_DM").split(",") if n}  # stay on F.Cu, over the solid In1 plane
+SOFT_PLANES = bool(os.environ.get("MAZE_SOFT_PLANES"))   # see build()
 MIN_W = 0.2                   # track width for the stretch inside own pads
 mm = pcbnew.FromMM
 
 
-def width_of():
-    import toolboard_place as tp
+def width_of(board=None):
+    """Track width per net from <board>_place.py's net classes, capped at
+    MAZE_WMAX mm (default 0.8: the tool board's heater/power copper is zones).
+    The dock board routes its power tracks (POWER_IN 1.6 mm) with MAZE_WMAX=1.6."""
+    import importlib
+    board = board or (sys.argv[1] if len(sys.argv) > 1 else "toolboard")
+    tp = importlib.import_module(f"{board}_place")
     cls = {n: c["track"] for n, c in tp.NETCLASSES.items()}
+    wmax = float(os.environ.get("MAZE_WMAX", "0.8"))
 
     def w(net):
         for c, pat in tp.NETCLASS_PATTERNS:
             if fnmatch.fnmatchcase(net, pat):
-                return min(cls[c], 0.8)
+                return min(cls[c], wmax)
         return cls["Default"]
     return w
 
@@ -170,6 +177,11 @@ def build(b, widths):
                 for r0, c0, m in g.mask(item_poly(it, L, 0)):
                     g.isl[li, r0:r0 + m.shape[0], c0:c0 + m.shape[1]][m] = val
             for k, rad in radii.items():
+                # MAZE_SOFT_PLANES=1: a zone on In2 is a plane that refills
+                # around a via of another net, so it blocks In2 tracks only
+                if (k == ("v",) and SOFT_PLANES and L == pcbnew.In2_Cu
+                        and it.GetClass() == "ZONE"):
+                    continue
                 g.paint_owner(k, li, item_poly(it, L, rad), net)
     # NPTH holes (hole clearance) and the board edge block every net
     for fp in b.GetFootprints():

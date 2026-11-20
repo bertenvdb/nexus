@@ -10,7 +10,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F3 | Schematic Nexus Tools Board | ✅ Approved 2026-11-17 |
 | F4 | Schematic Nexus Docks Board | ✅ Approved 2026-11-17 |
 | F5 | Layout Nexus Tools Board | 🔍 Steps 1–3 approved (2026-11-20); step 4 (finishing) in review |
-| F6 | Layout Nexus Docks Board | 🔍 Step 2 (planes) in review |
+| F6 | Layout Nexus Docks Board | 🔍 Step 3 (routing) in review |
 | F7 | Production files and JLC quote | ⏳ |
 | F8 | Firmware and Klipper configuration | 🔍 Klipper config + macros (`klipper/`) in review; firmware settings, hardware tests open |
 
@@ -163,6 +163,15 @@ Same approach as F5, with **Nexus Docks Board** as the board name on the silkscr
 - In1 = solid GND plane (no AGND on the dock board). In2 = +24V_INT under the power input and 5 V buck, +24V_INT under the fan buck, FAN_RAIL under the fan grid with a band to JP_FRAIL / C_FRAIL / TP_FRAIL. The MCU escape ring stays free.
 - No outer-layer power polygons: at ≤ 3.3 A a ≥ 1.6 mm track suffices (calculations.md §2.2; net class POWER_IN raised from 1.5 to 1.6 mm), and on this placement an F.Cu polygon would enclose pads of other nets. The power tracks are laid in step 3; outer GND pours and the catch-diode thermal copper follow in step 4.
 - DRC: 0 errors; 2 × `isolated_copper` on the fan-buck +24V_INT plane (no via yet, resolved by stitching in step 3); unconnected items and silkscreen as expected before routing.
+
+**Step 3 (2026-11-20):** `scripts/pcbgen/dockboard_route.sh` builds the board from scratch (placement, planes, routing; about 10 minutes).
+- Placement corrections: the BOOT capacitors C_BOOT / C_FBOOT moved next to their buck's BOOT/SW pins (they were 10–14 mm away; C_FBOOT sits 1 mm inside the MCU ring). The fan grid moved 0.4 mm from the right edge (cell gap 0.8 mm) so the FAN_N tracks keep the edge clearance.
+- `dockboard_preroute.py` lays the high-current copper by design: VIN_RAW 1.6 mm track, +24V_IN polygon (fuse → RPP FET source, TVS, LM74502), +24V_INT polygon at the FET drain with 6 vias 0.8/0.4 to In2, compact SW-node polygons for both bucks (SW pin, catch diode, inductor, BOOT capacitor), catch-diode anodes on a GND polygon with 3 vias 0.8/0.4 each, fan-buck output to a B.Cu FAN_BUCK plane (3 vias at the inductor), rail jumper JP_FRAIL with 0.8/0.4 vias on all three pins (FAN_RAIL: 1.0 mm track + 2 vias), and the USB-C pin pairs (DM joined left, DP right of the pads) to the ESD array.
+- Planes: B.Cu FAN_BUCK plane under the fan buck, with a notch for the FB/COMP tracks; +24V_INT fan-buck plane reaches down to JP_FRAIL pin 1; FAN_RAIL plane has a tab to the JP_FRAIL pin 2 vias.
+- Then `stitch.py` (plane-net pads to their plane), negotiated routing of all other nets (feedback nets first), maze for the rest. Router changes: track widths from the board's own net classes (`MAZE_WMAX`, dock 0.8 mm), vias may pass through In2 power planes (`MAZE_SOFT_PLANES`), stitching onto a B.Cu plane (`STITCH_B_PLANE`), duplicate same-net vias merged in `cleanup.py`.
+- Result: 2,536 mm of track (F 1,732, B 517, In2 287), 350 vias, In1 an unbroken GND plane. USB D+/D− 40.8 / 41.7 mm, CANH/CANL 52.3 / 44.8 mm (uncritical at 12 Mbit/s and 1 Mbit/s).
+- DRC: 0 errors, 0 unconnected, schematic parity OK. Warnings: silkscreen only (step 4). ERC 0.
+- Known weak point: the fan buck's input capacitors (C_FIN1/2) sit about 12 mm from U_FBUCK VIN, so its input loop runs through the In2 +24V_INT plane. Acceptable for a 3 A buck on a solid GND plane; to verify on the prototype (switch-node ringing, rail ripple).
 
 ---
 

@@ -7,10 +7,12 @@
 For every SMD pad of a plane net whose copper island holds no zone, try via
 positions on rings around the pad and take the first one where the via and a
 short track from the pad clear all other-net copper (board clearance + 0.05
-mm) and the via lands inside a filled zone of that net on an inner layer.
+mm) and the via lands inside a filled zone of that net on an inner layer
+(or on B.Cu: the dock board's FAN_BUCK plane).
 Prints the pads it could not stitch.
 """
 import math
+import os
 import pathlib
 import sys
 
@@ -44,10 +46,12 @@ def main():
                 if p.GetNetCode() != netcode:
                     out.append(p)
         # zones on the inner layers refill around a new via; only outer-layer
-        # zones (trunk, heater band) block
+        # zones (trunk, heater band) block. STITCH_B_PLANE=1: a B.Cu zone is a
+        # plane that refills around vias too (dock board FAN_BUCK)
+        outer = (pcbnew.F_Cu,) if os.environ.get("STITCH_B_PLANE") else (pcbnew.F_Cu, pcbnew.B_Cu)
         for z in b.Zones():
             if (z.GetNetCode() != netcode and not z.GetIsRuleArea()
-                    and (z.IsOnLayer(pcbnew.F_Cu) or z.IsOnLayer(pcbnew.B_Cu))):
+                    and any(z.IsOnLayer(L) for L in outer)):
                 out.append(z)
         return out
 
@@ -74,7 +78,7 @@ def main():
         for z in b.Zones():
             if z.GetNetCode() != netcode:
                 continue
-            for L in (pcbnew.In1_Cu, pcbnew.In2_Cu):
+            for L in (pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu):
                 if z.IsOnLayer(L) and all(z.GetFilledPolysList(L).Contains(q) for q in pts):
                     return True
         return False

@@ -152,7 +152,7 @@ def main():
         pcb.place(ref, x0 - bx[0], y0 - bx[1], rot)
         return pcb.crt_box(pcb.fps[ref])
 
-    CG, FAN_GAP = 0.3, float(os.environ.get("DOCK_FANGAP", "1.0"))
+    CG, FAN_GAP = 0.3, float(os.environ.get("DOCK_FANGAP", "0.8"))
     def fan_cell(i, x0, y0):
         j = put(K[f"J_FAN{i}"], 0, x0, y0)
         q = put(K[f"Q_F{i}"], 0, x0, j[3] + CG)
@@ -163,7 +163,7 @@ def main():
                 max(b_[2] for b_ in bs), max(b_[3] for b_ in bs))
     c0 = fan_cell(0, 0, 0)
     cw, ch = c0[2] - c0[0], c0[3] - c0[1]
-    gx1 = W - 0.6
+    gx1 = W - 1.0                     # wide FAN_N tracks keep clear of the edge
     gx0 = gx1 - 3 * cw - 2 * FAN_GAP
     gy0 = (HOLE + 4.0 + H - HOLE - 4.0) / 2 - (3 * ch + 2 * FAN_GAP) / 2
     for i in range(9):
@@ -205,6 +205,34 @@ def main():
                  "D_LED5V", "D_LEDDIN")), W - 14, H - 10),
     ]
     pcb.place_blocks(blocks, (0.6, 0.6, W - 0.6, H - 0.6), obstacles, gap=0.6)
+
+    # BOOT capacitors next to their buck's BOOT/SW pins (the block packer put
+    # them 10-14 mm away; TI wants them at the IC). Nearest free spot by
+    # courtyard; for C_FBOOT that is 1 mm into the MCU ring on its right side.
+    boxes = lambda skip: [pcb.crt_box(pcb.fps[r_]) for r_ in pcb.placed if r_ != skip]
+    for cap, ic in (("C_BOOT", "U_BUCK"), ("C_FBOOT", "U_FBUCK")):
+        pads = [p_ for p_ in pcb.fps[K[ic]].Pads() if p_.GetNumber() in ("1", "8")]
+        tx = sum(pcbnew.ToMM(p_.GetPosition().x) for p_ in pads) / 2 - pcb.ox
+        ty = sum(pcbnew.ToMM(p_.GetPosition().y) for p_ in pads) / 2 - pcb.oy
+        obs = boxes(K[cap])
+        best = None
+        for rot in (0, 90):
+            for i in range(-120, 121):
+                for j in range(-120, 121):
+                    d = (i * i + j * j) ** 0.5 / 10
+                    if best and d >= best[0]:
+                        continue
+                    x, y = tx + i / 10, ty + j / 10
+                    pcb.place(K[cap], x, y, rot)
+                    c = pcb.crt_box(pcb.fps[K[cap]])
+                    if c[0] < 0.6 or c[1] < 0.6 or c[2] > W - 0.6 or c[3] > H - 0.6:
+                        continue
+                    if any(not (c[2] + 0.1 <= o[0] or o[2] + 0.1 <= c[0] or
+                                c[3] + 0.1 <= o[1] or o[3] + 0.1 <= c[1]) for o in obs):
+                        continue
+                    best = (d, x, y, rot)
+        pcb.place(K[cap], best[1], best[2], best[3])
+        print(f"{cap}: {best[0]:.1f} mm from the BOOT/SW pins")
 
     left = pcb.unplaced()
     if left:
