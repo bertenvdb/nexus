@@ -9,9 +9,9 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F2 | Pinout and mechanical constraints | ✅ Approved 2026-11-17 |
 | F3 | Schematic Nexus Tools Board | ✅ Approved 2026-11-17 |
 | F4 | Schematic Nexus Docks Board | ✅ Approved 2026-11-17 |
-| F5 | Layout Nexus Tools Board | 🔍 Steps 1–3 approved (2026-11-20); step 4 (finishing) in review |
-| F6 | Layout Nexus Docks Board | 🔍 Step 4 (finishing) in review |
-| F7 | Production files and JLC quote | ⏳ |
+| F5 | Layout Nexus Tools Board | ✅ approved 2026-11-20 |
+| F6 | Layout Nexus Docks Board | ✅ approved 2026-11-20 |
+| F7 | Production files and JLC quote | 🔍 Steps 1–3 done (2026-11-20); quote and placement preview by Berten |
 | F8 | Firmware and Klipper configuration | 🔍 Klipper config + macros (`klipper/`) in review; firmware settings, hardware tests open |
 
 ---
@@ -189,6 +189,11 @@ Same approach as F5, with **Nexus Docks Board** as the board name on the silkscr
 3. Check CPL rotations and document the corrections.
 4. **Berten** uploads the files to JLC for a quote and checks the placement preview. Update `design/30-cost-estimate.md` with the real figures.
 5. Tag `rev-A` in git.
+
+**Steps 1–3 (2026-11-20):** `scripts/fab.py <board>` (kicad-cli + script; KiKit is not needed) writes `fab/rev-A/<board>/`: Gerber zip, JLC BOM, JLC CPL, rotation list, hand-solder list. Order settings and the preview checklist: [`fab/rev-A/README.md`](../fab/rev-A/README.md).
+- Found and fixed: the paste layers (and Fab) were not enabled on either board (template), so no stencil data would have been made. Enabled on both boards and in `template_4layer.kicad_pcb`; DRC unchanged (tool board 12, dock board 8 intentional `lib_footprint_mismatch` warnings, 0 errors).
+- Stock checked on 2026-11-20 for all 57 JLC parts and the 12 hand-soldered LCSC parts: all in stock (≥ 3× the need for 5 + 5 boards).
+- Rotations: default table of kicad-jlcpcb-tools (`scripts/fab_rotations.csv`), plus two own entries by analogy (TI SO-PowerPAD-8, Infineon PG-TDSON-8). To be confirmed in the JLC placement preview (step 4).
 
 ---
 
