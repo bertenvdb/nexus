@@ -8,7 +8,8 @@ Writes fab/<REV>/<board>/:
   <board>-gerbers.zip     Gerbers (4 copper layers, paste, mask, silk, outline)
                           + Excellon drill (PTH and NPTH separate), for the PCB order
   <board>-bom-jlc.csv     JLC BOM: Comment, Designator, Footprint, LCSC Part #
-                          (only parts with Assembly = JLC, not DNP)
+                          (only parts with Assembly = JLC, not DNP; one line
+                          per LCSC part number and footprint)
   <board>-cpl-jlc.csv     JLC CPL: Designator, Mid X, Mid Y, Layer, Rotation
                           (same parts; rotation corrected, see below)
   <board>-handsolder.csv  parts with Assembly = SELF (and DNP), ordered from LCSC
@@ -19,8 +20,8 @@ Writes fab/<REV>/<board>/:
 CPL conventions as in kicad-jlcpcb-tools: position = centre of the bounding
 box of the soldered pads, X as is and Y negated (Gerber coordinates), board
 aux origin ignored (Gerbers are absolute too). Rotation = KiCad orientation +
-correction from scripts/fab_rotations.csv (regex on the footprint name, the
-longest match wins). The patterns come from the default rotation table of
+correction from scripts/fab_rotations.csv (a rule for the LCSC part number
+first, else a regex on the footprint name, the longest match wins). The patterns come from the default rotation table of
 JLCKicadTools (github.com/matthewlai/JLCKicadTools, cpl_rotations_db.csv),
 which kicad-jlcpcb-tools downloads; only those that can match our footprints
 are kept. All parts are on the top side.
@@ -47,13 +48,25 @@ def run(cmd):
 
 
 def rotations():
+    """Rows of scripts/fab_rotations.csv: a footprint-name regex, or "lcsc:C1234"
+    for one part number (JLC's own model orientation differs per part, even
+    for the same footprint)."""
     with open(ROOT / "scripts" / "fab_rotations.csv") as f:
-        return [(re.compile(r["Footprint pattern"]), int(r["Rotation"])) for r in csv.DictReader(f)]
+        rows = list(csv.DictReader(f))
+    by_lcsc = {r["Footprint pattern"][5:]: int(r["Rotation"]) for r in rows
+               if r["Footprint pattern"].startswith("lcsc:")}
+    by_fp = [(re.compile(r["Footprint pattern"]), int(r["Rotation"])) for r in rows
+             if not r["Footprint pattern"].startswith("lcsc:")]
+    return by_lcsc, by_fp
 
 
-def correction(table, name):
+def correction(table, name, lcsc):
+    """Part number rule first, then the longest matching footprint regex."""
+    by_lcsc, by_fp = table
+    if lcsc in by_lcsc:
+        return by_lcsc[lcsc], f"lcsc:{lcsc}"
     best = None
-    for rx, rot in table:
+    for rx, rot in by_fp:
         m = rx.match(name)
         if m and (best is None or len(m.group(0)) > best[0]):
             best = (len(m.group(0)), rot, rx.pattern)
@@ -94,24 +107,27 @@ def main():
             continue
         name = str(fp.GetFPID().GetLibItemName())
         key = (fl.get("Value", fp.GetValue()), name, fl.get("LCSC", ""), fl.get("MPN", ""))
+        val = key[0]
         asm = fl.get("Assembly", "")
         if asm == "JLC" and not fp.IsDNP():
             if not fl.get("LCSC"):
                 sys.exit(f"{ref}: Assembly = JLC but no LCSC number")
-            jlc[key].append(ref)
+            # one BOM line per part number: JLC sets duplicate lines of one
+            # part (LEDs with a value per function) to 0 and leaves them unticked
+            jlc[(fl["LCSC"], name, fl.get("MPN", ""))].append((ref, val))
             pads = [p for p in fp.Pads() if p.GetAttribute() in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_PTH)]
             bb = pads[0].GetBoundingBox()
             for p in pads[1:]:
                 bb.Merge(p.GetBoundingBox())
             c = bb.GetCenter()
-            rot, pat = correction(table, name)
+            rot, pat = correction(table, name, fl["LCSC"])
             used[(name, rot, pat)] += 1
             if fp.GetLayer() != pcbnew.F_Cu:
                 sys.exit(f"{ref} is on the bottom side: not handled")
             cpl.append((ref, pcbnew.ToMM(c.x), -pcbnew.ToMM(c.y), "Top",
                         (fp.GetOrientationDegrees() + rot) % 360))
         elif asm in ("SELF", "DNP") or fp.IsDNP():
-            self_[(fl.get("LCSC", ""), fl.get("MPN", ""), name, asm or "DNP")].append((ref, key[0]))
+            self_[(fl.get("LCSC", ""), fl.get("MPN", ""), name, asm or "DNP")].append((ref, val))
         else:
             sys.exit(f"{ref}: Assembly field '{asm}' is not JLC/SELF/DNP")
 
@@ -119,8 +135,10 @@ def main():
     with open(out / f"{board}-bom-jlc.csv", "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
-        for (val, name, lcsc, _), refs in sorted(jlc.items(), key=lambda kv: nat(sorted(kv[1], key=nat)[0])):
-            w.writerow([val, ",".join(sorted(refs, key=nat)), name, lcsc])
+        for (lcsc, name, mpn), items in sorted(jlc.items(), key=lambda kv: nat(min((r for r, _ in kv[1]), key=nat))):
+            vals = {v for _, v in items}
+            comment = vals.pop() if len(vals) == 1 else (mpn or lcsc)
+            w.writerow([comment, ",".join(sorted((r for r, _ in items), key=nat)), name, lcsc])
     with open(out / f"{board}-cpl-jlc.csv", "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"])

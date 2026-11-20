@@ -45,8 +45,8 @@ Close an item with date and result. If the result changes a design document, upd
 
 | # | Item | Source |
 |---|---|---|
-| 18 | JLC fee for "different designs" in one panel with PCBA | dock §8 |
-| 19 | Real JLC quote → update cost estimate | cost estimate |
+| 18 | JLC fee for "different designs" in one panel with PCBA | dock §8 — ✅ 2026-11-20: no panel; the two boards are separate JLC projects, each with its own setup and Extended fees |
+| 19 | Real JLC quote → update cost estimate | cost estimate — ✅ 2026-11-20: €177.63 (Tools Board) + €138.84 (Docks Board) for 5 + 5 without shipping, see design 30 |
 
 ## Outside the boards (later)
 
@@ -63,3 +63,4 @@ Close an item with date and result. If the result changes a design document, upd
 | 28 | Motion sensors in Klipper: link to the physical extruder and enable only the active tool's sensor (`SET_FILAMENT_SENSOR`) in the tool change macro | part 3 §2.3 | ✅ 2026-11-17: `extruder: extruder_stepper nexus_extruder` (a stepperless extruder reports position 0); only the mounted tool's sensor is enabled |
 | 29 | XT60 / XT30 polarity: the schematics had + on pin 1, the AMASS footprints (and the housing convention: square side +) have + on pin 2 | review F5 step 4 | ✅ 2026-11-20: both schematics now pin 2 = VIN_RAW, pin 1 = GND. Tool board: XT60 moved 7.2 mm down so pin 2 sits where the trunk starts; dock board: placement unchanged. Check the polarity of the PSU cable before the first power-up |
 | 30 | 3D models missing in the installed KiCad 10 library (render only): XT60PW-M, XT30PW-M, HRO TYPE-C-31-M-12 (USB-C), Molex Micro-Fit 43045-0400 horizontal (2026-11-20, dock board render) | F5/F6 step 4 | ⏳ cosmetic, no effect on production files |
+| 31 | Solder joint under the exposed pad of the TPS54360B (Tools Board U2; Docks Board U2 and U4): the 8 thermal vias in the pad are only "Plugged" (JLC standard, epoxy filled & capped ≈ €19 extra per board, not chosen). Check indirectly after the first delivery: buck output stable under load, IC not too hot. If poor: in rev B smaller or filled vias in the pad | F7 (Berten, 2026-11-20) | ⏳ first boards |

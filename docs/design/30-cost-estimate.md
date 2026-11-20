@@ -1,11 +1,33 @@
 # Nexus Tools Board — Prototype cost estimate (5 units)
 
+## JLC quote 2026-11-20 (replaces the estimate below)
+
+Quoted by Berten on jlcpcb.com from the rev A files (`fab/rev-A/`), 5 boards each, PCB + Economic PCBA top side, without shipping and VAT. Nothing ordered yet.
+
+| | Tools Board | Docks Board |
+|---|---|---|
+| PCB (4 layers, JLC04161H-7628, 1 oz, lead-free HASL, vias plugged) | €34.69 | €11.93 |
+| PCBA total | €142.94 | €126.91 |
+| – parts placed by JLC | €73.67 | €68.07 |
+| – Extended fees | €53.45 | €45.01 |
+| – setup, stencil, SMT, nitrogen | €15.82 | €13.82 |
+| **Total (5 boards)** | **€177.63** | **€138.84** |
+
+- Both boards together: **€316.47**, plus shipping (DHL quoted €21.30 for the bare PCBs; with assembly the parcel is heavier, ≈ 1.1 + 0.7 kg) and VAT, plus the hand-soldered parts from LCSC (`<board>-handsolder.csv`).
+- The Tools Board quote includes an engineering fee of €22.76.
+- Lead-free HASL costs €4.83 / €4.64 more than leaded HASL.
+- Via covering: "Tented" is no longer offered for 4 layers; "Plugged" is JLC's free standard. "Epoxy Filled & Capped" would add €19.63 / €18.76 (filling + mandatory horizontal electroless copper plating). Plugged chosen (open item 31).
+- The Extended fees are the largest single cost after the parts: about 31 % of the Tools Board order.
+
+The estimate below (2026-11-17, USD) is kept for reference.
+
+
 | | |
 |---|---|
 | **Date** | 2026-11-17 |
 | **Basis** | Architecture v1.6, detailed design part 1 v0.3, part 2 v0.4, part 3 v0.3 |
 | **Scope** | Nexus Tools Board only. Nexus Docks Board, cables, panel connectors and PSU are not included. |
-| **Status** | Estimate (±25 %). To be replaced by a real JLC quote once the BOM and Gerbers are ready. |
+| **Status** | Superseded by the JLC quote of 2026-11-20 (top of this document). |
 
 Amounts in USD, LCSC/JLC prices as of 2026-11-10.
 

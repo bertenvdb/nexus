@@ -20,7 +20,7 @@ Generated on 2026-11-20 by `scripts/fab.py toolboard` and `scripts/fab.py dockbo
 | Stackup | JLC04161H-7628 (standard) | inner copper 0.5 oz as in `docs/calculations.md` §2 |
 | Outer copper | 1 oz | open item 16: no 2 oz needed |
 | Min. via / hole | 0.3 mm drill / 0.6 mm pad (power vias 0.4 / 0.8) | within the standard 4-layer capability |
-| Via covering | Tented (default). The 8 thermal vias (0.3 mm) in the exposed pad of each TPS54360B are via-in-pad: if JLC offers "Epoxy Filled & Capped" at no or small extra cost, take it (no solder wicking); otherwise tented is acceptable | |
+| Via covering | **Plugged** (JLC standard for 4 layers; "Tented" is no longer offered). Deliberate choice: "Epoxy Filled & Capped" costs about €19 per board design (€19.63 / €18.76 on the 2026-11-20 quote). The 8 thermal vias (0.3 mm) in the exposed pad of each TPS54360B are via-in-pad; check that solder joint after the first delivery (open item 31) | |
 | Surface finish | HASL lead-free or ENIG | ENIG is flatter for the LQFP-64 and the 0.65 mm pitch parts; your choice on price |
 | Silkscreen / mask | any colour, white silk | |
 | Order number | "Specify a location" is not prepared (no `JLCJLCJLCJLC` text); choose "Remove order number" or accept JLC's position | |
@@ -35,17 +35,21 @@ Generated on 2026-11-20 by `scripts/fab.py toolboard` and `scripts/fab.py dockbo
 
 ## Check in the JLC placement preview
 
-The rotations come from the default correction table of kicad-jlcpcb-tools (JLCKicadTools, `scripts/fab_rotations.csv`). They are not verified for our parts. In the preview, check pin 1 / polarity of every part listed with a non-zero correction in `<board>-rotations.txt`, and in any case:
+The rotations come from the default correction table of kicad-jlcpcb-tools (JLCKicadTools), corrected after Berten's check of the JLC placement preview on 2026-11-20 (pin 1 compared with the position of pad 1 in the `.kicad_pcb`). `scripts/fab_rotations.csv` has a rule per LCSC part number where JLC's model orientation differs between parts with the same footprint.
 
-| Part | Correction | Watch |
-|---|---|---|
-| LQFP-64 (MCU) | +270 | pin 1 dot |
-| SOIC-8, SOIC-20W | +270 | pin 1 |
-| SOT-23, SOT-23-5, SOT-23-6 | −90 | the default table rule `^SOT-23` also catches the 5- and 6-pin variants: check those separately |
-| TSOT-23-8 (LM74502) | +180 | pin 1 |
-| TI SO-PowerPAD-8 (TPS54360B) | +270 | **own addition by analogy with SOIC**: check |
-| Infineon PG-TDSON-8 (BSC016N06NS) | +270 | **own addition by analogy with TDSON-8-1**: check |
-| USB-C HRO TYPE-C-31-M-12 | +180 | position as well: the CPL uses the centre of the pads, 1.46 mm from the footprint origin |
-| WSD4070DN (easyeda footprint), diodes, LEDs, electrolytic polarity | 0 | cathode / pin 1 side |
+| Part | Footprint | Correction | Preview 2026-11-20 |
+|---|---|---|---|
+| STM32G0B1 | LQFP-64 | +270 | OK |
+| SOIC-8, CD74HCT541 (SOIC-20W) | SOIC- | +270 | OK |
+| TPS54360B | TI SO-PowerPAD-8 | +270 (own, by analogy with SOIC) | OK |
+| BSC016N06NS | Infineon PG-TDSON-8 | +270 (own) | OK |
+| ME6211, USBLC6 | SOT-23-5, SOT-23-6 | −90 | OK |
+| **SN74AHCT1G125** C7484 | SOT-23-5 | **+180** (rule for the part number) | was −90: 90° off |
+| **BAT54S** C408389, **PESD2CAN** C907830 | SOT-23 | **+180** (`^SOT-23$`) | was −90: 90° off |
+| **LM74502** C3236215 | TSOT-23-8 | **+270** (rule for the part number) | was 180: 90° off |
+| **USB-C** HRO TYPE-C-31-M-12 | | **0** | was 180: pins at the board edge. Position (centre of the pads, 1.46 mm from the footprint origin) OK; the front overhangs the edge by ≈ 1 mm as the footprint intends |
+| WSD4070DN, diodes, LEDs | | 0 | OK |
 
-Write every correction that turns out wrong (and every one that was right) into `scripts/fab_rotations.csv` and this table, then regenerate.
+The bold corrections are derived from the rotation that fixed the part in the viewer (assuming JLC counts counter-clockwise like KiCad). **After uploading the regenerated files, check these five parts once more in the preview.**
+
+BOM: one line per LCSC part number. The LEDs have a value per function (`green 24V IN`, `red HEATER T0`, ...); as separate lines JLC set them to 0 pieces and left them unticked ("multiple lines matched to the same part").
