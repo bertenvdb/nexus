@@ -1,0 +1,11 @@
+(version 1)
+# SPDX-License-Identifier: CERN-OHL-S-2.0
+# Nexus Docks Board custom design rules (F6 step 4).
+
+# Hand-soldered THT GND pins (pin headers, JST-XH) next to routed tracks get
+# only one spoke into the outer-layer GND pour; they also connect through the
+# In1 GND plane and the other outer pour, so one spoke per outer layer is enough.
+(rule "THT GND pads: one pour spoke"
+  (layer outer)
+  (condition "A.Type == 'Pad' && A.Pad_Type == 'Through-hole' && A.NetName == 'GND'")
+  (constraint min_resolved_spokes 1))

@@ -142,6 +142,21 @@ def main():
         ps = pad(ref, num)
         if not ps or not ps[0].HitTest(P(*xy)):
             errors.append(f"track end {xy} not on {ref}.{num}")
+    # no track or via of ours may come near a pad of another net
+    for net, w, pts in TRACKS:
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            seg = pcbnew.SHAPE_SEGMENT(P(x0, y0), P(x1, y1), mm(w))
+            for f in fps.values():
+                for p_ in f.Pads():
+                    if (p_.GetNetname() != net and p_.IsOnLayer(pcbnew.F_Cu)
+                            and p_.GetEffectiveShape(pcbnew.F_Cu).Collide(seg, mm(0.15))):
+                        errors.append(f"{net} track {(x0, y0)}-{(x1, y1)} hits {f.GetReference()}.{p_.GetNumber()}")
+    for net, x, y, size, _ in VIAS:
+        c = pcbnew.SHAPE_CIRCLE(P(x, y), mm(size / 2))
+        for f in fps.values():
+            for p_ in f.Pads():
+                if p_.GetNetname() != net and p_.GetEffectiveShape(pcbnew.F_Cu).Collide(c, mm(0.15)):
+                    errors.append(f"{net} via {(x, y)} hits {f.GetReference()}.{p_.GetNumber()}")
     if errors:
         sys.exit("placement changed:\n  " + "\n  ".join(errors))
 

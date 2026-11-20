@@ -63,7 +63,7 @@ def main():
         z.SetNet(b.FindNet(net))
         z.SetLayer(layer)
         z.SetZoneName(name)
-        z.SetAssignedPriority(0)
+        z.SetAssignedPriority(0 if net == "GND" else 2)   # above the step 4 GND pours
         z.SetLocalClearance(mm(0.3))
         z.SetMinThickness(mm(0.25))
         z.SetPadConnection(pcbnew.ZONE_CONNECTION_THT_THERMAL)

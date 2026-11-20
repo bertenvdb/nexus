@@ -153,6 +153,7 @@ def main():
         return pcb.crt_box(pcb.fps[ref])
 
     CG, FAN_GAP = 0.3, float(os.environ.get("DOCK_FANGAP", "0.8"))
+    FAN_VGAP = float(os.environ.get("DOCK_FANVGAP", "2.1"))   # room for the FAN labels
     def fan_cell(i, x0, y0):
         j = put(K[f"J_FAN{i}"], 0, x0, y0)
         q = put(K[f"Q_F{i}"], 0, x0, j[3] + CG)
@@ -165,12 +166,13 @@ def main():
     cw, ch = c0[2] - c0[0], c0[3] - c0[1]
     gx1 = W - 1.0                     # wide FAN_N tracks keep clear of the edge
     gx0 = gx1 - 3 * cw - 2 * FAN_GAP
-    gy0 = (HOLE + 4.0 + H - HOLE - 4.0) / 2 - (3 * ch + 2 * FAN_GAP) / 2
+    gy0 = HOLE + 4.0 + 0.3            # right below the corner hole keep-out: the LED
+    #                                   connector block keeps its room bottom right
     for i in range(9):
-        fan_cell(i, gx0 + (i % 3) * (cw + FAN_GAP), gy0 + (i // 3) * (ch + FAN_GAP))
-    obstacles.append((gx0, gy0, gx1, gy0 + 3 * ch + 2 * FAN_GAP))
+        fan_cell(i, gx0 + (i % 3) * (cw + FAN_GAP), gy0 + (i // 3) * (ch + FAN_VGAP))
+    obstacles.append((gx0, gy0, gx1, gy0 + 3 * ch + 2 * FAN_VGAP))
     print(f"fan grid: cell {cw:.2f} x {ch:.2f} mm, grid x {gx0:.1f}..{gx1:.1f}, "
-          f"y {gy0:.1f}..{gy0 + 3 * ch + 2 * FAN_GAP:.1f}")
+          f"y {gy0:.1f}..{gy0 + 3 * ch + 2 * FAN_VGAP:.1f}")
 
     # ---- functional blocks, each packed compactly, then packed on the board
     B = pcb.block

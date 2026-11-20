@@ -23,6 +23,7 @@ import pcbnew
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 mm = pcbnew.FromMM
 O = 40.0                # board origin in KiCad coordinates
+BW, BH = 140.0, 90.0    # board size (dockboard_silk.py sets its own)
 EDGE_CLR = 0.35         # silk to board edge
 
 
@@ -78,11 +79,11 @@ PINS = {   # connector pin labels by net (suffix match)
 class Occ:
     """Silk keep-out map on a 0.1 mm grid (board coordinates, origin top-left)."""
 
-    def __init__(self, b, side=pcbnew.F_Cu):
+    def __init__(self, b, side=pcbnew.F_Cu, body_hard=False):
         import numpy as np
         silk, crt = (pcbnew.F_SilkS, pcbnew.F_CrtYd) if side == pcbnew.F_Cu else (pcbnew.B_SilkS, pcbnew.B_CrtYd)
         self.np = np
-        self.m = np.zeros((int(90 / G) + 1, int(140 / G) + 1), np.uint8)   # 1 hard, 2 courtyard
+        self.m = np.zeros((int(BH / G) + 1, int(BW / G) + 1), np.uint8)   # 1 hard, 2 courtyard
         e = int(0.5 / G)
         self.m[:e, :] = self.m[-e:, :] = 1
         self.m[:, :e] = self.m[:, -e:] = 1
@@ -95,6 +96,17 @@ class Occ:
                     self.box(g.GetBoundingBox(), 0.15, 1)
                 elif g.GetLayer() == crt:
                     self.box(g.GetBoundingBox(), 0.0, 2)
+            if body_hard:
+                # body_hard: the part body (F.Fab outline) is hard too; silk
+                # there ends up under the part or the mating plug
+                fab = pcbnew.F_Fab if side == pcbnew.F_Cu else pcbnew.B_Fab
+                bbs = [g.GetBoundingBox() for g in fp.GraphicalItems()
+                       if g.GetLayer() == fab and g.GetClass() not in ("PCB_TEXT", "PCB_FIELD")]
+                if bbs:
+                    bb = bbs[0]
+                    for x in bbs[1:]:
+                        bb.Merge(x)
+                    self.box(bb, -0.2, 1)
 
     def idx(self, x0, y0, x1, y1):
         ny, nx = self.m.shape
@@ -113,7 +125,7 @@ class Occ:
         sub[(sub == 0) | (v == 1)] = v
 
     def cost(self, x0, y0, x1, y1, crtyd_ok):
-        if x0 < 0 or y0 < 0 or x1 > 140 or y1 > 90:
+        if x0 < 0 or y0 < 0 or x1 > BW or y1 > BH:
             return None
         r0, r1, c0, c1 = self.idx(x0, y0, x1, y1)
         sub = self.m[r0:r1, c0:c1]
@@ -150,8 +162,8 @@ def place_block(b, occ, lines, near, back=False):
     W = max(i[3] for i in items) + 0.4
     H = sum(i[4] + 0.5 for i in items)
     best = None
-    for y in occ.np.arange(0.6, 90 - H, 0.25):
-        for x in occ.np.arange(0.6, 140 - W, 0.25):
+    for y in occ.np.arange(0.6, BH - H, 0.25):
+        for x in occ.np.arange(0.6, BW - W, 0.25):
             if occ.cost(x, y, x + W, y + H, False) is None:
                 continue
             d = (x + W / 2 - near[0]) ** 2 + (y + H / 2 - near[1]) ** 2

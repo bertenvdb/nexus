@@ -10,7 +10,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F3 | Schematic Nexus Tools Board | ✅ Approved 2026-11-17 |
 | F4 | Schematic Nexus Docks Board | ✅ Approved 2026-11-17 |
 | F5 | Layout Nexus Tools Board | 🔍 Steps 1–3 approved (2026-11-20); step 4 (finishing) in review |
-| F6 | Layout Nexus Docks Board | 🔍 Step 3 (routing) in review |
+| F6 | Layout Nexus Docks Board | 🔍 Step 4 (finishing) in review |
 | F7 | Production files and JLC quote | ⏳ |
 | F8 | Firmware and Klipper configuration | 🔍 Klipper config + macros (`klipper/`) in review; firmware settings, hardware tests open |
 
@@ -172,6 +172,13 @@ Same approach as F5, with **Nexus Docks Board** as the board name on the silkscr
 - Result: 2,536 mm of track (F 1,732, B 517, In2 287), 350 vias, In1 an unbroken GND plane. USB D+/D− 40.8 / 41.7 mm, CANH/CANL 52.3 / 44.8 mm (uncritical at 12 Mbit/s and 1 Mbit/s).
 - DRC: 0 errors, 0 unconnected, schematic parity OK. Warnings: silkscreen only (step 4). ERC 0.
 - Known weak point: the fan buck's input capacitors (C_FIN1/2) sit about 12 mm from U_FBUCK VIN, so its input loop runs through the In2 +24V_INT plane. Acceptable for a 3 A buck on a solid GND plane; to verify on the prototype (switch-node ringing, rail ripple).
+
+**Step 4 (2026-11-20):** part of `dockboard_route.sh` (the whole board, steps 1–4, from scratch in about 10 minutes).
+- Placement: the fan rows are 2.1 mm apart and the grid starts right below the top-right hole keep-out, so every fan port has its label above it and the LED connector block keeps its place bottom right. Routing redone on this placement; the preroute script now also checks that none of its tracks or vias touches a pad of another net.
+- GND pours (`pours.py`) on F.Cu, In2 and B.Cu below the power planes (power planes priority 2, scripted polygons 1, pours 0).
+- Silkscreen (`dockboard_silk.py`, reusing the toolboard helpers, which now take the board size and can keep text off part bodies and mating plugs): `− FANx +` above every fan port (− = pin 1 FANx_N, + = pin 2 FAN_RAIL), fan rail jumper warning "RAIL JP: 24V | RAIL | BUCK / open = no fan power" (no room at the jumper itself: it sits about 14 mm away, below the MCU), "5V JP: cut = 12V" for the FB jumper (about 7 mm away), pin labels at SWD / CAN IN / LED, connector names, a label at every diagnostic LED and test point, board name + revision on top, the full identity block (name, revision, license, repository) on the bottom (AD-14).
+- `dockboard/dockboard.kicad_dru`: THT GND pins next to routed tracks need only one spoke into an outer-layer pour (they also connect through the In1 plane and the other pour).
+- DRC: 0 errors, 0 unconnected, schematic parity OK. Warnings: 8 × `lib_footprint_mismatch` (D7–D11, J1, J3, J4: edge silk trimmed on purpose, as on the tool board). ERC 0. 3D renders `out/render/dock_3d_top.png` / `dock_3d_bottom.png` (XT30, USB-C and Micro-Fit models missing in the KiCad library, open item 30).
 
 ---
 

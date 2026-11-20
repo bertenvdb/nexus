@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Placement, planes and complete routing of the Nexus Docks Board (F6 steps
-# 1-3), from scratch. Overwrites dockboard/dockboard.kicad_pcb. About 10 minutes.
+# Placement, planes, complete routing, pours and silkscreen of the Nexus
+# Docks Board (F6 steps 1-4), from scratch. Overwrites dockboard/dockboard.kicad_pcb. About 10 minutes.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 q() { grep -v "Debug: Adding duplicate image handler" || true; }
@@ -30,6 +30,9 @@ python3 scripts/pcbgen/rip.py $B 43.0,44.4,44.0,45.2 +5V 2>&1 | q
 python3 scripts/pcbgen/cleanup.py $B 2>&1 | q
 MAZE_FONLY= MAZE_NETS=+5V python3 scripts/pcbgen/maze.py $B 2>&1 | q
 python3 scripts/pcbgen/cleanup.py $B 2>&1 | q
-# 7. checks
+# 7. finishing (F6 step 4): GND pours on F.Cu / In2 / B.Cu, silkscreen
+python3 scripts/pcbgen/pours.py $B 2>&1 | q
+python3 scripts/pcbgen/dockboard_silk.py 2>&1 | q
+# 8. checks
 kicad-cli pcb drc --severity-all --schematic-parity -o out/drc_dock.rpt "$PWD/$B/$B.kicad_pcb" > /dev/null || true
 grep -o '^\[[a-z_]*\]' out/drc_dock.rpt | sort | uniq -c | sort -rn
