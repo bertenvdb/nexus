@@ -13,11 +13,16 @@ of the same package to a copy of each board in out/ and renders that copy with
 KiCad's raytracer. The boards themselves and the production files are not
 touched.
 
-Model placement: the EasyEDA model sits on the EasyEDA footprint; our boards
-use the KiCad library footprint. The rotation (multiple of 90 degrees) and
+Models: the VRML exports of easyeda2kicad (gzipped, .wrz); its STEP exports
+have a different origin and do not fit. In the XT30 export every material had
+"transparency 1.0" (fully transparent in KiCad): set to 0.0. Model placement: the EasyEDA model
+sits on the EasyEDA footprint; our boards use the KiCad library footprint. The rotation (multiple of 90 degrees) and
 offset that map the EasyEDA pads onto the KiCad pads (all common pads, 0.000 mm
 error) are applied to the model: footprint-local offset (x, y) with y down,
-written as KiCad model offset (x, -y), model rotation z = EasyEDA rz - angle.
+written as KiCad model offset (x, -y), model rotation z = EasyEDA rz + angle
+(checked on the XT60, the only connector turned by 90 degrees).
+Checked by putting every model part below the board surface (pins, pegs,
+shell legs) into a drilled hole of the footprint.
 """
 import argparse
 import pathlib
@@ -30,12 +35,14 @@ MODELS = ROOT / "lib" / "nexus.3dshapes"
 
 # KiCad footprint name: (model file, angle (y-down, clockwise), tx, ty, EasyEDA rz)
 FIXES = {
-    "AMASS_XT60PW-M_1x02_P7.20mm_Horizontal": ("CONN-TH_XT60PW-M.stpZ", 90, 3.6, -3.0, 0),
-    "AMASS_XT30PW-M_1x02_P2.50mm_Horizontal": ("CONN-TH_XT30PW-M.stpZ", 180, -2.5, -5.0, 0),
-    "USB_C_Receptacle_HRO_TYPE-C-31-M-12": ("USB-C_SMD-TYPE-C-31-M-12_1.stpZ", 0, 0.0, -1.575, 180),
-    "Molex_Micro-Fit_3.0_43045-0400_2x02_P3.00mm_Horizontal": ("CONN-TH_0430450400.stpZ", 180, 1.5, 1.5, 0),
-    "Infineon_PG-TDSON-8_6.15x5.15mm": ("PG-TDSON-8-FL_L5.0-W6.0-H1.0-P1.27-LS6.2-BL.stpZ", 90, -0.01, 0.0, 0),
-    "SW_Push_1P1T_XKB_TS-1187A": ("SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.stpZ", 0, 0.0, 0.0, 0),
+    "AMASS_XT60PW-M_1x02_P7.20mm_Horizontal": ("CONN-TH_XT60PW-M.wrz", 90, 3.6, -3.0, 0),
+    "AMASS_XT30PW-M_1x02_P2.50mm_Horizontal": ("CONN-TH_XT30PW-M.wrz", 180, -2.5, -5.0, 0),
+    # USB-C: the pads fit at ty -1.575, but the EasyEDA model sits 2.37 mm off its
+    # own footprint; ty from the shell legs in their slots (0.01 mm)
+    "USB_C_Receptacle_HRO_TYPE-C-31-M-12": ("USB-C_SMD-TYPE-C-31-M-12_1.wrz", 0, 0.0, 0.795, 180),
+    "Molex_Micro-Fit_3.0_43045-0400_2x02_P3.00mm_Horizontal": ("CONN-TH_0430450400.wrz", 180, 1.5, 1.5, 0),
+    "Infineon_PG-TDSON-8_6.15x5.15mm": ("PG-TDSON-8-FL_L5.0-W6.0-H1.0-P1.27-LS6.2-BL.wrz", 90, -0.01, 0.0, 0),
+    "SW_Push_1P1T_XKB_TS-1187A": ("SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrz", 0, 0.0, 0.0, 0),
     # same package in the KiCad library under another name
     "TI_SO-PowerPAD-8_ThermalVias": ("/usr/share/kicad/3dmodels/Package_SO.3dshapes/TI_SO-PowerPAD-8.step", 0, 0.0, 0.0, 0),
 }
@@ -71,7 +78,7 @@ def with_models(board):
         m = pcbnew.FP_3DMODEL()
         m.m_Filename = str(MODELS / name)       # absolute names stay as they are
         m.m_Offset = pcbnew.VECTOR3D(tx, -ty, 0.0)
-        m.m_Rotation = pcbnew.VECTOR3D(0.0, 0.0, (rz - angle) % 360)
+        m.m_Rotation = pcbnew.VECTOR3D(0.0, 0.0, (rz + angle) % 360)   # KiCad: +z turns clockwise in the footprint view
         m.m_Scale = pcbnew.VECTOR3D(1.0, 1.0, 1.0)
         models.push_back(m)
         n += 1
