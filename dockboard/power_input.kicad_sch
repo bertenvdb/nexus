@@ -2099,7 +2099,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "XT30 male on the board. Input fuse 5 A 1206 (same part as the tool board channel fuse).\nReverse polarity: one BSC016N06NS with its SOURCE at the input (design 20 §4).\nPower-up: body diode conducts, LM74502 then turns the FET on (Rds 1.6 mOhm).\nReverse polarity: body diode blocks, GATE held at SRC. EN tied to VS (always on), OV to GND.\nBulk electrolytic after the protection, so it never sees reverse voltage."
+	(text "XT30 male on the board. Input fuse 5 A 1206 (same part as the tool board channel fuse).\nXT30PW-M: pin 2 = +, pin 1 = - as marked in the KiCad footprint (fixed 2026-11-20).\nReverse polarity: one BSC016N06NS with its SOURCE at the input (design 20 §4).\nPower-up: body diode conducts, LM74502 then turns the FET on (Rds 1.6 mOhm).\nReverse polarity: body diode blocks, GATE held at SRC. EN tied to VS (always on), OV to GND.\nBulk electrolytic after the protection, so it never sees reverse voltage."
 		(exclude_from_sim no)
 		(at 38.1 167.64 0)
 		(effects
@@ -2108,7 +2108,7 @@
 			)
 			(justify left)
 		)
-		(uuid "9e67dab1-e195-55ab-951c-5cdbd74be64a")
+		(uuid "ee4a9dcc-e6f0-5309-a3d4-cb0ff70b9792")
 	)
 	(no_connect
 		(at 138.43 102.87)
@@ -2464,16 +2464,6 @@
 		)
 		(uuid "31d5865a-0856-5a1e-98e9-88a2dd53ad5c")
 	)
-	(label "VIN_RAW"
-		(at 58.42 101.6 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4087acf2-bf08-5bb5-af23-c91765b70019")
-	)
 	(label "RPP_GATE"
 		(at 171.45 102.87 0)
 		(effects
@@ -2483,6 +2473,16 @@
 			(justify left bottom)
 		)
 		(uuid "48bcd021-3103-5875-9d4d-e7842bb60cbe")
+	)
+	(label "VIN_RAW"
+		(at 58.42 99.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bdc83d29-96cd-5046-82cc-9f0be7644876")
 	)
 	(label "RPP_VCAP"
 		(at 127 135.89 90)
@@ -3558,6 +3558,82 @@
 			(project "dockboard"
 				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43/5c4211d5-e9f0-5b67-896d-684cc22b081b"
 					(reference "#PWR006")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 58.42 101.6 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "4087acf2-bf08-5bb5-af23-c91765b70019")
+		(property "Reference" "#PWR001"
+			(at 58.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 58.42 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 58.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 101.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "83ac0b7e-a1e2-5ce9-9212-3b82aa054506")
+		)
+		(instances
+			(project "dockboard"
+				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43/5c4211d5-e9f0-5b67-896d-684cc22b081b"
+					(reference "#PWR001")
 					(unit 1)
 				)
 			)
@@ -5086,82 +5162,6 @@
 			(project "dockboard"
 				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43/5c4211d5-e9f0-5b67-896d-684cc22b081b"
 					(reference "#FLG2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 58.42 99.06 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "bdc83d29-96cd-5046-82cc-9f0be7644876")
-		(property "Reference" "#PWR001"
-			(at 58.42 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 58.42 102.87 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 58.42 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 58.42 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 58.42 99.06 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "d5b747af-f9e8-538e-8422-ce507997346e")
-		)
-		(instances
-			(project "dockboard"
-				(path "/fe2c2859-29c9-5f53-b840-2faf918bce43/5c4211d5-e9f0-5b67-896d-684cc22b081b"
-					(reference "#PWR001")
 					(unit 1)
 				)
 			)

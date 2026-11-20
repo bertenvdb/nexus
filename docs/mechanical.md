@@ -76,7 +76,7 @@ Connector widths (incl. 1 mm gap): screw terminal 5.08 mm 2-pole 10.2 mm, JST-XH
              power trunk: XT60 → fuse → cutoff → split  (bottom-left corner, ≤ 40 mm)
 ```
 
-- **Left edge:** XT60 (bottom), CAN IN, CAN OUT, USB-C, all 1.0 mm overhang (M5).
+- **Left edge:** XT60 (bottom), CAN IN, CAN OUT, USB-C, all 1.0 mm overhang (M5). XT60 pin 2 (+) at y 62.5 mm, pin 1 (−) at y 69.7 mm from the top edge (moved down 7.2 mm on 2026-11-20 when the pin mapping was corrected, so the trunk start stayed in place).
 - **Bottom edge:** 8 heater screw terminals. Directly behind them the row of channel fuses and MOSFETs (CLAUDE.md §6.1). The trunk starts at the XT60 in the bottom-left corner and stays ≤ 40 mm.
 - **Top edge:** 8 filament connectors.
 - **Right edge:** 8 thermistor connectors, LED port, SWD header.

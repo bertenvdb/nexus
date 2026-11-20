@@ -99,7 +99,7 @@ def zones(pcb):
            (105.5 - g, 81.0 + g), (W, 81.0 + g), (W, H), (0, H)]
     pcb.zone("GND", I1, gnd, priority=0, name="GND plane")
     pcb.zone("AGND", I1, island, priority=1, name="AGND island")
-    # trunk: VIN_RAW (XT60 + -> fuse pad 1)
+    # trunk: VIN_RAW (XT60 pin 2 (+) -> fuse pad 1)
     for L in (F, I2, B):
         pcb.zone("/power_input/VIN_RAW", L, rect(12.5, 59.6, 23.4, 65.2), priority=2)
     for x, y in [(18.6, 61.0), (18.6, 63.6), (20.0, 64.65), (21.3, 64.65), (22.6, 64.65)]:
@@ -146,7 +146,8 @@ def main():
     pcb.edge(K["J_USB"], "left", 15.0, OVERHANG, rot=270)
     pcb.edge(K["J_CAN_IN"], "left", 31.5, OVERHANG, rot=90)
     pcb.edge(K["J_CAN_OUT"], "left", 44.5, OVERHANG, rot=90)
-    pcb.edge(K["J_XT60"], "left", 62.5, OVERHANG, rot=90)
+    # XT60 pin 2 (+) at y 62.5 (trunk start), pin 1 (-) 7.2 mm lower (fixed 2026-11-20)
+    pcb.edge(K["J_XT60"], "left", 69.7, OVERHANG, rot=90)
 
     # ---- bottom edge: heater terminals; per channel fixed positions:
     #      fuse under the heater rail band (pad 1 up), MOSFET above the
@@ -194,7 +195,7 @@ def main():
         pcb.place(K[f"C_RAIL{i + 1}"], x, 61.6, rot=270)
     pcb.pack(r("C_BULK2", "R_RS_TOP", "R_RS_BOT", "R_RS_SER", "C_RS", "D_RS", "TP_RS"),
              (91.5, 46.8, 108.0, 58.4), gap=0.3)
-    pcb.pack(r("TP_GATE0", "TP_DRAIN0"), (9.5, 74.0, 17.5, 78.0), gap=0.6)
+    pcb.pack(r("TP_GATE0", "TP_DRAIN0"), (9.6, 75.6, 17.5, 79.4), gap=0.6)   # below the XT60
 
     # ---- logic area: 5 V buck, LDOs + VREF, MCU with support, gate buffer.
     #      Regions per layout variant (VARIANTS, env TB_VARIANT).

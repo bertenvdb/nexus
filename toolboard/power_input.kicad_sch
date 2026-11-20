@@ -1171,7 +1171,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(text "XT60 male on the board (PSU cable carries the female plug).\nMain fuse 25 A very fast, hand-soldered, not user-replaceable\n(last safety net, design 11 §3).\nSMBJ30CA bidirectional: does not conduct on reverse polarity.\nNo electrolytic here: it would see reverse polarity.\nBulk electrolytics sit on +24V_HEATER, after the cutoff."
+	(text "XT60 male on the board (PSU cable carries the female plug).\nXT60PW-M: pin 2 = + (square side), pin 1 = - (chamfered side),\nas marked in the KiCad footprint (fixed 2026-11-20).\nMain fuse 25 A very fast, hand-soldered, not user-replaceable\n(last safety net, design 11 §3).\nSMBJ30CA bidirectional: does not conduct on reverse polarity.\nNo electrolytic here: it would see reverse polarity.\nBulk electrolytics sit on +24V_HEATER, after the cutoff."
 		(exclude_from_sim no)
 		(at 40.64 139.7 0)
 		(effects
@@ -1180,7 +1180,7 @@
 			)
 			(justify left)
 		)
-		(uuid "152f4a06-1667-543a-87fa-5a68d0dea48e")
+		(uuid "b1723b59-4282-5123-8e9d-d9ac347df507")
 	)
 	(wire
 		(pts
@@ -1323,16 +1323,6 @@
 		(uuid "cf6d41a3-14be-5f9e-a5ed-6cf62ac087fe")
 	)
 	(label "VIN_RAW"
-		(at 58.42 101.6 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "2ef9532e-a2f9-5ac8-9856-78689512768d")
-	)
-	(label "VIN_RAW"
 		(at 88.9 95.25 90)
 		(effects
 			(font
@@ -1341,6 +1331,16 @@
 			(justify left bottom)
 		)
 		(uuid "65963ca1-3be8-5064-b040-ba6876d5286c")
+	)
+	(label "VIN_RAW"
+		(at 58.42 99.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f465f30c-de06-5f2e-b3ad-6c27dc50ca41")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -1898,6 +1898,82 @@
 			(project "toolboard"
 				(path "/8a492e96-74d8-5252-9590-c50d18db9797/bbca04f6-82ab-555e-ac9a-4941c65cdd31"
 					(reference "#PWR011")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 58.42 101.6 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "2ef9532e-a2f9-5ac8-9856-78689512768d")
+		(property "Reference" "#PWR001"
+			(at 58.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 58.42 105.41 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 58.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 101.6 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "722445ed-0bee-5485-9b1b-9618a8af4d11")
+		)
+		(instances
+			(project "toolboard"
+				(path "/8a492e96-74d8-5252-9590-c50d18db9797/bbca04f6-82ab-555e-ac9a-4941c65cdd31"
+					(reference "#PWR001")
 					(unit 1)
 				)
 			)
@@ -3169,82 +3245,6 @@
 			(project "toolboard"
 				(path "/8a492e96-74d8-5252-9590-c50d18db9797/bbca04f6-82ab-555e-ac9a-4941c65cdd31"
 					(reference "#PWR009")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 58.42 99.06 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "f465f30c-de06-5f2e-b3ad-6c27dc50ca41")
-		(property "Reference" "#PWR001"
-			(at 58.42 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GND"
-			(at 58.42 102.87 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 58.42 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 58.42 99.06 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" ""
-			(at 58.42 99.06 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "509209d4-f705-53b0-8d70-471a9bd9f3ac")
-		)
-		(instances
-			(project "toolboard"
-				(path "/8a492e96-74d8-5252-9590-c50d18db9797/bbca04f6-82ab-555e-ac9a-4941c65cdd31"
-					(reference "#PWR001")
 					(unit 1)
 				)
 			)

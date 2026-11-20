@@ -13,7 +13,7 @@ POWER_NETS = {"+24V_IN", "+24V_HEATER", "+5V", "+3V3_MCU", "+3V3_AUX",
 
 def power_input(b):
     s = b.sheet("power_input", "24V input: XT60, main fuse, TVS")
-    place(s, "J_XT60", "XT60", (50.8, 101.6), {"1": "VIN_RAW", "2": "GND"}, rot=180)
+    place(s, "J_XT60", "XT60", (50.8, 101.6), {"1": "GND", "2": "VIN_RAW"}, rot=180)
     two(s, "F_MAIN", "FUSE25", 88.9, 101.6, "VIN_RAW", "+24V_IN")
     two(s, "D_TVS", "SMBJ30CA", 116.84, 101.6, "+24V_IN", "GND")
     two(s, "C_IN1", "C10u50", 139.7, 101.6, "+24V_IN", "GND")
@@ -23,6 +23,8 @@ def power_input(b):
     place(s, "FLG_24VIN", "FLAG", (210.82, 96.52), {"1": "+24V_IN"})
     place(s, "FLG_GND", "FLAG", (226.06, 96.52), {"1": "GND"})
     s.text("XT60 male on the board (PSU cable carries the female plug).\n"
+           "XT60PW-M: pin 2 = + (square side), pin 1 = - (chamfered side),\n"
+           "as marked in the KiCad footprint (fixed 2026-11-20).\n"
            "Main fuse 25 A very fast, hand-soldered, not user-replaceable\n"
            "(last safety net, design 11 §3).\n"
            "SMBJ30CA bidirectional: does not conduct on reverse polarity.\n"

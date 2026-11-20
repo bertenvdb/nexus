@@ -15,7 +15,7 @@ V33 = "+3V3"
 
 def power_input(b):
     s = b.sheet("power_input", "24V input: XT30, 5 A fuse, TVS, reverse polarity (LM74502 + 1 FET)")
-    place(s, "J_XT30", "XT30", (50.8, 101.6), {"1": "VIN_RAW", "2": "GND"}, rot=180)
+    place(s, "J_XT30", "XT30", (50.8, 101.6), {"1": "GND", "2": "VIN_RAW"}, rot=180)
     two(s, "F_IN", "FUSE5", 81.28, 101.6, "VIN_RAW", "+24V_IN")
     two(s, "D_TVS", "SMBJ30CA", 101.6, 101.6, "+24V_IN", "GND")
     place(s, "FLG_24VIN", "FLAG", (101.6, 78.74), {"1": "+24V_IN"})
@@ -36,6 +36,7 @@ def power_input(b):
     place(s, "TP_GND", "TP_S", (312.42, 93.98), {"1": "GND"})
     place(s, "FLG_24VINT", "FLAG", (327.66, 93.98), {"1": "+24V_INT"})
     s.text("XT30 male on the board. Input fuse 5 A 1206 (same part as the tool board channel fuse).\n"
+           "XT30PW-M: pin 2 = +, pin 1 = - as marked in the KiCad footprint (fixed 2026-11-20).\n"
            "Reverse polarity: one BSC016N06NS with its SOURCE at the input (design 20 §4).\n"
            "Power-up: body diode conducts, LM74502 then turns the FET on (Rds 1.6 mOhm).\n"
            "Reverse polarity: body diode blocks, GATE held at SRC. EN tied to VS (always on), OV to GND.\n"
