@@ -286,7 +286,7 @@
       <article class="board">
         <figure>
           <img src="img/toolboard-3d-top.png" alt="3D render of the Nexus Tools Board, top side" loading="lazy">
-          <figcaption>Preliminary KiCad render — layout not final</figcaption>
+          <figcaption>KiCad render of the Rev A layout — not built or tested yet</figcaption>
         </figure>
         <div class="body">
           <span class="tag">Tools</span>
@@ -305,7 +305,7 @@
       <article class="board">
         <figure>
           <img src="img/dockboard-3d-top.png" alt="3D render of the Nexus Docks Board, top side" loading="lazy">
-          <figcaption>Preliminary KiCad render — layout not final</figcaption>
+          <figcaption>KiCad render of the Rev A layout — not built or tested yet</figcaption>
         </figure>
         <div class="body">
           <span class="tag">Docks</span>
@@ -334,7 +334,7 @@
       <div class="feat"><div class="ico">02 / SELF-TEST</div><h4>Proven at every start</h4><p>A voltage measurement on the heater rail checks at every startup that the cutoff actually switches.</p></div>
       <div class="feat"><div class="ico">03 / LEDS</div><h4>See what the MOSFET does</h4><p>Each heater channel has an LED that shows what the MOSFET is really doing, not what the software thinks it is doing.</p></div>
       <div class="feat"><div class="ico">04 / CLOGS</div><h4>Clog detection per tool</h4><p>Runout and motion input on every filament port. Use a simple D2F switch, or a motion sensor that notices a clogged nozzle or a slipping extruder.</p></div>
-      <div class="feat"><div class="ico">05 / CONFIG</div><h4>Simple Klipper setup</h4><p>Connect over USB-C or CAN, add a short config file per tool, and Klipper sees eight full hotends. Disable a tool by commenting out one line.</p></div>
+      <div class="feat"><div class="ico">05 / CONFIG</div><h4>Simple Klipper setup</h4><p>Connect over USB-C or CAN, and use the ready-made config and macros for YUDX: one block per tool, and Klipper sees eight full hotends. Disable a tool by commenting out its block.</p></div>
       <div class="feat"><div class="ico">06 / OPEN</div><h4>Fully open source</h4><p>KiCad files, BOM with LCSC numbers, production files for JLCPCB and the Klipper config are all in the repository.</p></div>
     </div>
 
@@ -371,10 +371,11 @@
       <p><strong>Mandatory:</strong></p>
       <ol>
         <li>Klipper's <code>verify_heater</code> active, with sensible <code>max_temp</code> values.</li>
-        <li>Keep the cutoff startup self-test enabled. Do not print if it fails.</li>
-        <li>Run the commissioning macro after every (re)wiring: it checks that each heater heats the correct thermistor.</li>
+        <li>Keep the cutoff startup self-test enabled (<code>NEXUS_SELFTEST</code>, runs at every Klipper start). Do not print if it fails; call <code>NEXUS_PRINT_START</code> in your <code>PRINT_START</code> so a print cannot start without it.</li>
+        <li>Run the commissioning macro <code>NEXUS_COMMISSION</code> after every (re)wiring: it checks that each heater heats the correct thermistor.</li>
         <li>Never print unattended until the whole setup has proven itself over multiple prints.</li>
         <li>One PSU, or PSUs with a common negative.</li>
+        <li>Check the power cable polarity before you plug in: on the board connector (XT60 on the Tools Board, XT30 on the Docks Board) <strong>+ is pin 2</strong>, marked <strong>+</strong> on the silkscreen. Wire your plug to match.</li>
       </ol>
       <p style="margin-bottom:0">The design is provided "as is", without warranty of any kind. <strong>You build and use it entirely at your own risk.</strong> See the disclaimers in the licenses.</p>
     </div>
@@ -383,9 +384,9 @@
 
 <section id="specs" class="alt">
   <div class="wrap">
-    <div class="eyebrow">Draft specifications · design v1.6</div>
+    <div class="eyebrow">Draft specifications · design v1.7</div>
     <h2>Specifications</h2>
-    <p class="sub">Preliminary. Dimensions and mounting holes are not fixed yet.</p>
+    <p class="sub">Preliminary: the Rev A layout is done, but no board has been built or tested yet.</p>
 
     <details open>
       <summary>General</summary>
@@ -393,8 +394,9 @@
         <tr><td>Microcontroller</td><td>STM32G0B1RBT6 (Arm Cortex-M0+, 64 MHz, 128 KB flash)</td></tr>
         <tr><td>Firmware</td><td>Klipper, with Katapult bootloader for updates over USB or CAN</td></tr>
         <tr><td>Host connection</td><td>USB-C (USB 2.0) and/or CAN 1 Mbit/s, USB-CAN bridge supported</td></tr>
-        <tr><td>PCB</td><td>4 layers (Tools Board)</td></tr>
-        <tr><td>Dimensions</td><td><em>To be determined</em></td></tr>
+        <tr><td>PCB</td><td>4 layers, both boards</td></tr>
+        <tr><td>Dimensions</td><td>Tools Board 140 × 90 mm · Docks Board 88 × 62 mm</td></tr>
+        <tr><td>Mounting</td><td>4 × M3 in the corners, non-plated (no ground path through the frame)</td></tr>
       </table></div>
     </details>
     <details>
@@ -472,11 +474,11 @@
     <h2>Project status</h2>
     <p class="sub">Nothing has been ordered or built yet. Follow progress in the <a href="https://github.com/bertenvdb/nexus/blob/main/docs/README.md">documentation</a>.</p>
     <div class="status">
-      <div class="step done"><div class="s">✓ DONE</div><p>Concept architecture (v1.6)</p></div>
-      <div class="step done"><div class="s">✓ DONE</div><p>Component selection, both boards</p></div>
-      <div class="step wip"><div class="s">● IN PROGRESS</div><p>Cost estimate (no JLC quote yet)</p></div>
-      <div class="step wip"><div class="s">● IN PROGRESS</div><p>KiCad implementation: schematics, placement and routing</p></div>
-      <div class="step todo"><div class="s">○ TODO</div><p>Klipper config and safety macros, prototype order, bring-up and testing</p></div>
+      <div class="step done"><div class="s">✓ DONE</div><p>Concept architecture (v1.7) and component selection</p></div>
+      <div class="step done"><div class="s">✓ DONE</div><p>KiCad schematics and layout (Rev A), both boards</p></div>
+      <div class="step wip"><div class="s">● IN PROGRESS</div><p>Production files and JLC quote</p></div>
+      <div class="step wip"><div class="s">● IN PROGRESS</div><p>Klipper config and safety macros (in review)</p></div>
+      <div class="step todo"><div class="s">○ TODO</div><p>Prototype order, bring-up and testing</p></div>
     </div>
   </div>
 </section>
