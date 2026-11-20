@@ -11,7 +11,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F4 | Schematic Nexus Docks Board | ✅ Approved 2026-11-17 |
 | F5 | Layout Nexus Tools Board | ✅ approved 2026-11-20 |
 | F6 | Layout Nexus Docks Board | ✅ approved 2026-11-20 |
-| F7 | Production files and JLC quote | 🔍 Quote done (2026-11-20); corrected files to check once more in the preview, then tag `rev-A` |
+| F7 | Production files and JLC quote | ✅ 2026-11-20, tag `rev-A` |
 | F8 | Firmware and Klipper configuration | 🔍 Klipper config + macros (`klipper/`) in review; firmware settings, hardware tests open |
 
 ---
@@ -196,6 +196,8 @@ Same approach as F5, with **Nexus Docks Board** as the board name on the silkscr
 - Rotations: default table of kicad-jlcpcb-tools (`scripts/fab_rotations.csv`), plus two own entries by analogy (TI SO-PowerPAD-8, Infineon PG-TDSON-8). To be confirmed in the JLC placement preview (step 4).
 
 **Step 4 (2026-11-20, Berten):** quote €177.63 (Tools Board) + €138.84 (Docks Board) for 5 + 5, without shipping (design 30). Placement preview: 5 part types were 90° or 180° off (SN74AHCT1G125, BAT54S, PESD2CAN, LM74502, USB-C); `fab.py` now takes a correction per LCSC part number and the files are regenerated. The LEDs now share one BOM line per part number. Via covering Plugged (open item 31). Remaining: check the five corrected parts once more in the preview with the regenerated files, then step 5 (tag).
+
+**Step 5 (2026-11-20):** Berten checked the regenerated files in the JLC placement preview: all parts correct. Tagged `rev-A`. Ordering is up to Berten.
 
 ---
 

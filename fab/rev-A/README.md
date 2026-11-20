@@ -50,6 +50,6 @@ The rotations come from the default correction table of kicad-jlcpcb-tools (JLCK
 | **USB-C** HRO TYPE-C-31-M-12 | | **0** | was 180: pins at the board edge. Position (centre of the pads, 1.46 mm from the footprint origin) OK; the front overhangs the edge by ≈ 1 mm as the footprint intends |
 | WSD4070DN, diodes, LEDs | | 0 | OK |
 
-The bold corrections are derived from the rotation that fixed the part in the viewer (assuming JLC counts counter-clockwise like KiCad). **After uploading the regenerated files, check these five parts once more in the preview.**
+The bold corrections are derived from the rotation that fixed the part in the viewer (assuming JLC counts counter-clockwise like KiCad). Checked once more with the regenerated files on 2026-11-20: all correct.
 
 BOM: one line per LCSC part number. The LEDs have a value per function (`green 24V IN`, `red HEATER T0`, ...); as separate lines JLC set them to 0 pieces and left them unticked ("multiple lines matched to the same part").
