@@ -36,7 +36,7 @@ EDGE = 0.55                  # copper to board edge (rule 0.5), mm
 VIA, DRILL = 0.6, 0.3
 VIA_COST = 25                # in grid steps
 MAX_EXPAND = 2_000_000
-SKIP = {"+24V_IN", "+24V_HEATER", "/power_input/VIN_RAW", "/heater_cutoff/CUTOFF_SRC"}
+SKIP = {n for n in os.environ.get("MAZE_SKIP", "+24V_IN,+24V_HEATER,/power_input/VIN_RAW,/heater_cutoff/CUTOFF_SRC").split(",") if n}
 LAYERS = [pcbnew.F_Cu, pcbnew.In2_Cu, pcbnew.B_Cu]
 LAYER_COST = [1.0, 1.15, 1.3]
 # preferred direction per layer (classic two-direction routing): moves against
@@ -45,7 +45,7 @@ DIR = [None, "h", "v"]
 DIR_PENALTY = float(os.environ.get("MAZE_DIR_PENALTY", "2.0"))
 FIRST = ["USB_DP", "USB_DM", "/usb_can/CANH", "/usb_can/CANL", "CAN_TX", "CAN_RX",
          "/mcu/OSC_IN", "/mcu/OSC_OUT"]
-FONLY = {"USB_DP", "USB_DM"}  # stay on F.Cu, over the solid In1 plane
+FONLY = {n for n in os.environ.get("MAZE_FONLY", "USB_DP,USB_DM").split(",") if n}  # stay on F.Cu, over the solid In1 plane
 MIN_W = 0.2                   # track width for the stretch inside own pads
 mm = pcbnew.FromMM
 
