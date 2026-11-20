@@ -9,7 +9,7 @@ Every phase ends with a **review by Berten**. Only start the next phase after th
 | F2 | Pinout and mechanical constraints | ✅ Approved 2026-11-17 |
 | F3 | Schematic Nexus Tools Board | ✅ Approved 2026-11-17 |
 | F4 | Schematic Nexus Docks Board | ✅ Approved 2026-11-17 |
-| F5 | Layout Nexus Tools Board | 🔄 Step 2 (power + ground) in review |
+| F5 | Layout Nexus Tools Board | 🔍 Steps 1–3 approved (2026-11-20); step 4 (finishing) in review |
 | F6 | Layout Nexus Docks Board | 🔍 Step 1 (outline + placement) brought forward, in review |
 | F7 | Production files and JLC quote | ⏳ |
 | F8 | Firmware and Klipper configuration | 🔍 Klipper config + macros (`klipper/`) in review; firmware settings, hardware tests open |
@@ -131,6 +131,20 @@ Work in four steps, **each with a review**. Render after each step (`kicad-cli p
 2. **Power and ground:** polygons for +24V_IN, +24V_HEATER and the GND return on multiple layers, with via stitching. Trunk ≥ 7 mm per layer at 1 oz (≥ 3.5 mm at 2 oz), top + bottom. Thermal copper for the FETs (≥ 4 cm² per cutoff FET). The AGND–GND star point.
 3. **Routing:** critical signals by hand first (USB pair, CAN pair, crystal, thermistor traces, buck feedback), then the rest (Freerouting if need be, **never** for power nets).
 4. **Finishing:** silkscreen (board name **Nexus Tools Board** clearly legible on the top side, together with revision, date and license (AD-14); tool numbers, pin functions, polarity, solder jumper settings, a label at every diagnostic LED, warning at the fan rail jumper on the dock board), fiducials if needed, DRC = 0, 3D render.
+
+**Step 3 as done (2026-11-17 … 11-20).** Freerouting and a greedy maze router both stalled at 30–50 open connections: with about 1 mm around the MCU, its 50 pins could not fan out. Two changes closed it:
+- *Logic re-placement* (`scripts/pcbgen/toolboard_logic_replace.py`, variant `fan`): LDOs, MCU, crystal, SWD/buttons and gate buffer moved so the MCU has ≥ 3.6 mm free on every side; the approved buck layout is unchanged.
+- *Negotiated-congestion routing* (`scripts/pcbgen/negotiate.py`, PathFinder, A* kernel in `maze_core.c`): every round rips up and reroutes all nets; other nets' copper costs extra, contested cells get more expensive each round, until no two nets violate clearance.
+
+Pipeline: `toolboard_preroute.py` (heater channels) → `stitch.py` (GND/AGND vias) → `negotiate.py` (`NEG_ALL=1 NEG_ITER=80 NEG_PRES_MAX=20 NEG_HIST=1.0`, no escape lanes) → `cleanup.py` → `maze.py` for the USB pair (one via allowed: the USB-C DP/DM pads alternate) and the small +24V_IN/CUTOFF_SRC branches (sense, test points, LED). In1 carries no tracks. Result: 0 unconnected, 0 copper DRC errors. A layer change to 6 layers was rejected on cost (Berten, 2026-11-20).
+
+**Step 4 as done (2026-11-20).**
+- *Analog clearance:* `scripts/pcbgen/analog_check.py` measures how close thermistor/VREF/RAIL_SENSE traces run to switching nets (buck node, heater drains, gates, gate-buffer inputs), same layer and the coupled In2/B.Cu pair. The first routing had two parallel runs (THERM_T4/T7 next to GATE_T7_B on In2, 8–14 mm at 0.5–0.7 mm). The board was rerouted with `NEG_AVOID_MM=1.0` (analog and switching nets pay extra within 1 mm of each other on the same layer); what is left are 28 right-angle crossings and no parallel runs. Full routing: `scripts/pcbgen/toolboard_route.sh`.
+- *Ground pours* (`scripts/pcbgen/pours.py`): GND and AGND on F.Cu, In2 and B.Cu with the same split as the In1 plane, below the power zones. SMD pads solid (reflow), THT pads thermal reliefs (hand-soldered connectors), exposed-pad thermal vias solid.
+- *Silkscreen* (`scripts/pcbgen/toolboard_silk.py`): reference designators off the silkscreen (they stay on F.Fab; ~340 parts do not fit legibly); function labels instead: T0–T7 at every connector and heater LED, +24V / HEATER− at the screw terminals, filament pin functions (RUN GND VCC MOT), LED port, CAN, SWD, USB, 24V IN, RESET/BOOT, diagnostic LEDs, test points, PT1000 and filament-supply jumpers. Board name + revision/date on top; name, revision/date, CERN-OHL-S-2.0 and repo URL on the bottom (the top has no free area that large). Footprint silk crossing the board edge (overhanging connectors) is trimmed.
+- *XT60 polarity fix:* see open item 29.
+- *No fiducials:* JLC does not need them for single boards (they use the pads); add rails with fiducials only if a panel is ordered.
+- *DRC:* 0 errors, 0 unconnected, schematic parity OK. 12 warnings `lib_footprint_mismatch`, all intentional: the 12 edge connectors whose silk over the board edge was trimmed (J1, J3–J5, J7–J14). KiCad 10's `kicad-cli` did not accept them as exclusions.
 
 **Review F5:** renders of all layers + 3D view + DRC report.
 
